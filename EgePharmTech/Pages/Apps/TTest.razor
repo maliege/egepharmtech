@@ -1,0 +1,667 @@
+﻿@page "/ttest"
+<SiteTitle Text="t-Testi" />
+@rendermode InteractiveServer
+@using System.Text.Json
+@using Microsoft.JSInterop
+@using EgePharmTech.Middleware
+@using EgePharmTech.Components.UI
+@using EgePharmTech.Core.Statistics
+
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<section class="container-fluid p-4">
+    <ToastComponent @ref="_toast" />
+    <h5 class="mb-3 text-primary fw-bold"><i class="bi bi-calculator-fill me-2"></i>@L["T-Test Analizi"]</h5>
+
+    <div class="row">
+        <div class="col-lg-4 col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>@L["Veri Girişi"]</h5>
+                </div>
+                <div class="card-body p-2">
+                    <HandsontableGrid @ref="_hotData"
+                                      Data="_data"
+                                      Columns="_columns"
+                                      Height="400"
+                                      MinRows="30" />
+                    <small class="text-muted d-block mt-2 px-1">
+                        @L[_testType == TestType.Paired
+                            ? "Her satır bir eşi temsil eder; iki sütun da aynı satırda dolu olmalıdır."
+                            : "Grupların veri sayısı farklı olabilir; sütunlar birbirinden bağımsız okunur."]
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        @* Rehber, veri girişi kolonunun yanındaki boş alanda duruyor. Bu kolonda
+           varsayılan olarak AÇIK: amaç zaten boş kalan yeri değerlendirmek.
+           lg altındaki genişliklerde kolon alta iner. *@
+        <div class="col-lg-8">
+        @* Kullanım rehberi (TR/EN) ayrı bileşende: Components/Guides/TTestGuide.razor *@
+        <TTestGuide />
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-3">@L["Test Parametreleri"]</h5>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="testType" id="independent" value="independent" @onchange="() => _testType = TestType.Independent" checked="@(_testType == TestType.Independent)">
+                        <label class="form-check-label" for="independent">
+                            @if (Lang.IsEn)
+                            {
+                                <strong>Independent Samples t-Test</strong>
+                                <small class="d-block text-muted">Tests the difference between the means of two separate groups</small>
+                            }
+                            else
+                            {
+                                <strong>Bağımsız Örneklem T-Testi</strong><text> (Independent Samples T-Test)</text>
+                                <small class="d-block text-muted">İki farklı grup arasındaki ortalama farkını test eder</small>
+                            }
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="testType" id="paired" value="paired" @onchange="() => _testType = TestType.Paired" checked="@(_testType == TestType.Paired)">
+                        <label class="form-check-label" for="paired">
+                            @if (Lang.IsEn)
+                            {
+                                <strong>Paired Samples t-Test</strong>
+                                <small class="d-block text-muted">Tests the difference between two measurements of the same group</small>
+                            }
+                            else
+                            {
+                                <strong>Eşleştirilmiş Örneklem T-Testi</strong><text> (Paired Samples T-Test)</text>
+                                <small class="d-block text-muted">Aynı grubun iki farklı ölçümü arasındaki farkı test eder</small>
+                            }
+                        </label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>@L["Anlamlılık Düzeyi (α):"]</strong></label>
+                        <select class="form-select w-auto" @bind="_alpha">
+                            <option value="0.01">@L["0.01 (99% güven)"]</option>
+                            <option value="0.05">@L["0.05 (95% güven)"]</option>
+                            <option value="0.10">@L["0.10 (90% güven)"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary btn-lg" @onclick="CalculateTTestAsync">
+                        <i class="bi bi-play-fill me-2"></i>@L["Analizi Başlat"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_results != null)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header @(_results.IsSignificant ? "bg-danger" : "bg-info") text-white">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>@L["Analiz Sonuçları"]</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">@L["Tanımlayıcı İstatistikler"]</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th></th>
+                                    <th class="text-center">@L["Grup A"]</th>
+                                    <th class="text-center">@L["Grup B"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>@L["N (Örnek Sayısı)"]</strong></td>
+                                    <td class="text-center">@_results.NGroupA</td>
+                                    <td class="text-center">@_results.NGroupB</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@L["Ortalama (Mean)"]</strong></td>
+                                    <td class="text-center">@_results.MeanA.ToString("F4")</td>
+                                    <td class="text-center">@_results.MeanB.ToString("F4")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@L["Std. Sapma (SD)"]</strong></td>
+                                    <td class="text-center">@_results.StdDevA.ToString("F4")</td>
+                                    <td class="text-center">@_results.StdDevB.ToString("F4")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@L["Std. Hata (SE)"]</strong></td>
+                                    <td class="text-center">@_results.StdErrorA.ToString("F4")</td>
+                                    <td class="text-center">@_results.StdErrorB.ToString("F4")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">@L["Test İstatistikleri"]</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td><strong>@L["t değeri"]</strong></td>
+                                    <td class="text-end">@_results.TValue.ToString("F4")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@L["Serbestlik Derecesi (df)"]</strong></td>
+                                    <td class="text-end">@_results.DegreesOfFreedom</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@L["p-değeri (iki kuyruklu)"]</strong></td>
+                                    <td class="text-end">@_results.PValue.ToString("F6")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@L["Anlamlılık Düzeyi (α)"]</strong></td>
+                                    <td class="text-end">@_alpha.ToString("F2")</td>
+                                </tr>
+                                <tr class="@(_results.IsSignificant ? "table-danger" : "table-success")">
+                                    <td><strong>@L["Sonuç"]</strong></td>
+                                    <td class="text-end">
+                                        @if (_results.IsSignificant)
+                                        {
+                                            <span class="badge bg-danger">@L["İstatistiksel olarak anlamlı fark VAR"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">@L["İstatistiksel olarak anlamlı fark YOK"]</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        @if (_testType == TestType.Independent)
+                        {
+                            <div class="alert alert-info mt-3">
+                                <small>
+                                    <strong>@L["Levene Varyans Homojenliği Testi:"]</strong><br />
+                                    F = @_results.LeveneF.ToString("F4"), p = @_results.LeveneP.ToString("F4")<br />
+                                    @if (_results.LeveneP > 0.05)
+                                    {
+                                        <span class="text-success">@L["✓ Varyanslar homojen (eşit varyans varsayımı sağlanıyor)"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-warning">@L["⚠ Varyanslar heterojen (Welch düzeltmesi uygulandı)"]</span>
+                                    }
+                                </small>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-primary mb-3">
+                            @if (Lang.IsEn)
+                            {
+                                <text>Confidence Interval (@((1-_alpha)*100)%)</text>
+                            }
+                            else
+                            {
+                                <text>Güven Aralığı (%@((1-_alpha)*100))</text>
+                            }
+                        </h6>
+                        <p class="mb-2">
+                            <strong>@L["Ortalamalar Farkı:"]</strong> @_results.MeanDifference.ToString("F4")
+                        </p>
+                        <p class="mb-2">
+                            <strong>@((1-_alpha)*100)% @L["Güven Aralığı"]:</strong>
+                            [@_results.ConfidenceIntervalLower.ToString("F4"), @_results.ConfidenceIntervalUpper.ToString("F4")]
+                        </p>
+                        <p class="text-muted">
+                            <small>
+                                @if (_results.IsSignificant)
+                                {
+                                    <span>
+                                        @if (Lang.IsEn)
+                                        {
+                                            <text>Since p &lt; α, the null hypothesis H₀ is rejected. There is a statistically significant difference between the groups.</text>
+                                        }
+                                        else
+                                        {
+                                            <text>p &lt; α olduğu için H₀ hipotezi reddedilir. Gruplar arasında istatistiksel olarak anlamlı fark vardır.</text>
+                                        }
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        @if (Lang.IsEn)
+                                        {
+                                            <text>Since p ≥ α, the null hypothesis H₀ cannot be rejected. There is no statistically significant difference between the groups.</text>
+                                        }
+                                        else
+                                        {
+                                            <text>p ≥ α olduğu için H₀ hipotezi reddedilemez. Gruplar arasında istatistiksel olarak anlamlı fark yoktur.</text>
+                                        }
+                                    </span>
+                                }
+                            </small>
+                        </p>
+                    </div>
+                </div>
+
+                @if (_testType == TestType.Independent)
+                {
+                    <div class="alert alert-secondary mt-3">
+                        <h6>@L["Cohen's d (Etki Büyüklüğü)"]</h6>
+                        <p class="mb-1"><strong>d = @_results.CohenD.ToString("F4")</strong></p>
+                        <small class="text-muted">
+                            @if (Math.Abs(_results.CohenD) < 0.2)
+                            {
+                                <span>@L["Çok küçük etki"]</span>
+                            }
+                            else if (Math.Abs(_results.CohenD) < 0.5)
+                            {
+                                <span>@L["Küçük etki"]</span>
+                            }
+                            else if (Math.Abs(_results.CohenD) < 0.8)
+                            {
+                                <span>@L["Orta büyüklükte etki"]</span>
+                            }
+                            else
+                            {
+                                <span>@L["Büyük etki"]</span>
+                            }
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    private HandsontableGrid? _hotData;
+    private ToastComponent? _toast;
+
+    private object?[][] _data = new object?[30][];
+
+    private TestType _testType = TestType.Independent;
+    private double _alpha = 0.05;
+    private TTestResults? _results;
+
+    private enum TestType { Independent, Paired }
+
+    // Sütun başlıkları arayüz dilinden gelir; L enjeksiyonu alan başlatıcısından sonra
+    // geldiği için liste OnInitialized'da kurulur.
+    private List<HandsontableGrid.ColumnConfig> _columns = [];
+
+    protected override void OnInitialized()
+    {
+        string T(string key) => L[key].Value;
+        _columns =
+        [
+            new() { Title = T("Grup A"), Data = "GroupA", Type = "numeric", Width = 90, NumericFormat = "0.####" },
+            new() { Title = T("Grup B"), Data = "GroupB", Type = "numeric", Width = 90, NumericFormat = "0.####" }
+        ];
+
+        for (int i = 0; i < 30; i++)
+        {
+            _data[i] = new object?[2];
+        }
+    }
+
+    private async Task CalculateTTestAsync()
+    {
+        if (_hotData == null)
+        {
+            _toast?.ShowFailed(L["Grid yüklenemedi."].Value);
+            return;
+        }
+
+        var table = ConvertJsonToArray(await _hotData.GetDataAsync());
+
+        List<double> groupA;
+        List<double> groupB;
+
+        if (_testType == TestType.Paired)
+        {
+            // Eşi belirleyen şey satırdır; okuma mantığı EgePharmTech.Core'da test altında.
+            var paired = TTestInputReader.ReadPaired(table);
+
+            if (paired.UnpairedRowNumbers.Count > 0)
+            {
+                var liste = string.Join(", ", paired.UnpairedRowNumbers.Take(5));
+                if (paired.UnpairedRowNumbers.Count > 5) liste += " …";
+                _toast?.ShowFailed($"{L["Eşleştirilmiş testte her satırda iki değer de dolu olmalıdır. Tek tarafı dolu satır(lar):"].Value} {liste}");
+                return;
+            }
+
+            groupA = paired.GroupA.ToList();
+            groupB = paired.GroupB.ToList();
+        }
+        else
+        {
+            // Bağımsız testte gruplar birbirinden bağımsızdır; n farklı olabilir.
+            groupA = TTestInputReader.ReadColumn(table, 0);
+            groupB = TTestInputReader.ReadColumn(table, 1);
+        }
+
+        if (groupA.Count < 2 || groupB.Count < 2)
+        {
+            _toast?.ShowFailed(L["Her iki grupta da en az 2 veri olmalıdır."].Value);
+            return;
+        }
+
+        try
+        {
+            _results = _testType == TestType.Independent
+                ? CalculateIndependentTTest(groupA, groupB, _alpha)
+                : CalculatePairedTTest(groupA, groupB, _alpha);
+
+            _toast?.ShowSuccess(L["Analiz tamamlandı."].Value);
+        }
+        catch (Exception ex)
+        {
+            _toast?.ShowFailed($"{L["Hata:"].Value} {ex.Message}");
+        }
+    }
+
+    private static object?[][] ConvertJsonToArray(object? data)
+    {
+        if (data is null) return Array.Empty<object?[]>();
+
+        if (data is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
+        {
+            var rows = new List<object?[]>();
+            foreach (var row in jsonElement.EnumerateArray())
+            {
+                if (row.ValueKind == JsonValueKind.Array)
+                {
+                    var cells = new List<object?>();
+                    foreach (var cell in row.EnumerateArray())
+                    {
+                        cells.Add(cell.ValueKind switch
+                        {
+                            JsonValueKind.Number => cell.GetDouble(),
+                            JsonValueKind.String => cell.GetString(),
+                            JsonValueKind.Null => null,
+                            _ => cell.ToString()
+                        });
+                    }
+                    rows.Add(cells.ToArray());
+                }
+            }
+            return rows.ToArray();
+        }
+
+        return Array.Empty<object?[]>();
+    }
+
+    private static TTestResults CalculateIndependentTTest(List<double> groupA, List<double> groupB, double alpha)
+    {
+        var nA = groupA.Count;
+        var nB = groupB.Count;
+
+        var meanA = groupA.Average();
+        var meanB = groupB.Average();
+
+        var varA = groupA.Sum(x => Math.Pow(x - meanA, 2)) / (nA - 1);
+        var varB = groupB.Sum(x => Math.Pow(x - meanB, 2)) / (nB - 1);
+
+        var stdDevA = Math.Sqrt(varA);
+        var stdDevB = Math.Sqrt(varB);
+
+        var stdErrorA = stdDevA / Math.Sqrt(nA);
+        var stdErrorB = stdDevB / Math.Sqrt(nB);
+
+        // Levene's test for equality of variances
+        var (leveneF, leveneP) = LevenesTest(groupA, groupB);
+
+        double tValue, df, pooledStdError;
+        bool useWelch = leveneP < 0.05;
+
+        if (useWelch)
+        {
+            // Welch's t-test (unequal variances)
+            pooledStdError = Math.Sqrt((varA / nA) + (varB / nB));
+            tValue = (meanA - meanB) / pooledStdError;
+            df = Math.Pow((varA / nA) + (varB / nB), 2) /
+                 ((Math.Pow(varA / nA, 2) / (nA - 1)) + (Math.Pow(varB / nB, 2) / (nB - 1)));
+        }
+        else
+        {
+            // Student's t-test (equal variances)
+            var pooledVar = ((nA - 1) * varA + (nB - 1) * varB) / (nA + nB - 2);
+            pooledStdError = Math.Sqrt(pooledVar * (1.0 / nA + 1.0 / nB));
+            tValue = (meanA - meanB) / pooledStdError;
+            df = nA + nB - 2;
+        }
+
+        var pValue = 2 * (1 - StudentTCDF(Math.Abs(tValue), df));
+        var tCritical = TDistributionInverse(1 - alpha / 2, df);
+        var marginOfError = tCritical * pooledStdError;
+
+        var cohenD = (meanA - meanB) / Math.Sqrt(((nA - 1) * varA + (nB - 1) * varB) / (nA + nB - 2));
+
+        return new TTestResults
+            {
+                NGroupA = nA,
+                NGroupB = nB,
+                MeanA = meanA,
+                MeanB = meanB,
+                StdDevA = stdDevA,
+                StdDevB = stdDevB,
+                StdErrorA = stdErrorA,
+                StdErrorB = stdErrorB,
+                TValue = tValue,
+                DegreesOfFreedom = (int)Math.Round(df),
+                PValue = pValue,
+                IsSignificant = pValue < alpha,
+                MeanDifference = meanA - meanB,
+                ConfidenceIntervalLower = (meanA - meanB) - marginOfError,
+                ConfidenceIntervalUpper = (meanA - meanB) + marginOfError,
+                CohenD = cohenD,
+                LeveneF = leveneF,
+                LeveneP = leveneP
+            };
+    }
+
+    private static TTestResults CalculatePairedTTest(List<double> groupA, List<double> groupB, double alpha)
+    {
+        var n = groupA.Count;
+        var differences = groupA.Zip(groupB, (a, b) => a - b).ToList();
+
+        var meanDiff = differences.Average();
+        var stdDevDiff = Math.Sqrt(differences.Sum(d => Math.Pow(d - meanDiff, 2)) / (n - 1));
+        var stdErrorDiff = stdDevDiff / Math.Sqrt(n);
+
+        var tValue = meanDiff / stdErrorDiff;
+        var df = n - 1;
+        var pValue = 2 * (1 - StudentTCDF(Math.Abs(tValue), df));
+
+        var tCritical = TDistributionInverse(1 - alpha / 2, df);
+        var marginOfError = tCritical * stdErrorDiff;
+
+        var meanA = groupA.Average();
+        var meanB = groupB.Average();
+        var stdDevA = Math.Sqrt(groupA.Sum(x => Math.Pow(x - meanA, 2)) / (n - 1));
+        var stdDevB = Math.Sqrt(groupB.Sum(x => Math.Pow(x - meanB, 2)) / (n - 1));
+
+        return new TTestResults
+            {
+                NGroupA = n,
+                NGroupB = n,
+                MeanA = meanA,
+                MeanB = meanB,
+                StdDevA = stdDevA,
+                StdDevB = stdDevB,
+                StdErrorA = stdDevA / Math.Sqrt(n),
+                StdErrorB = stdDevB / Math.Sqrt(n),
+                TValue = tValue,
+                DegreesOfFreedom = df,
+                PValue = pValue,
+                IsSignificant = pValue < alpha,
+                MeanDifference = meanDiff,
+                ConfidenceIntervalLower = meanDiff - marginOfError,
+                ConfidenceIntervalUpper = meanDiff + marginOfError,
+                CohenD = 0,
+                LeveneF = 0,
+                LeveneP = 1
+            };
+    }
+
+    private static (double f, double p) LevenesTest(List<double> groupA, List<double> groupB)
+    {
+        var meanA = groupA.Average();
+        var meanB = groupB.Average();
+
+        var deviationsA = groupA.Select(x => Math.Abs(x - meanA)).ToList();
+        var deviationsB = groupB.Select(x => Math.Abs(x - meanB)).ToList();
+
+        var meanDevA = deviationsA.Average();
+        var meanDevB = deviationsB.Average();
+        var grandMean = (deviationsA.Sum() + deviationsB.Sum()) / (groupA.Count + groupB.Count);
+
+        var nA = groupA.Count;
+        var nB = groupB.Count;
+        var n = nA + nB;
+
+        var ssBetween = nA * Math.Pow(meanDevA - grandMean, 2) + nB * Math.Pow(meanDevB - grandMean, 2);
+        var ssWithin = deviationsA.Sum(d => Math.Pow(d - meanDevA, 2)) + deviationsB.Sum(d => Math.Pow(d - meanDevB, 2));
+
+        var dfBetween = 1;
+        var dfWithin = n - 2;
+
+        var msBetween = ssBetween / dfBetween;
+        var msWithin = ssWithin / dfWithin;
+
+        var f = msBetween / msWithin;
+        var p = 1 - FCumulativeDistribution(f, dfBetween, dfWithin);
+
+        return (f, p);
+    }
+
+    private static double StudentTCDF(double t, double df)
+    {
+        var x = df / (df + t * t);
+        return 1 - 0.5 * IncompleteBeta(x, df / 2, 0.5);
+    }
+
+    private static double TDistributionInverse(double p, double df)
+    {
+        var epsilon = 1e-10;
+        var t = 0.0;
+        var step = 5.0;
+
+        while (step > epsilon)
+        {
+            if (StudentTCDF(t, df) < p)
+                t += step;
+            else
+                t -= step;
+
+            step /= 2;
+        }
+
+        return t;
+    }
+
+    private static double IncompleteBeta(double x, double a, double b)
+    {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+
+        var bt = Math.Exp(LogGamma(a + b) - LogGamma(a) - LogGamma(b) + a * Math.Log(x) + b * Math.Log(1 - x));
+
+        if (x < (a + 1) / (a + b + 2))
+            return bt * BetaContinuedFraction(x, a, b) / a;
+        else
+            return 1 - bt * BetaContinuedFraction(1 - x, b, a) / b;
+    }
+
+    private static double BetaContinuedFraction(double x, double a, double b)
+    {
+        const int maxIterations = 100;
+        const double epsilon = 3e-7;
+
+        var qab = a + b;
+        var qap = a + 1;
+        var qam = a - 1;
+        var c = 1.0;
+        var d = 1 - qab * x / qap;
+
+        if (Math.Abs(d) < 1e-30) d = 1e-30;
+        d = 1 / d;
+        var h = d;
+
+        for (int m = 1; m <= maxIterations; m++)
+        {
+            var m2 = 2 * m;
+            var aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+            d = 1 + aa * d;
+            if (Math.Abs(d) < 1e-30) d = 1e-30;
+            c = 1 + aa / c;
+            if (Math.Abs(c) < 1e-30) c = 1e-30;
+            d = 1 / d;
+            h *= d * c;
+
+            aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+            d = 1 + aa * d;
+            if (Math.Abs(d) < 1e-30) d = 1e-30;
+            c = 1 + aa / c;
+            if (Math.Abs(c) < 1e-30) c = 1e-30;
+            d = 1 / d;
+            var del = d * c;
+            h *= del;
+
+            if (Math.Abs(del - 1) < epsilon) break;
+        }
+
+        return h;
+    }
+
+    private static double LogGamma(double x)
+    {
+        double[] cof = { 76.18009172947146, -86.50532032941677, 24.01409824083091,
+                         -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5 };
+
+        var y = x;
+        var tmp = x + 5.5;
+        tmp -= (x + 0.5) * Math.Log(tmp);
+        var ser = 1.000000000190015;
+
+        for (int j = 0; j < 6; j++)
+            ser += cof[j] / ++y;
+
+        return -tmp + Math.Log(2.5066282746310005 * ser / x);
+    }
+
+    private static double FCumulativeDistribution(double f, double df1, double df2)
+    {
+        var x = df2 / (df2 + df1 * f);
+        return 1 - IncompleteBeta(x, df2 / 2, df1 / 2);
+    }
+
+    private class TTestResults
+    {
+        public int NGroupA { get; init; }
+        public int NGroupB { get; init; }
+        public double MeanA { get; init; }
+        public double MeanB { get; init; }
+        public double StdDevA { get; init; }
+        public double StdDevB { get; init; }
+        public double StdErrorA { get; init; }
+        public double StdErrorB { get; init; }
+        public double TValue { get; init; }
+        public int DegreesOfFreedom { get; init; }
+        public double PValue { get; init; }
+        public bool IsSignificant { get; init; }
+        public double MeanDifference { get; init; }
+        public double ConfidenceIntervalLower { get; init; }
+        public double ConfidenceIntervalUpper { get; init; }
+        public double CohenD { get; init; }
+        public double LeveneF { get; init; }
+        public double LeveneP { get; init; }
+    }
+}

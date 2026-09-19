@@ -1,0 +1,173 @@
+@* F1/F2 sayfasının kullanım rehberi akordiyonu. TTest sayfasındaki ile aynı kalıp: varsayılan kapalı.
+   Metin uygulamanın gerçekte yaptığıyla hizalı tutulmalı; özellikle %85 kesme kuralının
+   "R>=85 VEYA P>=85" olması ve 12-tekrar seçeneğinin satırları sessizce elemesi. Uzun paragraflar
+   resx anahtarı yapılmaz; Türkçe ve İngilizce blok yan yana durur, ikisi birlikte güncellenir. *@
+<div class="accordion mt-3 mb-4" id="f1f2Rehber">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button"
+              data-bs-toggle="collapse" data-bs-target="#f1f2RehberGovde"
+              aria-expanded="false" aria-controls="f1f2RehberGovde">
+        <i class="bi bi-info-circle me-2"></i>
+        @if (Lang.IsEn)
+        {
+          <text>Use in pharmaceutical technology, prerequisites and limitations</text>
+        }
+        else
+        {
+          <text>Farmasötik teknolojide kullanımı, ön şartlar ve kısıtlar</text>
+        }
+      </button>
+    </h2>
+    <div id="f1f2RehberGovde" class="accordion-collapse collapse" data-bs-parent="#f1f2Rehber">
+      <div class="accordion-body">
+      @if (Lang.IsEn)
+      {
+        <h6 class="text-primary">What is calculated?</h6>
+        <p class="small text-muted mb-1">
+          Two dissolution profiles are compared point by point. With R the mean percentage dissolved
+          of the reference and T that of the test product at a given time:
+        </p>
+        <ul class="small text-muted">
+          <li><strong>f1 (difference factor)</strong> = 100 · Σ|R−T| / ΣR — the mean relative
+              difference between the profiles. The closer to zero, the more the profiles overlap.</li>
+          <li><strong>f2 (similarity factor)</strong> = 50 · log₁₀(100 / √(1 + Σ(R−T)²/n))
+              — equals 100 for identical profiles.</li>
+        </ul>
+        <p class="small text-muted">
+          The commonly accepted criteria are <strong>f2 ≥ 50</strong> and <strong>f1 ≤ 15</strong>.
+          f2 = 50 corresponds to an average difference of 10 % between the profiles.
+        </p>
+
+        <h6 class="text-primary mt-3">Where is it used in pharmaceutical technology?</h6>
+        <ul class="small text-muted">
+          <li>Comparison of a generic product's dissolution profile with that of the reference product</li>
+          <li>After a change in formulation or process (components, manufacturing site, equipment,
+              scale-up), comparison with the pre-change profile</li>
+          <li>Demonstration of profile similarity in different dissolution media (e.g. pH 1.2 / 4.5 /
+              6.8)</li>
+          <li>Comparison of the end-of-shelf-life profile with the initial profile</li>
+          <li>Profile similarity between different dosage strengths of the same formulation</li>
+        </ul>
+
+        <h6 class="text-primary mt-3">Prerequisites</h6>
+        <div class="alert alert-warning small py-2">
+          <strong>The application checks these conditions but does not enforce them.</strong> f1 and f2
+          are calculated even when the conditions are not met; violations are listed in the
+          <em>"Points to note"</em> box at the top of the report. It is up to the user to decide
+          whether the result is usable.
+        </div>
+        <ul class="small text-muted">
+          <li><strong>At least 12 units</strong> per profile.</li>
+          <li><strong>The same time points</strong> and the same conditions (medium, apparatus,
+              agitation speed, temperature) for both products.</li>
+          <li><strong>Only a single point should be taken after 85 % has been exceeded.</strong>
+              The <em>85 % cut-off rule</em> option on the page applies this: it stops at the first
+              time point at which either the reference <em>or</em> the test product reaches 85 % and
+              includes that point in the calculation.</li>
+          <li><strong>At least 3 time points</strong> should remain after the cut-off; an f2 calculated
+              with fewer is not meaningful. The application warns when fewer points are used.</li>
+          <li><strong>Variability limits:</strong> RSD ≤ 20 % at the first time point, ≤ 10 % at
+              subsequent points. The RSD column in the grid shows the value; if a limit is exceeded,
+              the report produced after the calculation states this together with the time point.</li>
+          <li>If both products <strong>exceed 85 % within 15 minutes</strong>, no profile comparison
+              is needed; the profiles are considered similar.</li>
+        </ul>
+
+        <h6 class="text-primary mt-3">Limitations</h6>
+        <ul class="small text-muted">
+          <li><strong>f2 is a point estimate without a confidence interval.</strong> It is a regulatory
+              acceptance criterion, not a test of statistical significance. When the variability limits
+              cannot be met, the guidelines recommend bootstrap f2; this application does not provide it.</li>
+          <li><strong>It is sensitive to the choice of time points.</strong> f2 changes with the number
+              and spacing of the points. The points should therefore be defined before the study, not
+              chosen with the result in view.</li>
+          <li><strong>It measures the point-by-point difference, not the shape of the profile.</strong>
+              Two curves of different shape may come out similar as long as their differences stay small.</li>
+          <li><strong>Only mean profiles are compared;</strong> between-unit variability does not enter
+              f2. This is why the RSD prerequisite matters.</li>
+          <li><strong>With the "12 replicates required" option enabled</strong>, time points that do not
+              have exactly 12 replicates are excluded from the analysis. The excluded points are listed
+              in the report; it is still worth checking the reported n.</li>
+          <li><strong>Time points whose mean reaches 100 % are also excluded.</strong>
+              In a profile that reaches complete dissolution the plateau points drop out for this
+              reason; the report states this too.</li>
+        </ul>
+      }
+      else
+      {
+        <h6 class="text-primary">Ne hesaplanıyor?</h6>
+        <p class="small text-muted mb-1">
+          İki çözünme profili nokta nokta karşılaştırılır. R referans, T test ürününün
+          o zamandaki ortalama çözünme yüzdesi olmak üzere:
+        </p>
+        <ul class="small text-muted">
+          <li><strong>f1 (fark faktörü)</strong> = 100 · Σ|R−T| / ΣR — profiller arasındaki
+              ortalama göreli fark. Sıfıra yaklaştıkça profiller örtüşür.</li>
+          <li><strong>f2 (benzerlik faktörü)</strong> = 50 · log₁₀(100 / √(1 + Σ(R−T)²/n))
+              — birebir aynı profillerde 100 olur.</li>
+        </ul>
+        <p class="small text-muted">
+          Yaygın kabul ölçütü <strong>f2 ≥ 50</strong> ve <strong>f1 ≤ 15</strong>'tir.
+          f2 = 50, profiller arasında ortalama %10'luk bir farka karşılık gelir.
+        </p>
+
+        <h6 class="text-primary mt-3">Farmasötik teknolojide nerede kullanılır?</h6>
+        <ul class="small text-muted">
+          <li>Jenerik ürünün referans ürünle çözünme profili karşılaştırması</li>
+          <li>Formülasyon veya süreçte değişiklik sonrası (bileşen, üretim yeri, ekipman,
+              ölçek büyütme) değişiklik öncesi profille karşılaştırma</li>
+          <li>Farklı çözünme ortamlarında (ör. pH 1,2 / 4,5 / 6,8) profil benzerliğinin
+              gösterilmesi</li>
+          <li>Stabilite süresi sonundaki profilin başlangıç profiliyle karşılaştırılması</li>
+          <li>Aynı formülasyonun farklı dozaj güçleri arasında profil benzerliği</li>
+        </ul>
+
+        <h6 class="text-primary mt-3">Ön şartlar</h6>
+        <div class="alert alert-warning small py-2">
+          <strong>Uygulama bu koşulları denetler ama zorunlu tutmaz.</strong> Koşullar
+          sağlanmasa da f1 ve f2 hesaplanır; ihlaller raporun başındaki
+          <em>"Dikkat edilmesi gerekenler"</em> kutusunda listelenir. Sonucun
+          kullanılabilir olup olmadığına karar vermek kullanıcıya aittir.
+        </div>
+        <ul class="small text-muted">
+          <li>Her profil için <strong>en az 12 birim</strong>.</li>
+          <li>İki üründe de <strong>aynı zaman noktaları</strong> ve aynı koşullar
+              (ortam, cihaz, karıştırma hızı, sıcaklık).</li>
+          <li><strong>%85'i geçtikten sonra yalnızca tek bir nokta</strong> alınmalıdır.
+              Sayfadaki <em>%85 kesme kuralı</em> seçeneği bunu uygular: referans <em>veya</em>
+              test ürününden biri %85'e ulaştığı ilk zaman noktasında durur ve o noktayı
+              hesaba dahil eder.</li>
+          <li>Kesme sonrası <strong>en az 3 zaman noktası</strong> kalmalıdır; daha azıyla
+              hesaplanan f2 anlamlı değildir. Uygulama daha az noktayla hesaplandığında uyarır.</li>
+          <li><strong>Dağılım sınırları:</strong> ilk zaman noktasında RSD ≤ %20, sonraki
+              noktalarda ≤ %10. Izgaradaki RSD sütunu değeri gösterir; sınır aşılırsa
+              hesap sonrası rapor bunu zaman noktasıyla birlikte bildirir.</li>
+          <li>Her iki ürün de <strong>15 dakikada %85'i aşıyorsa</strong> profil
+              karşılaştırmasına gerek yoktur; profiller benzer kabul edilir.</li>
+        </ul>
+
+        <h6 class="text-primary mt-3">Kısıtlar</h6>
+        <ul class="small text-muted">
+          <li><strong>f2 bir nokta tahminidir, güven aralığı yoktur.</strong> İstatistiksel
+              bir anlamlılık testi değil, mevzuat kabul ölçütüdür. Dağılım sınırları
+              sağlanamadığında kılavuzlar bootstrap f2 önerir; bu uygulamada yoktur.</li>
+          <li><strong>Zaman noktası seçimine duyarlıdır.</strong> Nokta sayısı ve dağılımı
+              değiştikçe f2 değişir. Bu yüzden noktalar çalışma öncesinde tanımlanmalı,
+              sonuca bakılarak seçilmemelidir.</li>
+          <li><strong>Profilin şeklini değil, nokta nokta farkı ölçer.</strong> Farklı
+              şekilli iki eğri, farkları küçük kaldığı sürece benzer çıkabilir.</li>
+          <li><strong>Yalnızca ortalama profiller karşılaştırılır;</strong> birimler arası
+              değişkenlik f2'ye girmez. Bu yüzden RSD ön şartı önemlidir.</li>
+          <li><strong>"12 tekrar zorunlu" seçeneği açıkken</strong>, tam olarak 12 tekrarı
+              bulunmayan zaman noktaları analiz dışı bırakılır. Hangi noktaların düştüğü
+              raporda listelenir; yine de hesaplanan n değerini kontrol etmek iyi olur.</li>
+          <li><strong>Ortalaması %100'e ulaşan zaman noktaları da analiz dışı kalır.</strong>
+              Tam çözünmeye ulaşan bir profilde plato noktaları bu nedenle düşer; rapor bunu
+              da bildirir.</li>
+        </ul>
+      }
+      </div>
+    </div>
+  </div>
+</div>

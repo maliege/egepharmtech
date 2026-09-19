@@ -1,0 +1,252 @@
+/* Rehber sayfalarının (Kinetik Analiz, Üçgen Faz Diyagramı) ortak makale düzeni.
+   Önceden her sayfanın kendi .razor.css'inde aynı kurallar vardı; İngilizce sürümler ayrı bileşen
+   olarak eklendiğinde kapsamlı (scoped) CSS alt bileşene inmediği için ortak dosyaya taşındı.
+   Okunacak metin olduğu için ölçü dar (860px) tutuluyor. */
+
+.rehber {
+    max-width: 860px;
+    /* site.css'teki section { margin-top: 70px } kuralıyla aynı üst boşluk;
+       article etiketi o kurala girmediği için burada açıkça veriliyor. */
+    margin: 70px auto 0;
+    padding: 24px 20px 48px;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+/* ---- Başlık ---- */
+.rehber-bas {
+    padding-bottom: 20px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.rehber-ustbaslik {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent-primary);
+}
+
+.rehber-bas h1 {
+    font-size: 1.85rem;
+    line-height: 1.25;
+    margin: 0 0 12px;
+}
+
+.rehber-ozet {
+    font-size: 1.02rem;
+    color: var(--text-secondary);
+    margin: 0 0 16px;
+}
+
+.rehber-icindekiler {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+}
+
+    .rehber-icindekiler a {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border: 1px solid var(--border-light);
+        border-radius: 999px;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: border-color var(--transition-fast), color var(--transition-fast);
+    }
+
+        .rehber-icindekiler a:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+/* ---- Bölümler ---- */
+.rehber section {
+    /* Sabit navbar başlığı örtmesin diye bağlantı hedefi navbar yüksekliği kadar aşağı kayar */
+    scroll-margin-top: 80px;
+    margin-top: 28px;
+    /* site.css'teki genel section kartı (70% genişlik, kenarlık, zemin) burada geçersiz: sütun zaten .rehber */
+    width: 100%;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+}
+
+.rehber h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: var(--text-primary);
+}
+
+.rehber p,
+.rehber li {
+    font-size: 0.97rem;
+    color: var(--text-secondary);
+}
+
+.rehber p {
+    margin: 0 0 14px;
+}
+
+.rehber strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.rehber ul,
+.rehber ol {
+    padding-left: 1.4rem;
+    margin: 0 0 14px;
+}
+
+    .rehber ul li,
+    .rehber ol li {
+        margin-bottom: 6px;
+    }
+
+/* ---- Tablo ---- */
+.rehber-tablo-sarmal {
+    overflow-x: auto;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+}
+
+.rehber-tablo {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+    .rehber-tablo caption {
+        caption-side: bottom;
+        padding: 10px 14px 12px;
+        text-align: left;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    .rehber-tablo th,
+    .rehber-tablo td {
+        padding: 10px 14px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid var(--border-light);
+        color: var(--text-secondary);
+    }
+
+    .rehber-tablo thead th {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .rehber-tablo tbody th {
+        color: var(--text-primary);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .rehber-tablo tbody tr:last-child th,
+    .rehber-tablo tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+/* ---- "Bu sitedeki uygulama" kutusu ---- */
+.rehber-uygulama {
+    padding: 20px 24px;
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-xl);
+    background: var(--accent-primary-lighter);
+}
+
+    .rehber-uygulama h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent-primary-contrast);
+    }
+
+    .rehber-uygulama p,
+    .rehber-uygulama li {
+        color: var(--accent-primary-contrast);
+    }
+
+    .rehber-uygulama strong {
+        color: var(--accent-primary-contrast);
+    }
+
+    .rehber-uygulama ul {
+        margin-bottom: 0;
+    }
+
+/* ---- Kaynaklar ---- */
+.rehber-kaynaklar ol li {
+    font-size: 0.88rem;
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;   /* uzun DOI bağlantıları dar ekranda taşmasın */
+}
+
+
+/* ---- Alt ---- */
+.rehber-alt {
+    margin-top: 32px;
+}
+
+.rehber-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .rehber-cta:hover {
+        color: var(--text-inverse);
+        background: linear-gradient(135deg, var(--accent-primary-dark), var(--accent-primary-darker));
+    }
+
+@media (max-width: 768px) {
+    .rehber {
+        padding: 16px 14px 36px;
+    }
+
+    .rehber-bas h1 {
+        font-size: 1.45rem;
+    }
+}
+
+/* Sürüm satırı ve sürüm geçmişi */
+.rehber-surum {
+    margin: -0.5rem 0 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #64748b);
+}
+
+.rehber-surum-gecmisi ul {
+    padding-left: 1.2rem;
+}
+
+.rehber-formul {
+    font-family: "Cambria Math", "STIX Two Math", Georgia, serif;
+    font-size: 1.05rem;
+    text-align: center;
+    margin: 0.75rem 0 1rem;
+    overflow-x: auto;
+}

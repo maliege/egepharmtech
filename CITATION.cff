@@ -1,0 +1,93 @@
+# Bu dosya GitHub'ın "Cite this repository" kutusunu ve Zenodo arşiv üst verisini besler.
+# Sürüm ve tarih her yayın etiketinde (vX.Y.Z) güncellenmeli. ORCID eklenmesi önerilir:
+#   orcid: "https://orcid.org/0000-0000-0000-0000"
+cff-version: 1.2.0
+message: "Bu yazılımı kullanırsanız lütfen aşağıdaki gibi atıf yapın. / If you use this software, please cite it as below."
+type: software
+title: "EgePharmTech: open computational tools for pharmaceutical technology"
+abstract: >-
+  Open-source web application and .NET library for pharmaceutical technology computations:
+  a dissolution-kinetics engine (16 release models, nonlinear least squares in the F(%) domain,
+  AIC/AICc/MSC ranking and Akaike weights, Korsmeyer–Peppas F<=60% rule, Hopfenberg geometry
+  exponents incl. Karasulu half-sphere and triangle; results compared with DDSolver 1.0 outputs),
+  a pseudo-ternary phase-diagram tool with polygon area and centroid calculation (in use since
+  2001), f1/f2 similarity factors, dose–response (LD50) and t-test utilities, plus detailed
+  bilingual (Turkish/English) guides with verified references. Sites: https://egepharmtech.com (English),
+  https://egepharmtech.tr (Turkish).
+authors:
+  - family-names: Ege
+    given-names: Mehmet Ali
+    affiliation: "Ege Üniversitesi Eczacılık Fakültesi, Farmasötik Teknoloji Anabilim Dalı, İzmir, Türkiye"
+    email: mali.ege@rxmediapharma.com.tr
+repository-code: "https://github.com/maliege/egepharmtech"
+url: "https://egepharmtech.com"
+license: MIT
+version: 1.0.0
+date-released: 2026-09-20
+keywords:
+  - dissolution kinetics
+  - drug release modelling
+  - Korsmeyer-Peppas
+  - Weibull
+  - Akaike information criterion
+  - pseudo-ternary phase diagram
+  - microemulsion
+  - similarity factor f2
+  - pharmaceutical technology
+  - Blazor
+  - .NET
+references:
+  - type: article
+    title: "DDSolver: An add-in program for modeling and comparison of drug dissolution profiles"
+    authors:
+      - family-names: Zhang
+        given-names: Yong
+      - family-names: Huo
+        given-names: Meirong
+      - family-names: Zhou
+        given-names: Jianping
+      - family-names: Zou
+        given-names: Aifeng
+      - family-names: Li
+        given-names: Weize
+      - family-names: Yao
+        given-names: Chengli
+      - family-names: Xie
+        given-names: Shaofei
+    journal: "The AAPS Journal"
+    volume: 12
+    issue: 3
+    start: 263
+    end: 271
+    year: 2010
+    doi: 10.1208/s12248-010-9185-1
+  - type: article
+    title: "Modeling and comparison of dissolution profiles"
+    authors:
+      - family-names: Costa
+        given-names: Paulo
+      - family-names: Sousa Lobo
+        given-names: José Manuel
+    journal: "European Journal of Pharmaceutical Sciences"
+    volume: 13
+    issue: 2
+    start: 123
+    end: 133
+    year: 2001
+    doi: 10.1016/S0928-0987(01)00095-1
+  - type: article
+    title: "Modeling of theophylline release from different geometrical erodible tablets"
+    authors:
+      - family-names: Karasulu
+        given-names: H. Yeşim
+      - family-names: Ertan
+        given-names: Gökhan
+      - family-names: Köse
+        given-names: Timur
+    journal: "European Journal of Pharmaceutics and Biopharmaceutics"
+    volume: 49
+    issue: 2
+    start: 177
+    end: 182
+    year: 2000
+    doi: 10.1016/S0939-6411(99)00082-X

@@ -1,0 +1,92 @@
+name: Deploy to Natro (egepharmtech.com / egepharmtech.tr)
+
+# Natro Plesk (Windows/IIS) barındırması; site kökü /httpdocs, egepharmtech.tr ve eski spps.* alan adları
+# aynı sitenin alias'ı. Sırlar: FTP_SERVER (sunucu IP'si ya da FTP ana bilgisayarı), FTP_USERNAME, FTP_PASSWORD.
+# Kök farklıysa depo değişkeni (Variables) FTP_ROOT.
+#
+# Sunucuda kalması gerekenler (hariç tutma listesi): appsettings.Production.json (SMTP ayarı),
+# App_Data/, wwwroot/UserFiles/, logs/.
+#
+# Yayın biçimi: framework-dependent, UseAppHost=false, RID'siz. Natro bu sunucuda .exe dosyasına izin vermiyor;
+# self-contained yayındaki .exe engellenince ANCM in-process modda hostfxr'ı bulamıyor (500.30). Bu biçimde
+# hiç .exe üretilmez; web.config processPath="dotnet" arguments=".\EgePharmTech.dll" olur ve sunucudaki
+# .NET 10 çalışma zamanı kullanılır. Yayında .exe kalırsa iş akışı durur.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths-ignore: [ 'docs/**', '**.md', 'CITATION.cff', '.zenodo.json' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Test
+        run: dotnet test EgePharmTech.Core.Tests/EgePharmTech.Core.Tests.csproj -c Release --nologo
+
+      - name: Publish
+        run: |
+          dotnet publish EgePharmTech/EgePharmTech.csproj -c Release --self-contained false -p:UseAppHost=false -o publish
+          if ls publish/*.exe >/dev/null 2>&1; then echo "HATA: yayında .exe var:"; ls publish/*.exe; exit 1; fi
+          cat publish/web.config
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy (FTPS + app_offline)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          FTP_ROOT: ${{ vars.FTP_ROOT || '/httpdocs' }}
+        run: |
+          echo '<html><body>Site guncelleniyor, birazdan geri donecek. / Updating, back in a minute.</body></html>' > app_offline.htm
+          # Parola LFTP_PASSWORD ortam değişkeninden okunur: -u "kullanıcı,parola" biçimi paroladaki virgülde bölünür.
+          LFTP_PASSWORD="$FTP_PASS" lftp -u "$FTP_USER" --env-password "$FTP_SERVER" <<EOF
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate no
+          set net:timeout 30
+          set net:max-retries 3
+          set net:persist-retries 3
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-max 30
+          set cmd:fail-exit true
+          put -O $FTP_ROOT app_offline.htm
+          # logs/ yoksa oluştur; varsa 550 döner, -f ile sessiz geçilir (fail-exit oturumu düşürmesin).
+          mkdir -pf $FTP_ROOT/logs
+          mirror -R --delete --verbose --no-perms \
+            --exclude-glob app_offline.htm \
+            --exclude-glob appsettings.Production.json \
+            --exclude-glob App_Data/ \
+            --exclude-glob wwwroot/UserFiles/ \
+            --exclude-glob logs/ \
+            publish/ $FTP_ROOT/
+          rm $FTP_ROOT/app_offline.htm
+          bye
+          EOF
+
+      - name: Siteyi geri aç (her durumda)
+        if: always()
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          FTP_ROOT: ${{ vars.FTP_ROOT || '/httpdocs' }}
+        run: |
+          LFTP_PASSWORD="$FTP_PASS" lftp -u "$FTP_USER" --env-password "$FTP_SERVER" <<EOF
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate no
+          set net:timeout 30
+          set net:max-retries 3
+          rm -f $FTP_ROOT/app_offline.htm
+          bye
+          EOF

@@ -1,0 +1,9 @@
+/* Footer içeriği navbar markasıyla aynı hizadan başlasın diye:
+   NavMenu.razor.css'te .navbar-custom { padding: 10px 20px } var; buradaki
+   20px onunla aynı. İçteki .container-fluid'in kendi 12px'i eklenince
+   toplam 32px oluyor — navbar markasının ölçülen sol kenarı da 32px.
+   Bu ikisini birlikte değiştir, yoksa hizalama kayar. */
+.footer-custom {
+    padding-left: 20px;
+    padding-right: 20px;
+}

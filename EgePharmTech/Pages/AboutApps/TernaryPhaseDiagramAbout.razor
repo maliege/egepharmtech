@@ -1,0 +1,383 @@
+﻿@page "/about-ternary-phase-diagram"
+
+@* Üçgen (psödo-üçlü) faz diyagramı aracının ayrıntılı rehberi ve kuramsal arka planı. Metin özgündür;
+   atıflar sondaki kaynak listesine yapılır (2026-09 Consensus taraması; tüm DOI'ler Crossref ile
+   doğrulandı). "Bu sitedeki uygulama" bölümü aracın gerçek davranışını özetler
+   (TernaryPhaseDiagramApp.razor, TernaryCalculationService, PolygonSmoother); kod değişirse
+   burası da değişmeli. *@
+
+<SiteTitle Text="Üçgen Faz Diyagramı Rehberi" />
+
+@* İngilizce sürüm ayrı bileşende (Components/Guides/TernaryPhaseDiagramGuideEn.razor); iki metin birlikte güncellenir. *@
+@if (Lang.IsEn)
+{
+    <TernaryPhaseDiagramGuideEn />
+}
+else
+{
+<article class="rehber">
+
+    <header class="rehber-bas">
+        <p class="rehber-ustbaslik"><i class="ti ti-triangle" aria-hidden="true"></i> Üçgen Faz Diyagramı · Ayrıntılı rehber</p>
+        <h1>Psödo-üçlü faz diyagramları: okuma, kurma, mikroemülsiyon bölgesini ölçme</h1>
+        <p class="rehber-ozet">
+            Yağ, sürfaktan/kosürfaktan karışımı ve sudan oluşan bir sistemin hangi bileşim aralığında berrak
+            mikroemülsiyon verdiğini tek bakışta gösteren üçgen diyagramlar, mikroemülsiyon ve kendiliğinden
+            emülsifiye olan sistem (SEDDS) geliştirmenin ilk adımıdır. Bu sayfa, <a href="/ternary-phase-diagram-app">Üçgen
+            Faz Diyagramı</a> aracının hem kullanım kılavuzu hem kuramsal arka planıdır.
+        </p>
+        <p class="rehber-surum">Sürüm 1.2 · 17 Eylül 2026 ·<a href="/about-ternary-phase-diagram#surum">sürüm geçmişi</a></p>
+        <nav class="rehber-icindekiler" aria-label="Bölümler">
+            <a href="/about-ternary-phase-diagram#giris">Giriş</a>
+            <a href="/about-ternary-phase-diagram#okuma">Diyagramı okuma</a>
+            <a href="/about-ternary-phase-diagram#tarihce">Kısa tarihçe</a>
+            <a href="/about-ternary-phase-diagram#fazlar">Faz bölgeleri</a>
+            <a href="/about-ternary-phase-diagram#yontem">Deneysel yöntem</a>
+            <a href="/about-ternary-phase-diagram#alan">Bölge alanı ve optimizasyon</a>
+            <a href="/about-ternary-phase-diagram#terimler">Mikroemülsiyon, nanoemülsiyon, SEDDS</a>
+            <a href="/about-ternary-phase-diagram#kullanim">Aracın kullanımı</a>
+            <a href="/about-ternary-phase-diagram#sinirlar">Sınırlar</a>
+            <a href="/about-ternary-phase-diagram#turkiye">Türkiye'den katkılar</a>
+            <a href="/about-ternary-phase-diagram#uygulama">Bu sitedeki uygulama</a>
+            <a href="/about-ternary-phase-diagram#kaynaklar">Kaynaklar</a>
+        </nav>
+    </header>
+
+    <section id="giris">
+        <h2>Giriş</h2>
+        <p>
+            Üç bileşenli bir karışımın bileşimi iki sayıyla belirlenir; üçüncüsü yüzdelerin toplamı 100
+            olduğu için kendiliğinden bellidir. Eşkenar üçgen bu kısıtı en doğal biçimde gösterir: her köşe
+            saf bir bileşeni, her kenar iki bileşenli karışımları, iç bölgedeki her nokta ise üçünün belli bir
+            oranını temsil eder. Farmasötik teknolojide bu gösterim en çok mikroemülsiyonlar, kendiliğinden
+            emülsifiye olan sistemler ve topikal taşıyıcılar için kullanılır (Lawrence &amp; Rees, 2000;
+            Karasulu, 2008). Sürfaktan ile kosürfaktan çoğu kez sabit bir oranda (S<sub>mix</sub>, K<sub>m</sub>)
+            karıştırılıp tek bileşen gibi işlendiği için diyagram gerçekte dört bileşenli bir sistemin kesitidir;
+            bu yüzden <strong>psödo-üçlü</strong> (pseudo-ternary) adını alır (Aboofazeli &amp; Lawrence, 1993;
+            Shafiq-un-Nabi et al., 2007).
+        </p>
+        <p>
+            Diyagramın verdiği bilgi ikilidir: bileşim uzayının hangi bölgesinde tek fazlı, berrak, düşük
+            viskoziteli bir sistem oluştuğu ve bu bölgenin S<sub>mix</sub> oranı, yağ türü, kosürfaktan zinciri
+            gibi değişkenlere nasıl tepki verdiği. Bölgenin geniş olması formülasyon toleransının yüksek
+            olduğunu söyler; bölgenin kendisi ise seçilecek bileşimlerin havuzudur (Parmar et al., 2011;
+            Berkman &amp; Güleç, 2021).
+        </p>
+    </section>
+
+    <section id="okuma">
+        <h2>Diyagramı okuma</h2>
+        <p>
+            Aracın üçgeninde sol alt köşe su, sağ alt köşe sürfaktan karışımı, tepe köşe yağdır; adlar
+            değiştirilebilir. Bir noktanın bir bileşendeki yüzdesi, o bileşenin köşesinden karşı kenara doğru
+            çizilen paralel çizgilerle okunur: köşeye yakınlık yüzdeyi artırır, karşı kenar üzerindeki her nokta
+            o bileşenden yüzde sıfır içerir. Üç yüzdenin toplamı her zaman 100'dür. Araç noktayı yağ ve
+            sürfaktan yüzdesinden yerleştirir, suyu kalan olarak okur; toplamı 100'den 0,5 puandan fazla
+            sapan satırlar Hesapla sonrasında sarı bir uyarı listesinde gösterilir. Nokta yine çizilir, ama
+            girilen su değil kalan su kullanılmış olur; bu satırları düzeltip yeniden hesaplayın.
+        </p>
+        <p>
+            Kenarlara paralel ızgara (5, 10 ya da 20 birim) okumayı kolaylaştırır. Köşeden karşı kenara giden
+            bir doğru, iki bileşenin oranının sabit tutulduğu <strong>seyreltme hattıdır</strong>; su
+            titrasyonuyla elde edilen ölçüm noktaları böyle hatlar üzerine düşer, çünkü deneyde yağ:S<sub>mix</sub>
+            oranı sabit tutulup su eklenir (Shafiq-un-Nabi et al., 2007). Sıvı-sıvı dengesi
+            diyagramlarındaki bağ çizgileri ve kaldıraç kuralı (iki fazın miktar oranı, bileşim noktasının
+            bağ çizgisi uçlarına uzaklığıyla ters orantılıdır) aynı geometriye dayanır (Williamson, 2021);
+            mikroemülsiyon diyagramlarında ise genellikle faz sınırı çizilir, bağ çizgileri çizilmez.
+        </p>
+    </section>
+
+    <section id="tarihce">
+        <h2>Kısa tarihçe</h2>
+        <p>
+            Üçlü bileşim üçgeni Gibbs'in faz kuralı çalışmalarıyla (1876) fizikokimyaya girdi ve Roozeboom'un
+            eşkenar üçgen gösterimiyle bugünkü biçimini aldı. Mikroemülsiyon kavramı ise 1943'te Hoar ve
+            Schulman'ın, sabun-yağ-su karışımlarına alkol eklendiğinde kendiliğinden berraklaşan ve saydam
+            kalan sistemleri "oleopatik hidro-misel" adıyla bildirmesiyle başladı (Hoar &amp; Schulman, 1943).
+            "Mikroemülsiyon" terimini Schulman ve arkadaşları 1959'da, bu sistemlerin elektron mikroskobuyla
+            incelendiği çalışmada önerdi (Schulman et al., 1959). Winsor'ın 1948'de sürfaktan-yağ-su
+            sistemlerini dört tipe ayırması (I: alt fazda yağda-su misel çözeltisi, II: üst fazda ters miseller,
+            III: orta faz, IV: tek fazlı berrak sistem) bugün de faz davranışını adlandırmanın standardıdır
+            (Winsor, 1948; Salager et al., 2022). Danielsson ve Lindman'ın tanımı, "su, yağ ve bir amfifilden
+            oluşan, optikçe izotrop ve termodinamik kararlı tek sıvı çözelti", alanın ortak referansı oldu
+            (Danielsson &amp; Lindman, 1981).
+        </p>
+        <p>
+            Farmasötik kullanım 1990'larda hızlandı: lesitin/alkol/izopropil miristat sistemlerinin
+            psödo-üçlü diyagramları (Aboofazeli &amp; Lawrence, 1993), Lawrence ve Rees'in çok atıf alan
+            derlemesi (2000), Pouton'un yağ bazlı formülasyonları sınıflandıran sistemi (LFCS; Pouton, 2000,
+            2006) ve topikal uygulamaları toplayan Kreilgaard (2002). 2010'larda mikroemülsiyon ile
+            nanoemülsiyonun sık karıştırılan tanımları netleştirildi (Anton &amp; Vandamme, 2011; McClements,
+            2012). Son dönemde faz diyagramının deneysel iş yükünü azaltan yaklaşımlar öne çıkıyor:
+            mikroplaka seyreltme yöntemi (Schmidts et al., 2009) ve binlerce formülasyondan öğrenen makine
+            öğrenmesi modelleri (Gao et al., 2021).
+        </p>
+    </section>
+
+    <section id="fazlar">
+        <h2>Faz bölgeleri ve tanınması</h2>
+        <p>
+            Su titrasyonu sırasında karışımın görünümü değişir ve her durum diyagramda ayrı bir bölge
+            olarak işaretlenir. Tipik bölgeler ve gözlem ölçütleri (Syed &amp; Peh, 2014; Boonme et al., 2006;
+            Li et al., 2024):
+        </p>
+        <ul>
+            <li><strong>Mikroemülsiyon (Winsor IV):</strong> berrak ya da saydam, akışkan, izotrop; polarize ışıkta
+                karanlık (çift kırıcılık yok). Su içeriği arttıkça s/y → bikontinü → y/s geçişi çoğu kez
+                iletkenlikteki perkolasyon sıçramasıyla izlenir (Boonme et al., 2006; Liu et al., 2022).</li>
+            <li><strong>Kaba emülsiyon (Winsor I/II):</strong> bulanık, süt görünümlü, zamanla ayrışabilir.
+                Metilen mavisi gibi suda çözünen boyayla y/s ve s/y ayrımı yapılır (Syed &amp; Peh, 2014).</li>
+            <li><strong>Jel / sıvı kristal:</strong> viskoz, çoğu kez saydam ama polarize ışıkta çift kırıcı
+                (lamellar, hekzagonal). Yüksek sürfaktan içeriğinde ve bazı S<sub>mix</sub> oranlarında ortaya
+                çıkar; küçük açı X-ışını saçılması ve reoloji ile doğrulanır (Sharma et al., 2025; Tartaro et
+                al., 2020).</li>
+            <li><strong>Faz ayrımı:</strong> iki ya da üç görünür tabaka; Winsor III'te orta faz bikontinü
+                mikroemülsiyondur (Salager et al., 2023).</li>
+        </ul>
+        <p>
+            Tek başına görsel değerlendirme öznel olduğundan iletkenlik, viskozite, dinamik ışık saçılması,
+            diferansiyel taramalı kalorimetri ve polarize mikroskopi birlikte kullanılır; hiçbir yöntem tek
+            başına yapıyı kanıtlamaz (Li et al., 2024; Gradzielski et al., 2021). Araç bu ayrımı yapmaz;
+            kullanıcı hangi noktaları hangi bölgeye koyacağına deneyine bakarak karar verir ve her bölgeyi
+            ayrı bir "grup" olarak girer.
+        </p>
+    </section>
+
+    <section id="yontem">
+        <h2>Deneysel yöntem: su titrasyonu</h2>
+        <p>
+            En yaygın yol <strong>su (sulu faz) titrasyonudur</strong>. Önce sürfaktan ve kosürfaktan sabit
+            kütle oranlarında karıştırılır (S<sub>mix</sub> 1:1, 2:1, 3:1, 4:1 gibi; bazı yazarlar K<sub>m</sub> der).
+            Her S<sub>mix</sub> için yağ:S<sub>mix</sub> 1:9'dan 9:1'e dokuz ayrı karışım hazırlanır ve sabit sıcaklıkta,
+            karıştırılarak damla damla su eklenir. Her eklemeden sonra görünüm kaydedilir; berraktan bulanığa
+            ya da bulanıktan berrağa geçtiği bileşimler faz sınırı noktalarıdır (Shafiq-un-Nabi et al., 2007;
+            Syed &amp; Peh, 2014). Bir diyagram tipik olarak 9 seyreltme hattı × birkaç geçiş noktası içerir;
+            farklı S<sub>mix</sub> oranları ayrı diyagramlar olarak çizilir ve bölge alanları karşılaştırılır
+            (Parmar et al., 2011).
+        </p>
+        <ul>
+            <li><strong>Sıcaklık</strong> sabit tutulmalı; noniyonik sürfaktanlarda bölge sınırları sıcaklığa
+                duyarlıdır (Liu et al., 2022).</li>
+            <li><strong>Denge süresi.</strong> Her eklemeden sonra sistemin dengeye gelmesi beklenmeli; geçici
+                bulanıklık faz sınırı değildir. Kinetik olarak kararlı görünen bir örnek termodinamik kararlı
+                olmayabilir (Anton &amp; Vandamme, 2011).</li>
+            <li><strong>Kosürfaktan etkisi.</strong> Kısa zincirli alkoller ve glikoller arayüz filmini
+                esnekleştirip tek fazlı bölgeyi genişletir; etki zincir uzunluğu ve S<sub>mix</sub> oranına
+                bağlıdır (Aboofazeli &amp; Lawrence, 1993; Golwala et al., 2020).</li>
+            <li><strong>Etkin madde.</strong> İlaç yükü bölgeyi kaydırır; ilaçlı ve ilaçsız diyagramlar
+                farklı olabilir (Giang et al., 2020). Son formülasyon ilaçlı diyagramdan seçilmelidir.</li>
+            <li><strong>Alternatif:</strong> mikroplaka seyreltme yöntemi aynı anda çok sayıda bileşimi
+                inceler, zaman ve malzeme kazandırır (Schmidts et al., 2009).</li>
+        </ul>
+    </section>
+
+    <section id="alan">
+        <h2>Bölge alanı, merkez ve optimizasyon</h2>
+        <p>
+            Mikroemülsiyon bölgesinin <strong>alanı</strong>, S<sub>mix</sub> oranlarını ve yardımcı madde
+            seçimlerini karşılaştırmanın standart ölçüsüdür: en geniş bölgeyi veren oran seçilir, sonra bu
+            oranla bölge içinden formülasyonlar alınır (Parmar et al., 2011; Yadav et al., 2020). Alan çoğu
+            yayında göz kararı ya da kâğıt üstünde karelerle tahmin edilir. Bu araç 2001'den beri bunun yerine
+            çokgenin köşe koordinatlarından alanı ve <strong>ağırlık merkezini</strong> hesaplar: her grup için
+            alan ve merkez tabloda verilir, merkez diyagramda işaretlenir. Aynı yaklaşımı Berkman ve Güleç (2021)
+            açık formüllerle ve bir Excel makrosuyla yayımlayıp merkez noktayı "aday optimum formülasyon"
+            olarak kullanmayı gösterdi; iki yaklaşım aynı geometriye dayanır.
+        </p>
+        <p>
+            Merkez tek başına yeter mi? Genellikle hayır. Bölge içindeki bileşimler damlacık boyutu,
+            viskozite, ilaç yükü ve seyreltme dayanıklılığı bakımından farklıdır; bu yüzden diyagramdan
+            seçilen aralık, ikinci adımda deney tasarımıyla (Box–Behnken, merkezi bileşik, simplex kafes)
+            taranır (Zhu et al., 2008; Yadav et al., 2020). Diyagram aralığı daraltır, deney tasarımı içinde
+            optimumu bulur. Shafiq-un-Nabi ve arkadaşları (2007), en az sürfaktanla en çok yağı çözen ve
+            seyreltmeye dayanan bileşimin seçilmesini, sınıra yakın "yarı kararlı" noktalardan kaçınılmasını
+            önerir.
+        </p>
+    </section>
+
+    <section id="terimler">
+        <h2>Mikroemülsiyon, nanoemülsiyon, SEDDS</h2>
+        <p>
+            Literatürde bu terimler sık karışır. Ayrım boyutta değil termodinamiktedir: <strong>mikroemülsiyon</strong>
+            termodinamik kararlıdır, kendiliğinden oluşur ve bileşim değişmedikçe süresiz kalır;
+            <strong>nanoemülsiyon</strong> yalnız kinetik kararlıdır, enerji girdisiyle (yüksek basınç, ultrason) ya
+            da faz inversiyonuyla yapılır ve zamanla bozulur (McClements, 2012; Anton &amp; Vandamme, 2011;
+            Gandhi et al., 2026). Boyut aralıkları yazardan yazara farklı verilir; bazı derlemelerde
+            mikroemülsiyon için 100–400 nm, nanoemülsiyon için 1–100 nm yazılır (Souto et al., 2022), oysa
+            klasik tanımda mikroemülsiyon damlacıkları 10–100 nm'dir. Bu çelişki, boyutun tanımlayıcı ölçüt
+            olmadığını gösterir. Pratik ayrım testleri: uzun süreli kararlılık, sıcaklık değişiminin
+            tersinirliği, bileşenlerin karıştırma sırasının sonucu etkilememesi (Gandhi et al., 2026).
+        </p>
+        <p>
+            <strong>SEDDS / SMEDDS / SNEDDS</strong>, suyla temasta kendiliğinden emülsiyon, mikroemülsiyon ya da
+            nanoemülsiyon veren susuz ön karışımlardır (Pouton, 2000, 2006). Bu sistemlerde psödo-üçlü
+            diyagram, susuz ön karışımın hangi bileşimlerinde seyreltme sonrası berrak dispersiyon oluştuğunu
+            haritalar; "kendiliğinden emülsifikasyon bölgesi" ile klasik mikroemülsiyon bölgesi aynı şey
+            değildir. Winsor terminolojisiyle karşılaştırma için bkz. Salager et al. (2022, 2023).
+        </p>
+    </section>
+
+    <section id="kullanim">
+        <h2>Aracın kullanımı</h2>
+        <p>
+            Sol sütunda üç sekme vardır: <strong>Veri Girişi</strong>, <strong>Diyagram</strong> (başlık ve köşe
+            adları) ve <strong>Grafik</strong> (ızgara, kapatma, yumuşatma, opaklık). Sağda diyagram, altında grup
+            tablosu yer alır.
+        </p>
+        <ol>
+            <li><strong>Veri girişi.</strong> Her satır bir ölçüm noktasıdır: Grup (bölge adı, ör. "ME 2:1"),
+                Sıra (çokgen kenarında dolaşma sırası), Oil, Sur/CoSur, Water yüzdeleri. Aynı gruptaki noktalar
+                Sıra'ya göre birleştirilerek çokgen çizilir; sıra, sınır boyunca saat yönünde ya da tersine
+                tutarlı olmalıdır, aksi hâlde kenarlar kesişir. Izgara elektronik tablo gibi çalışır
+                (kopyala-yapıştır, satır ekle/sil); 4 örnek veri seti menüden yüklenebilir.</li>
+            <li><strong>Hesapla.</strong> Noktalar üçgen koordinatlarına çevrilir, gruplar çokgenleştirilir, alan
+                ve merkez hesaplanır. Tek noktalı grup nokta, iki noktalı grup çizgi olarak çizilir. Toplamı
+                100 olmayan satırlar (tolerans ±0,5) grup ve sıra numarasıyla uyarı listesinde sıralanır.</li>
+            <li><strong>Kapatma.</strong> Titrasyonda sınır noktaları çoğu kez bir kenara dayanır (ör. yağ
+                yüzdesi sıfıra inen su-zengin köşe). "Poligonu Kapat" ilk ve son noktayı doğrudan birleştirir;
+                "Min Değer Kapatma" grubun en düşük değerleri üzerinden kapatır; "Kenar Kapatma" seçilen kenar
+                (Oil, Surfactant ya da Water) üzerinden kapatır. Eklenen kapatma noktaları bazen ilk/son ölçüm
+                noktasıyla çakışır; araç bunları ayıklar.</li>
+            <li><strong>Yumuşatma.</strong> "Kenarları yumuşat" işaretlenince sınır, ölçüm noktalarından geçen
+                Catmull-Rom tabanlı Bezier eğrisiyle çizilir; %60 klasik gerilime denk gelir, %100'e doğru
+                eğri daha yuvarlak olur. Eğri üçgenin dışına taşmaz. Alan ve merkez yumuşatılmış çerçeveden
+                hesaplanır. Bu bir görsel yorumdur: iki ölçüm arasındaki gerçek sınır bilinmez.</li>
+            <li><strong>Stil.</strong> Diyagramda bir gruba tıklayınca dolgu rengi, kenar rengi, opaklık ve kenar
+                kalınlığı o gruba özel ayarlanır; Grafik sekmesindeki kaydırıcılar tüm gruplar için
+                varsayılandır. Gradient dolgu isteğe bağlıdır.</li>
+            <li><strong>Kaydetme.</strong> Çalışma bu tarayıcıda otomatik saklanır; "Dosyaya kaydet" veri, ayar
+                ve stilleri tek .json dosyasına yazar, "Dosyadan aç" geri yükler. "SVG indir" diyagramı
+                vektör olarak verir; yayın kalitesinde ölçeklenir.</li>
+        </ol>
+        <p>
+            <strong>Alan birimi.</strong> Alan, kenarı 100 birim olan üçgende hesaplanır. Üçgenin tümü
+            ≈ 4330 birim²'dir; bir bölgenin üçgene oranı alan/43,3 ile yüzde olarak bulunur. Aynı S<sub>mix</sub>
+            karşılaştırmasında mutlak değer yeter, farklı çalışmalar arasında yüzde kullanmak daha güvenlidir.
+        </p>
+    </section>
+
+    <section id="sinirlar">
+        <h2>Sınırlar ve yorum</h2>
+        <ul>
+            <li><strong>Sınır, ölçüm noktalarının arasındadır.</strong> Çokgen ölçüm noktalarından geçer; gerçek
+                faz sınırı iki nokta arasında bir yerdedir. Nokta sayısı arttıkça alan tahmini iyileşir; seyrek
+                veride yumuşatma yanıltıcı kesinlik izlenimi verebilir.</li>
+            <li><strong>Kapatma seçimi alanı değiştirir.</strong> Aynı veriyle "Poligonu Kapat" ve "Kenar Kapatma"
+                farklı alan verir. Hangi kapatmanın kullanıldığı raporlanmalıdır.</li>
+            <li><strong>Görsel değerlendirme özneldir.</strong> "Berrak"–"bulanık" eşiği gözlemciye bağlıdır;
+                iletkenlik, ışık geçirgenliği ya da polarize mikroskopi ile desteklenmesi önerilir (Li et al., 2024).</li>
+            <li><strong>Diyagram termodinamik kanıt değildir.</strong> Berrak görünen bir bölge kinetik olarak
+                kararlı nanoemülsiyon da olabilir; ayrım için zaman, sıcaklık ve karıştırma sırası testleri
+                gerekir (Anton &amp; Vandamme, 2011; Gandhi et al., 2026).</li>
+            <li><strong>Sıcaklık, ilaç yükü ve seyreltme ortamı</strong> bölgeyi kaydırır; oral sistemlerde
+                seyreltmenin mide-bağırsak sıvısında ve sindirim sonrasında ne yaptığı ayrıca test edilir
+                (Pouton, 2006).</li>
+            <li><strong>Bölge genişliği tek ölçüt değildir.</strong> Geniş bölge yüksek sürfaktan içeriği anlamına
+                gelebilir; toksisite ve tahriş sınırları (özellikle topikal ve oral kullanımda) seçimi kısıtlar
+                (Kreilgaard, 2002; Karasulu, 2008).</li>
+        </ul>
+    </section>
+
+    <section id="turkiye">
+        <h2>Türkiye'den katkılar</h2>
+        <p>
+            Ege Üniversitesi'nden Karasulu'nun 2008 derlemesi, mikroemülsiyonların oluşumu, kararlılığı,
+            uygulamaları ve toksisitesini psödo-üçlü diyagram çerçevesinde toplayan, uluslararası atıf alan
+            bir başvuru metnidir (Karasulu, 2008). O derlemedeki psödo-üçlü diyagramlar ve bölge alanları, bu
+            sayfadaki aracın öncülü olan yazılımla hazırlandı.
+        </p>
+        <p>
+            <strong>Bu aracın geçmişi.</strong> Yazılımın ilk sürümü ("Micro") 2001 yazında Ege Üniversitesi
+            Eczacılık Fakültesi'nde Visual Basic 6 ile yazıldı. Deneyler bir Access veritabanında tutuluyordu
+            (deney başına tarih, formülasyon, sürfaktan:kosürfaktan oranı ve yağ/sürfaktan/su/alkol kolonları;
+            ilk kayıtlar 3:1'den 6:1'e etanollü S<sub>mix</sub> serileridir). Bölge sınırı, ölçüm noktalarının
+            üçgen koordinatlarına dönüştürülmesi ve son noktanın su değerinden geçen kenar paraleliyle kapatılmasıyla
+            çiziliyor; alan çokgen köşelerinden ayakkabı bağı formülüyle, merkez ise klasik çokgen ağırlık merkezi
+            formülüyle hesaplanıp yüzdelere geri çevriliyordu (Haziran 2001 tarihli <code>Geometry.bas</code>
+            ve <code>Genel.bas</code>). Bugünkü aracın koordinat dönüşümü, alan ve merkez hesabı, kesişim noktası
+            ve "en düşük değerle kapatma" seçeneği bu koddan gelir; bunlar sonradan web'e taşındı ve Blazor
+            sürümünde kenar kapatma, yumuşatılmış sınır, grup stilleri, toplam denetimi ve SVG dışa aktarım
+            eklendi. 2012'den beri kullanılan üçgen favicon'u da bu uygulamadan gelir. Karasulu (2008)
+            derlemesindeki diyagramlar ve bölge alanları bu programla hazırlandı. İstanbul Üniversitesi'nden
+            Berkman ve Güleç (2021) aynı alan ve ağırlık merkezi hesabını açık formüllerle ve bir Excel
+            makrosuyla yayımlayarak yöntemi literatüre kazandırdı.
+        </p>
+    </section>
+
+    <section id="uygulama" class="rehber-uygulama">
+        <h2><i class="ti ti-tool" aria-hidden="true"></i> Bu sitedeki uygulama</h2>
+        <ul>
+            <li><strong>Koordinat dönüşümü:</strong> x = S<sub>mix</sub> + Oil·cos 60°, y = Oil·sin 60° (yüzdeler 0–1'e
+                ölçeklenir). Su sol alt, sürfaktan sağ alt, yağ tepe köşe. İleri ve geri dönüşüm formülleri
+                2001 sürümündekiyle aynıdır.</li>
+            <li><strong>Alan ve merkez:</strong> ayakkabı bağı (shoelace) formülüyle; alan kenarı 100 birim olan
+                üçgen ölçeğinde raporlanır. 1 nokta → nokta, 2 nokta → çizgi, alan 0.</li>
+            <li><strong>Kapatma:</strong> üç seçenek; kapatma noktalarının ölçüm noktalarıyla çakışması ayıklanır.</li>
+            <li><strong>Yumuşatma:</strong> merkezcil Catmull-Rom → kübik Bezier; gerilim %0–100; eğri, noktaların
+                dışbükey bölgesine kırpılarak üçgen içinde tutulur. Alan/merkez yumuşatılmış çerçeveden.</li>
+            <li><strong>Saklama:</strong> localStorage otomatik kayıt, .json dosyası, SVG dışa aktarım.</li>
+            <li><strong>Toplam denetimi:</strong> yağ + sürfaktan + su, 100 ± 0,5 dışındaysa satır uyarı
+                listesine girer; hesap engellenmez.</li>
+            <li><strong>Doğrulama:</strong> belge kaydet/aç gidiş-dönüşü, toplam denetimi ve yumuşatma (eğri her
+                noktadan geçer, üçgen içinde kalır, çakışan kapatma noktası ayıklanır) için birim testleri.</li>
+        </ul>
+    </section>
+
+    <section id="kaynaklar" class="rehber-kaynaklar">
+        <h2>Kaynaklar</h2>
+        <ol>
+            <li>Aboofazeli, R., &amp; Lawrence, M. J. (1993). Investigations into the formation and characterization of phospholipid microemulsions. I. Pseudo-ternary phase diagrams of systems containing water-lecithin-alcohol-isopropyl myristate. <em>International Journal of Pharmaceutics, 93</em>(1-3), 161-175. <a href="https://doi.org/10.1016/0378-5173(93)90174-E" target="_blank" rel="noopener">doi:10.1016/0378-5173(93)90174-E</a></li>
+            <li>Anton, N., &amp; Vandamme, T. F. (2011). Nano-emulsions and micro-emulsions: Clarifications of the critical differences. <em>Pharmaceutical Research, 28</em>(5), 978-985. <a href="https://doi.org/10.1007/s11095-010-0309-1" target="_blank" rel="noopener">doi:10.1007/s11095-010-0309-1</a></li>
+            <li>Berkman, M. S., &amp; Güleç, K. (2021). Pseudo ternary phase diagrams: A practical approach for the area and centroid calculation of stable microemulsion regions. <em>İstanbul Journal of Pharmacy, 51</em>(1), 42-49. <a href="https://doi.org/10.26650/istanbuljpharm.2020.0090" target="_blank" rel="noopener">doi:10.26650/istanbuljpharm.2020.0090</a></li>
+            <li>Boonme, P., Krauel, K., Graf, A., Rades, T., &amp; Junyaprasert, V. B. (2006). Characterization of microemulsion structures in the pseudoternary phase diagram of isopropyl palmitate/water/Brij 97:1-butanol. <em>AAPS PharmSciTech, 7</em>(2), E99-E104. <a href="https://doi.org/10.1208/pt070245" target="_blank" rel="noopener">doi:10.1208/pt070245</a></li>
+            <li>Chen, H., Chang, X., Du, D., Li, J., Xu, H., &amp; Yang, X. (2006). Microemulsion-based hydrogel formulation of ibuprofen for topical delivery. <em>International Journal of Pharmaceutics, 315</em>(1-2), 52-58. <a href="https://doi.org/10.1016/j.ijpharm.2006.02.015" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2006.02.015</a></li>
+            <li>Chiappisi, L., Noirez, L., &amp; Gradzielski, M. (2016). A journey through the phase diagram of a pharmaceutically relevant microemulsion system. <em>Journal of Colloid and Interface Science, 473</em>, 52-59. <a href="https://doi.org/10.1016/j.jcis.2016.03.064" target="_blank" rel="noopener">doi:10.1016/j.jcis.2016.03.064</a></li>
+            <li>Danielsson, I., &amp; Lindman, B. (1981). The definition of microemulsion. <em>Colloids and Surfaces, 3</em>(4), 391-392. <a href="https://doi.org/10.1016/0166-6622(81)80064-9" target="_blank" rel="noopener">doi:10.1016/0166-6622(81)80064-9</a></li>
+            <li>Gandhi, J., Shah, P., Pandya, K., et al. (2026). Microemulsions versus nanoemulsions: A comparative overview of features, formulation, and pharmaceutical applications. <em>Advances in Colloid and Interface Science, 353</em>, 103881. <a href="https://doi.org/10.1016/j.cis.2026.103881" target="_blank" rel="noopener">doi:10.1016/j.cis.2026.103881</a></li>
+            <li>Gao, H., Jia, H., Dong, J., et al. (2021). Integrated in silico formulation design of self-emulsifying drug delivery systems. <em>Acta Pharmaceutica Sinica B, 11</em>(11), 3585-3594. <a href="https://doi.org/10.1016/j.apsb.2021.04.017" target="_blank" rel="noopener">doi:10.1016/j.apsb.2021.04.017</a></li>
+            <li>Giang, T. T. H., Nghia, T. T., &amp; Huyen, T. T. (2020). Application of the artificial neural network to optimize the formulation of self-nanoemulsifying drug delivery system containing rosuvastatin. <em>Journal of Applied Pharmaceutical Science, 10</em>(9). <a href="https://doi.org/10.7324/japs.2020.10901" target="_blank" rel="noopener">doi:10.7324/japs.2020.10901</a></li>
+            <li>Golwala, P., Rathod, S., Patil, S., Joshi, A., Ray, D., Aswal, V. K., Bahadur, P., &amp; Tiwari, S. (2020). Effect of cosurfactant addition on phase behavior and microstructure of a water dilutable microemulsion. <em>Colloids and Surfaces B: Biointerfaces, 186</em>, 110736. <a href="https://doi.org/10.1016/j.colsurfb.2019.110736" target="_blank" rel="noopener">doi:10.1016/j.colsurfb.2019.110736</a></li>
+            <li>Gradzielski, M., Duvail, M., de Molina, P. M., Simon, M., Talmon, Y., &amp; Zemb, T. (2021). Using microemulsions: Formulation based on knowledge of their mesostructure. <em>Chemical Reviews, 121</em>(10), 5671-5740. <a href="https://doi.org/10.1021/acs.chemrev.0c00812" target="_blank" rel="noopener">doi:10.1021/acs.chemrev.0c00812</a></li>
+            <li>Hoar, T. P., &amp; Schulman, J. H. (1943). Transparent water-in-oil dispersions: The oleopathic hydro-micelle. <em>Nature, 152</em>(3847), 102-103. <a href="https://doi.org/10.1038/152102a0" target="_blank" rel="noopener">doi:10.1038/152102a0</a></li>
+            <li>Karasulu, H. Y. (2008). Microemulsions as novel drug carriers: The formation, stability, applications and toxicity. <em>Expert Opinion on Drug Delivery, 5</em>(1), 119-135. <a href="https://doi.org/10.1517/17425247.5.1.119" target="_blank" rel="noopener">doi:10.1517/17425247.5.1.119</a></li>
+            <li>Kreilgaard, M. (2002). Influence of microemulsions on cutaneous drug delivery. <em>Advanced Drug Delivery Reviews, 54</em>(Suppl. 1), S77-S98. <a href="https://doi.org/10.1016/s0169-409x(02)00116-3" target="_blank" rel="noopener">doi:10.1016/S0169-409X(02)00116-3</a></li>
+            <li>Lawrence, M. J., &amp; Rees, G. D. (2000). Microemulsion-based media as novel drug delivery systems. <em>Advanced Drug Delivery Reviews, 45</em>(1), 89-121. <a href="https://doi.org/10.1016/S0169-409X(00)00103-4" target="_blank" rel="noopener">doi:10.1016/S0169-409X(00)00103-4</a></li>
+            <li>Li, L., Qu, S., Liu, S., et al. (2024). Advancements in characterization techniques for microemulsions: From molecular insights to macroscopic phenomena. <em>Molecules, 29</em>(12), 2901. <a href="https://doi.org/10.3390/molecules29122901" target="_blank" rel="noopener">doi:10.3390/molecules29122901</a></li>
+            <li>Liu, Q., Wang, X., Wu, Y., et al. (2022). Structure and pseudo-ternary phase diagram of water/Triton X-100/1-pentanol/cyclohexane microemulsion. <em>Journal of Molecular Liquids, 349</em>, 118425. <a href="https://doi.org/10.1016/j.molliq.2021.118425" target="_blank" rel="noopener">doi:10.1016/j.molliq.2021.118425</a></li>
+            <li>McClements, D. J. (2012). Nanoemulsions versus microemulsions: Terminology, differences, and similarities. <em>Soft Matter, 8</em>(6), 1719-1729. <a href="https://doi.org/10.1039/c2sm06903b" target="_blank" rel="noopener">doi:10.1039/c2sm06903b</a></li>
+            <li>Moreno, M. A., Ballesteros, M. P., &amp; Frutos, P. (2003). Lecithin-based oil-in-water microemulsions for parenteral use: Pseudoternary phase diagrams, characterization and toxicity studies. <em>Journal of Pharmaceutical Sciences, 92</em>(7), 1428-1437. <a href="https://doi.org/10.1002/jps.10412" target="_blank" rel="noopener">doi:10.1002/jps.10412</a></li>
+            <li>Parmar, N., Singla, N., Amin, S., &amp; Kohli, K. (2011). Study of cosurfactant effect on nanoemulsifying area and development of lercanidipine loaded (SNEDDS) self nanoemulsifying drug delivery system. <em>Colloids and Surfaces B: Biointerfaces, 86</em>(2), 327-338. <a href="https://doi.org/10.1016/j.colsurfb.2011.04.016" target="_blank" rel="noopener">doi:10.1016/j.colsurfb.2011.04.016</a></li>
+            <li>Pouton, C. W. (2000). Lipid formulations for oral administration of drugs: Non-emulsifying, self-emulsifying and 'self-microemulsifying' drug delivery systems. <em>European Journal of Pharmaceutical Sciences, 11</em>(Suppl. 2), S93-S98. <a href="https://doi.org/10.1016/s0928-0987(00)00167-6" target="_blank" rel="noopener">doi:10.1016/S0928-0987(00)00167-6</a></li>
+            <li>Pouton, C. W. (2006). Formulation of poorly water-soluble drugs for oral administration: Physicochemical and physiological issues and the lipid formulation classification system. <em>European Journal of Pharmaceutical Sciences, 29</em>(3-4), 278-287. <a href="https://doi.org/10.1016/j.ejps.2006.04.016" target="_blank" rel="noopener">doi:10.1016/j.ejps.2006.04.016</a></li>
+            <li>Salager, J.-L., Marquez, R., Bullon, J., &amp; Forgiarini, A. (2022). Formulation in surfactant systems: From Winsor to HLDN. <em>Encyclopedia, 2</em>(2), 778-839. <a href="https://doi.org/10.3390/encyclopedia2020054" target="_blank" rel="noopener">doi:10.3390/encyclopedia2020054</a></li>
+            <li>Salager, J.-L., Marquez, R., Rondón, M., et al. (2023). Review on some confusion produced by the bicontinuous microemulsion terminology and its domains microcurvature. <em>ACS Omega, 8</em>(10), 9040-9057. <a href="https://doi.org/10.1021/acsomega.3c00547" target="_blank" rel="noopener">doi:10.1021/acsomega.3c00547</a></li>
+            <li>Schmidts, T., Nocker, P., Lavi, G., Kuhlmann, J., Czermak, P., &amp; Runkel, F. (2009). Development of an alternative, time and cost saving method of creating pseudoternary diagrams using the example of a microemulsion. <em>Colloids and Surfaces A: Physicochemical and Engineering Aspects, 340</em>(1-3), 187-192. <a href="https://doi.org/10.1016/j.colsurfa.2009.03.029" target="_blank" rel="noopener">doi:10.1016/j.colsurfa.2009.03.029</a></li>
+            <li>Schulman, J. H., Stoeckenius, W., &amp; Prince, L. M. (1959). Mechanism of formation and structure of micro emulsions by electron microscopy. <em>The Journal of Physical Chemistry, 63</em>(10), 1677-1680. <a href="https://doi.org/10.1021/j150580a027" target="_blank" rel="noopener">doi:10.1021/j150580a027</a></li>
+            <li>Shafiq-un-Nabi, S., Shakeel, F., Talegaonkar, S., Ali, J., Baboota, S., Ahuja, A., Khar, R. K., &amp; Ali, M. (2007). Formulation development and optimization using nanoemulsion technique: A technical note. <em>AAPS PharmSciTech, 8</em>(2), E12-E17. <a href="https://doi.org/10.1208/pt0802028" target="_blank" rel="noopener">doi:10.1208/pt0802028</a></li>
+            <li>Sharma, S., Kaushik, S., Bisht, A., et al. (2025). Dependence of phase boundary and interfacial characteristics of liquid crystalline structures on surfactant-cosurfactant composition. <em>Langmuir, 41</em>(27), 18221-18228. <a href="https://doi.org/10.1021/acs.langmuir.5c02188" target="_blank" rel="noopener">doi:10.1021/acs.langmuir.5c02188</a></li>
+            <li>Souto, E. B., Cano, A., Martins-Gomes, C., Coutinho, T. E., Zielińska, A., &amp; Silva, A. M. (2022). Microemulsions and nanoemulsions in skin drug delivery. <em>Bioengineering, 9</em>(4), 158. <a href="https://doi.org/10.3390/bioengineering9040158" target="_blank" rel="noopener">doi:10.3390/bioengineering9040158</a></li>
+            <li>Syed, H. K., &amp; Peh, K. K. (2014). Identification of phases of various oil, surfactant/co-surfactants and water system by ternary phase diagram. <em>Acta Poloniae Pharmaceutica, 71</em>(2), 301-309.</li>
+            <li>Tartaro, G., Mateos, H., Schirone, D., Angelico, R., &amp; Palazzo, G. (2020). Microemulsion microstructure(s): A tutorial review. <em>Nanomaterials, 10</em>(9), 1657. <a href="https://doi.org/10.3390/nano10091657" target="_blank" rel="noopener">doi:10.3390/nano10091657</a></li>
+            <li>Williamson, J. C. (2021). Liquid–liquid demonstrations: Phase equilibria and the lever rule. <em>Journal of Chemical Education, 98</em>(7), 2356-2363. <a href="https://doi.org/10.1021/acs.jchemed.0c01517" target="_blank" rel="noopener">doi:10.1021/acs.jchemed.0c01517</a></li>
+            <li>Winsor, P. A. (1948). Hydrotropy, solubilisation and related emulsification processes. <em>Transactions of the Faraday Society, 44</em>, 376-398. <a href="https://doi.org/10.1039/tf9484400376" target="_blank" rel="noopener">doi:10.1039/tf9484400376</a></li>
+            <li>Yadav, P., Rastogi, V., &amp; Verma, A. (2020). Application of Box–Behnken design and desirability function in the development and optimization of self-nanoemulsifying drug delivery system for enhanced dissolution of ezetimibe. <em>Future Journal of Pharmaceutical Sciences, 6</em>(1), 7. <a href="https://doi.org/10.1186/s43094-020-00023-3" target="_blank" rel="noopener">doi:10.1186/s43094-020-00023-3</a></li>
+            <li>Zhu, W., Yu, A., Wang, W., Dong, R., Wu, J., &amp; Zhai, G. (2008). Formulation design of microemulsion for dermal delivery of penciclovir. <em>International Journal of Pharmaceutics, 360</em>(1-2), 184-190. <a href="https://doi.org/10.1016/j.ijpharm.2008.04.008" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2008.04.008</a></li>
+        </ol>
+    </section>
+
+    <section id="surum" class="rehber-surum-gecmisi">
+        <h2>Sürüm geçmişi</h2>
+        <ul>
+            <li><strong>1.2 · 17 Eylül 2026.</strong> İngilizce sürüm (egepharmtech.com).</li>
+            <li><strong>1.1 · 14 Eylül 2026.</strong> Aracın 2001 Visual Basic kökeni ve Karasulu (2008) derlemesindeki
+                kullanımı eklendi; toplam denetimi anlatıldı; içindekiler bağlantıları düzeltildi.</li>
+            <li><strong>1.0 · 10 Eylül 2026.</strong> İlk sürüm: okuma, tarihçe, faz bölgeleri, su titrasyonu, alan ve
+                merkez, terminoloji, aracın kullanımı, 36 kaynak.</li>
+        </ul>
+    </section>
+
+    <footer class="rehber-alt">
+        <a href="/ternary-phase-diagram-app" class="rehber-cta"><i class="ti ti-arrow-left" aria-hidden="true"></i> Üçgen Faz Diyagramı aracına dön</a>
+    </footer>
+
+</article>
+}

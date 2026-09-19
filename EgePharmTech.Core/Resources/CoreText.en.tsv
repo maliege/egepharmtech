@@ -1,0 +1,102 @@
+# CoreText İngilizce karşılıkları. Satır = Türkçe anahtar <TAB> İngilizce. '#' ile başlayan satır yorumdur.
+# Anahtar, koddaki CoreText.T("...") metniyle birebir aynı olmalı (yer tutucular ve biçim belirteçleri dahil).
+# --- KineticInputReader ---
+{0} satırda zaman boş ya da sayı değil; bu satırlar atlandı.	In {0} row(s) the time is empty or not a number; these rows were skipped.
+{0} satırda zaman ≤ 0; bu satırlar atlandı (t = 0 noktası F = 0 kabul edilir, girilmesi gerekmez).	In {0} row(s) time ≤ 0; these rows were skipped (t = 0 is taken as F = 0 and need not be entered).
+{0} satırda ne tekrar ne ortalama değeri var; bu satırlar atlandı.	In {0} row(s) there is neither a replicate nor a mean value; these rows were skipped.
+{0} satırda salım ≤ 0; bu satırlar atlandı.	In {0} row(s) release ≤ 0; these rows were skipped.
+{0} satırda tekrar girilmediği için "Ortalama" sütunu kullanıldı.	In {0} row(s) no replicates were entered, so the "Mean" column was used.
+Geçerli veri noktası bulunamadı. Her satırda pozitif bir zaman ve en az bir tekrar (ya da Ortalama sütununda) pozitif bir salım değeri gerekir.	No valid data points found. Each row needs a positive time and a positive release value in at least one replicate (or in the Mean column).
+{0} noktada salım %100'ün üzerinde. Değerler olduğu gibi kullanıldı; miktar tayini kaynaklı küçük aşımlar normaldir, ancak doyuma giden modeller %100 tavanını varsayar.	At {0} point(s) release exceeds 100 %. The values were used as entered; small overshoots from the assay are normal, but saturating models assume a 100 % ceiling.
+Tüm değerler ≤ 1,5: veri kesir (0–1) ölçeğinde girilmiş görünüyor. Modeller salımı yüzde (0–100) olarak bekler; kesir girilirse doyuma giden modeller anlamsız sonuç verir. Değerleri 100 ile çarpın.	All values ≤ 1.5: the data appear to be on a fraction (0–1) scale. The models expect release as a percentage (0–100); with fractions the saturating models give meaningless results. Multiply the values by 100.
+Profil zamanla azalıyor: veri "kalan ilaç" formatında varsayıldı ve 100 − F ile salıma çevrildi. Salım girdiyseniz ve profil gerçekten azalıyorsa (ör. bozunma) bu çevrim yanlıştır.	The profile decreases with time: the data were assumed to be in "drug remaining" format and converted to release as 100 − F. If you entered release and the profile really does decrease (e.g. degradation), this conversion is wrong.
+Yalnız {0} nokta var. İki parametreli modellerde serbestlik derecesi kalmaz; en az 5–6 nokta önerilir.	Only {0} points. Two-parameter models are left with no degrees of freedom; at least 5–6 points are recommended.
+# --- Birimler ---
+zaman	time
+1/zaman	1/time
+%/zaman	%/time
+%/zaman^n	%/time^n
+%/zaman^m	%/time^m
+%/zaman^2m	%/time^2m
+%/zaman^0.5	%/time^0.5
+%·zaman^-0.5	%·time^-0.5
+zaman^b	time^b
+# --- Hopfenberg / Baker-Lonsdale ---
+Yüzey erozyonu hız sabiti (k0/(C0·a0))	Surface erosion rate constant (k0/(C0·a0))
+Geometri: {0} (n = {1:0.#})	Geometry: {0} (n = {1:0.#})
+NOT: Slab (n=1) geometrisinde Hopfenberg, matris tükenene kadar (t < 1/kHB) Zero-order ile aynı eğridir: F = 100·kHB·t. Tek farkı, tükenmeden sonra %100'de tavanlanmasıdır (Zero-order sınırsızdır). Gerçekten farklı bir mekanizma için silindir (n=2) veya küre (n=3) seçin.	NOTE: With slab (n=1) geometry Hopfenberg is the same curve as Zero-order until the matrix is exhausted (t < 1/kHB): F = 100·kHB·t. The only difference is the 100 % ceiling after exhaustion (Zero-order is unbounded). For a genuinely different mechanism choose cylinder (n=2) or sphere (n=3).
+NOT: Küre (n=3) geometrisinde Hopfenberg, Hixson-Crowell ile özdeştir (kHB = kHC). Sıralamada iki model aynı SS ve AIC ile görünür ve Akaike ağırlığını paylaşır; ikisini tek model olarak değerlendirin.	NOTE: With sphere (n=3) geometry Hopfenberg is identical to Hixson–Crowell (kHB = kHC). The two models appear in the ranking with the same SS and AIC and share the Akaike weight; treat them as one model.
+NOT: n = {0:0.#} değeri Karasulu, Ertan & Köse (2000) önerisidir: Katzhendler denklemi farklı geometrili HPMC teofilin tabletlerine uyarlanmıştır. Costa & Sousa Lobo'nun klasik 1/2/3 setinde yoktur; ampirik geometri düzeltmesi olarak okuyun.	NOTE: n = {0:0.#} follows Karasulu, Ertan & Köse (2000), who adapted the Katzhendler equation to HPMC theophylline tablets of different geometries. It is not in the classical 1/2/3 set of Costa & Sousa Lobo; read it as an empirical geometry correction.
+Slab (ince tabaka)	Slab (thin film)
+Silindir	Cylinder
+Küre	Sphere
+Yarım küre	Half sphere
+Üçgen	Triangle
+Baker-Lonsdale salım hız sabiti	Baker–Lonsdale release rate constant
+# --- Korsmeyer-Peppas / Peppas-Sahlin / Makoid-Banakar ---
+Salım hız sabiti (yapısal/geometrik)	Release rate constant (structural/geometric)
+Salım üsteli (difüzyon mekanizması göstergesi)	Release exponent (indicator of the diffusion mechanism)
+Fickian difüzyon (n≈{0})	Fickian diffusion (n≈{0})
+Yarı-Fickian / n < {0}	Quasi-Fickian / n < {0}
+Case-II taşınım (n≈{0}, sıfırıncı derece salım)	Case-II transport (n≈{0}, zero-order release)
+Süper Case-II taşınım (n > {0})	Super Case-II transport (n > {0})
+Anormal (anomalous) taşınım ({0} < n < {1})	Anomalous transport ({0} < n < {1})
+eşikler slab (ince tabaka) geometrisine göre — {0} için Costa & Sousa Lobo Tablo 1'de eşik yok	thresholds for slab (thin film) geometry — Costa & Sousa Lobo Table 1 gives none for {0}
+eşikler {0} geometrisine göre (Costa & Sousa Lobo, Tablo 1)	thresholds for {0} geometry (Costa & Sousa Lobo, Table 1)
+UYARI: n = {0:0.###} ≈ 0 — güç yasası dejenere: eğri neredeyse sabit (ya da F0 varyantında logaritmik). Mekanizma yorumu geçersizdir.	WARNING: n = {0:0.###} ≈ 0 — the power law is degenerate: the curve is almost constant (or logarithmic in the F0 variant). The mechanism interpretation is invalid.
+UYARI: Tüm noktalarla fit edildi. Costa & Sousa Lobo, n'in yalnız F<%60 bölgesinden belirlenmesini şart koşar; n mekanizma yorumu güvenilmez olabilir.	WARNING: Fitted to all points. Costa & Sousa Lobo require n to be determined only from the F<60 % region; the mechanism interpretation of n may be unreliable.
+Fick difüzyonu katkısı	Fickian diffusion contribution
+Case-II relaksasyon katkısı	Case-II relaxation contribution
+Fick difüzyon üsteli	Fickian diffusion exponent
+UYARI: m = {0:0.###} ≈ 0 — Peppas-Sahlin dejenere: t^m ve t^(2m) terimleri ayrışmıyor, k1/k2 birbirini telafi ediyor. Difüzyon/relaksasyon oranı yorumlanamaz.	WARNING: m = {0:0.###} ≈ 0 — Peppas–Sahlin is degenerate: the t^m and t^(2m) terms do not separate and k1/k2 compensate each other. The diffusion/relaxation ratio cannot be interpreted.
+UYARI: k1 < 0 ve k2 < 0 — eğri azalıyor; model bu veriye uygun değil.	WARNING: k1 < 0 and k2 < 0 — the curve decreases; the model does not suit these data.
+Makoid-Banakar hız sabiti	Makoid–Banakar rate constant
+Salım üsteli	Release exponent
+Sönüm (decay) sabiti	Decay constant
+NOT: k ≈ 0 — sönüm terimi etkisiz; Makoid-Banakar bu veride Korsmeyer-Peppas'a (tüm noktalar) indirgendi. Eğride tepe/düşüş yoksa bu modelin katkısı yoktur.	NOTE: k ≈ 0 — the decay term is inactive; on these data Makoid–Banakar reduces to Korsmeyer–Peppas (all points). Without a peak/decline in the curve this model adds nothing.
+Tepe: t* = n/k = {0:G4}, F* = %{1:0.#} — sonrasında eğri düşer (salım verisinde fiziksel değil; ölçüm artefaktı olabilir).	Peak: t* = n/k = {0:G4}, F* = {1:0.#} % — the curve declines afterwards (not physical for release data; may be a measurement artefact).
+# --- Sigmoid modeller ---
+UYARI: Fmax = %{0:0.#} > %100. Plato fiziksel sınırı aşıyor; parametreler birbirini telafi ediyor olabilir.	WARNING: Fmax = {0:0.#} % > 100 %. The plateau exceeds the physical limit; the parameters may be compensating each other.
+Sigmoid eğim (hız) parametresi	Sigmoid slope (rate) parameter
+Dönüm noktası (Fmax/2'ye ulaşılan süre)	Inflection point (time to reach Fmax/2)
+Ulaşılan maksimum salım (plato)	Maximum release reached (plateau)
+Gompertz hız parametresi	Gompertz rate parameter
+Dönüm noktası	Inflection point
+Ölçek parametresi (α)	Scale parameter (α)
+Şekil parametresi (β): <1 parabolik, =1 üstel, >1 sigmoid	Shape parameter (β): <1 parabolic, =1 exponential, >1 sigmoid
+%63.2 salım süresi (a = Td^b)	Time to 63.2 % release (a = Td^b)
+Parabolik (β<1): yüksek başlangıç eğimi, difüzyon baskın	Parabolic (β<1): steep initial slope, diffusion-dominated
+Sigmoid (β>1): S-şekilli, kompleks/gecikmeli salım	Sigmoid (β>1): S-shaped, complex/delayed release
+Üstel (β≈1): birinci derece benzeri	Exponential (β≈1): first-order-like
+Konum parametresi (kesişim)	Location parameter (intercept)
+Şekil parametresi (eğim)	Shape parameter (slope)
+Ölçek parametresi	Scale parameter
+Şekil parametresi	Shape parameter
+# --- Basit modeller ---
+Sıfırıncı derece salım hız sabiti	Zero-order release rate constant
+Birinci derece salım hız sabiti	First-order release rate constant
+Higuchi difüzyon sabiti	Higuchi diffusion constant
+Hixson-Crowell erozyon hız sabiti	Hixson–Crowell erosion rate constant
+# --- Varyantlar ---
+{0}: F0 varyantı desteklenmiyor. Doyuma giden/tavanlı modellerde eksik salım F0 ile değil Fmax ile modellenir (şartname §7); additive F0 asimptotu %100'ün üzerine çıkarır.	{0}: the F0 variant is not supported. In saturating/ceiling models incomplete release is modelled with Fmax, not F0 (spec §7); an additive F0 pushes the asymptote above 100 %.
+{0}: Tlag varyantı desteklenmiyor.	{0}: the Tlag variant is not supported.
+{0}: Fmax varyantı desteklenmiyor (model doyuma gitmiyor ya da Fmax zaten denkleminde).	{0}: the Fmax variant is not supported (the model does not saturate, or Fmax is already in its equation).
+Başlangıç salımı (burst)	Initial release (burst)
+Gecikme süresi	Lag time
+UYARI: Fmax = %{0:0.#} > %100. Plato fiziksel sınırı aşıyor; parametreler birbirini telafi ediyor olabilir. Fmax'sız hâli ya da farklı bir modeli tercih edin.	WARNING: Fmax = {0:0.#} % > 100 %. The plateau exceeds the physical limit; the parameters may be compensating each other. Prefer the version without Fmax or a different model.
+UYARI: F0 = %{0:0.#} fiziksel aralığın dışında. Model bu veride dejenere olmuş görünüyor; katsayılar yorumlanamaz.	WARNING: F0 = {0:0.#} % is outside the physical range. The model appears degenerate on these data; the coefficients cannot be interpreted.
+# --- Fitter / metrikler ---
+t/F uzunlukları eşleşmiyor	t/F lengths do not match
+{0}: fit için yeterli nokta yok ({1}).	{0}: not enough points to fit ({1}).
+UYARI: {0} parametre yalnız {1} noktaya fit edildi (serbestlik derecesi {2}). Katsayılar kararsızdır; daha az varyant seçin ya da daha çok zaman noktası girin.	WARNING: {0} parameters were fitted to only {1} points (degrees of freedom {2}). The coefficients are unstable; choose fewer variants or enter more time points.
+UYARI: Fmax = %{0:0.#}, gözlenen en yüksek salım %{1:0.#}. Veri platoya ulaşmamış; Fmax ve ona bağlı T25–T90 değerleri ekstrapolasyondur, güvenilmez.	WARNING: Fmax = {0:0.#} %, highest observed release {1:0.#} %. The data have not reached a plateau; Fmax and the T25–T90 values that depend on it are extrapolations and unreliable.
+# --- f1/f2, doz-yanıt, üçgen ---
+Referans toplamı sıfır; f1 tanımsız.	The reference sum is zero; f1 is undefined.
+Referans ve test serilerinin uzunlukları eşit olmalı.	The reference and test series must have the same length.
+Ortak zaman noktası yok.	No common time points.
+En az 3 veri noktası gereklidir.	At least 3 data points are required.
+En az 3 pozitif dozlu veri noktası gereklidir.	At least 3 data points with a positive dose are required.
+Bölge için en az 3 köşe gerekir.	A region needs at least 3 vertices.
+Veri bulunamadı	No data found
+{0} grup hesaplandı	{0} group(s) calculated
+Hesaplama hatası: {0}	Calculation error: {0}

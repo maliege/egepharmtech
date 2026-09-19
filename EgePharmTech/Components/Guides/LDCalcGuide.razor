@@ -1,0 +1,256 @@
+@* LD50/LD90 sayfasının "Kullanım rehberi" akordiyonu. T-testi/F1-F2/Kinetik ile aynı kalıp; içerik
+   motorun gerçek davranışıyla uyumlu tutulmalı (probit/logit IRLS + Fieller GA, 4PL'in n'i
+   kullanmaması, kontrol mortalitesi düzeltmesinin OLMAMASI). Rehber varsayılan olarak AÇIK: sağ
+   sütun ona ayrıldı. Uzun paragraflar resx anahtarı yapılmaz; Türkçe ve İngilizce blok yan yana
+   durur, ikisi birlikte güncellenir. *@
+<div class="accordion" id="ldRehber">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button"
+              data-bs-toggle="collapse" data-bs-target="#ldRehberGovde"
+              aria-expanded="true" aria-controls="ldRehberGovde">
+        <i class="bi bi-info-circle me-2"></i>
+        @if (Lang.IsEn)
+        {
+          <text>Use in pharmaceutical technology, choice of method, prerequisites and limitations</text>
+        }
+        else
+        {
+          <text>Farmasötik teknolojide kullanımı, yöntem seçimi, ön şartlar ve kısıtlar</text>
+        }
+      </button>
+    </h2>
+    <div id="ldRehberGovde" class="accordion-collapse collapse show" data-bs-parent="#ldRehber">
+      <div class="accordion-body">
+      @if (Lang.IsEn)
+      {
+        <div class="row g-4">
+          <div class="col-xl-6">
+
+            <h6 class="text-primary">What it does</h6>
+            <p class="small text-muted">
+              From <strong>quantal</strong> (yes/no: died/survived, effect seen/not seen) dose–response
+              data it computes the dose that affects 50 % and 90 % of the subjects (<strong>LD50, LD90</strong>)
+              together with the 95 % confidence interval. The same mathematics gives the <strong>ED50</strong>
+              when the response is a "desired effect" rather than "death"; the ratio of the two is the
+              therapeutic index.
+            </p>
+
+            <h6 class="text-primary mt-3">Typical uses in pharmaceutical technology</h6>
+            <ul class="small text-muted">
+              <li>Comparing the acute toxicity of a new formulation (e.g. nanoparticles, liposomes, solid
+                  dispersion) with that of the free active substance</li>
+              <li>Determining the intrinsic toxicity of the carrier/excipient system (vehicle)</li>
+              <li>Finding the ED50 in an efficacy study to choose the dose range; safety margin as LD50/ED50</li>
+              <li>Bioassays: insecticidal/antiparasitic efficacy, larval or microbial mortality and other
+                  results of the "x out of n" kind</li>
+              <li>Teaching: a table-free, step-by-step counterpart of Finney's probit analysis</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Data entry</h6>
+            <ul class="small text-muted">
+              <li>Each row is one dose group: <strong>Dose</strong> (positive, in a single unit such as mg/kg),
+                  <strong>Response</strong> (number affected/dead in that group), <strong>Number of Animals</strong>
+                  (total subjects in the group). The mortality percentage is computed from these; do not enter
+                  percentages.</li>
+              <li>At least <strong>3 doses</strong> are required; for a reliable slope 4–5 doses and a
+                  <strong>partial response</strong> (between 0 % and 100 %) in at least two groups are
+                  recommended. A slope cannot be estimated from 0 % and 100 % groups alone.</li>
+              <li>Choosing the doses <strong>geometrically</strong> (e.g. 10, 15, 22, 33, 50) makes the log-dose
+                  axis equally spaced; probit/logit work on that axis.</li>
+              <li>Rows with dose ≤ 0 or zero animals are not analysed. The control group (dose 0) is therefore
+                  not read; see Limitations.</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Which method?</h6>
+            <ul class="small text-muted">
+              <li><strong>Probit / Logit (classical)</strong> — the <strong>reference method</strong> for LD50.
+                  A generalised linear model on the log-dose axis, solved by IRLS with binomial weighting
+                  according to the number of animals at each dose (the modern counterpart of Finney's tables).
+                  The 95 % confidence interval is given by Fieller's method. Probit assumes that tolerance is
+                  log-normally distributed; logit is a distribution with slightly heavier tails. The two usually
+                  come out very close; the traditional report in toxicology is the probit.</li>
+              <li><strong>Logistic regression (4PL)</strong> — the four-parameter Hill curve. Designed for
+                  continuous responses (IC50, EC50, cell viability); it does <strong>not</strong> use the number
+                  of animals and its asymptotes are not constrained to 0–100 %. With quantal data keep it for
+                  visual comparison only.</li>
+              <li><strong>Linear regression</strong> — describes the mortality percentage as a straight line
+                  against dose. It does not represent the sigmoid relationship; it reads LD50 from the intercept
+                  of the line and may give negative or out-of-range values. For teaching/comparison only; not to
+                  be reported.</li>
+              <li><strong>Descriptive statistics</strong> — a summary of the entered columns, not an LD calculation.</li>
+            </ul>
+          </div>
+
+          <div class="col-xl-6">
+            <h6 class="text-primary">Reading the results</h6>
+            <ul class="small text-muted">
+              <li><strong>LD50 and 95 % CI</strong>: the value to report. The narrower the interval, the more
+                  reliable the estimate; the LD90 interval is naturally wider because it lies in the tail of the
+                  curve.</li>
+              <li><strong>"CI could not be computed"</strong>: the slope does not differ significantly from zero
+                  (Finney's g ≥ 1 case). It usually means too few doses, very small groups or no partial response
+                  at all; even if an LD50 figure is shown, it is unreliable.</li>
+              <li><strong>Slope (β₁)</strong>: if large, the population is homogeneous and the dose–response is
+                  steep; if small, tolerance varies widely between individuals. Its standard error (±) is the
+                  uncertainty of the coefficient.</li>
+              <li><strong>R²</strong> is <strong>not</strong> a selection criterion here: with quantal data R²
+                  measures the difference in proportions between groups, and in 4PL it is artificially high
+                  because of the four parameters. Judge the methods by CI width and the convergence warning.</li>
+              <li>If the probit and logit LD50 diverge markedly, the data cannot determine the shape of the curve;
+                  an additional dose group is needed.</li>
+              <li>No result carrying a "did not converge" warning should be reported.</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Prerequisites</h6>
+            <ul class="small text-muted">
+              <li>Subjects must be independent and assigned to the dose groups <strong>at random</strong>;
+                  repeated observations of the same animal are not quantal data.</li>
+              <li>The response must be <strong>binary</strong> and defined within a single observation window (e.g. 24 h, 14 days).</li>
+              <li>Group sizes are preferably equal; if not, probit/logit take this into account by weighting,
+                  4PL does not.</li>
+              <li>Species, sex, age and route of administration must be uniform within one analysis; mixed groups distort the slope.</li>
+              <li>There should be <strong>no</strong> deaths in the control group. If there are, Abbott's
+                  correction is required; this application does <strong>not</strong> apply that correction, you
+                  must correct the data beforehand.</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Limitations</h6>
+            <div class="alert alert-warning small py-2">
+              <strong>The classical LD50 test is no longer the regulatory standard.</strong> OECD 401 has been
+              withdrawn; for acute toxicity the fixed-dose (OECD 420), acute toxic class (423) and up-and-down
+              (425) procedures use far fewer animals and give a class/range instead of a point estimate.
+              This tool is for analysing group data that <em>already exist</em> and for teaching; not for
+              designing a new experiment.
+            </div>
+            <ul class="small text-muted">
+              <li><strong>Do not extrapolate.</strong> An LD90 beyond the highest dose tested is an extension of
+                  the curve; the confidence interval reflects this only partly.</li>
+              <li><strong>Small groups give wide intervals.</strong> With groups of 5 animals the 95 % CI often
+                  spans a two-fold range; report the estimate with its interval, not as a single number.</li>
+              <li><strong>Only a single endpoint is modelled.</strong> Time to death, dose–time interaction or
+                  sub-lethal effects do not enter this analysis.</li>
+              <li><strong>There is no comparison test.</strong> Whether the LD50 values of two formulations
+                  differ can be judged from the overlap of the confidence intervals, but this does not replace a
+                  formal test (e.g. parallelism test, likelihood ratio).</li>
+              <li><strong>Units are the user's responsibility.</strong> The result is labelled "mg/kg"; data
+                  entered in a different unit must be read in that unit.</li>
+            </ul>
+          </div>
+        </div>
+      }
+      else
+      {
+        <div class="row g-4">
+          <div class="col-xl-6">
+
+            <h6 class="text-primary">Ne işe yarar?</h6>
+            <p class="small text-muted">
+              <strong>Kantal</strong> (evet/hayır: öldü/yaşadı, etki görüldü/görülmedi) doz-yanıt
+              verisinden, deneklerin %50'sini ve %90'ını etkileyen dozu (<strong>LD50, LD90</strong>)
+              ve %95 güven aralığını hesaplar. Aynı matematik, yanıt "ölüm" yerine "istenen etki"
+              olduğunda <strong>ED50</strong> verir; ikisinin oranı terapötik indekstir.
+            </p>
+
+            <h6 class="text-primary mt-3">Farmasötik teknolojide tipik kullanımlar</h6>
+            <ul class="small text-muted">
+              <li>Yeni bir formülasyonun (ör. nanopartikül, lipozom, katı dispersiyon) akut toksisitesinin
+                  serbest etkin maddeyle karşılaştırılması</li>
+              <li>Taşıyıcı/yardımcı madde sisteminin (vehikül) kendi toksisitesinin belirlenmesi</li>
+              <li>Etkinlik çalışmasında ED50 bulunarak doz aralığının seçilmesi; LD50/ED50 ile güvenlik marjı</li>
+              <li>Biyolojik tayinler: insektisit/antiparaziter etkinlik, larva ya da mikroorganizma
+                  ölüm oranı gibi "kaçta kaçı" biçimindeki sonuçlar</li>
+              <li>Öğretim: Finney probit analizinin tablosuz, adım adım görülebilen karşılığı</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Veri girişi</h6>
+            <ul class="small text-muted">
+              <li>Her satır bir doz grubudur: <strong>Doz</strong> (pozitif, mg/kg gibi tek bir birimde),
+                  <strong>Yanıt</strong> (o gruptaki etkilenen/ölen sayısı), <strong>Hayvan Sayısı</strong>
+                  (gruptaki toplam denek). Mortalite yüzdesi bunlardan hesaplanır; yüzde girmeyin.</li>
+              <li>En az <strong>3 doz</strong> gerekir; güvenilir bir eğim için 4–5 doz ve en az iki grupta
+                  <strong>kısmi yanıt</strong> (%0 ile %100 arası) önerilir. Yalnız %0 ve %100 gruplarından
+                  eğim tahmin edilemez.</li>
+              <li>Dozların <strong>geometrik</strong> (ör. 10, 15, 22, 33, 50) seçilmesi log-doz eksenini
+                  eşit aralıklı yapar; probit/logit bu eksende çalışır.</li>
+              <li>Doz ≤ 0 ya da hayvan sayısı 0 olan satırlar analize girmez. Kontrol grubu (doz 0) bu
+                  yüzden okunmaz; bkz. Kısıtlar.</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Hangi yöntem?</h6>
+            <ul class="small text-muted">
+              <li><strong>Probit / Logit (klasik)</strong> — LD50 için <strong>referans yöntem</strong>.
+                  Log-doz ekseninde genelleştirilmiş lineer model; her dozdaki hayvan sayısına göre binom
+                  ağırlıklandırma yapan IRLS ile çözülür (Finney tablolarının modern karşılığı). %95 güven
+                  aralığı Fieller yöntemiyle verilir. Probit, toleransın log-normal dağıldığını varsayar;
+                  logit kuyrukları biraz daha ağır bir dağılımdır. İkisi genellikle çok yakın çıkar;
+                  toksikolojide geleneksel rapor probittir.</li>
+              <li><strong>Lojistik regresyon (4PL)</strong> — dört parametreli Hill eğrisi. Sürekli yanıtlar
+                  (IC50, EC50, hücre canlılığı) için tasarlanmıştır; hayvan sayısını
+                  <strong>kullanmaz</strong>, asimptotları %0–100 ile sınırlı değildir. Kantal veride
+                  yalnız görsel karşılaştırma için tutun.</li>
+              <li><strong>Doğrusal regresyon</strong> — mortalite yüzdesini doza karşı düz bir doğruyla
+                  açıklar. Sigmoid ilişkiyi temsil etmez; LD50'yi doğrunun kesişiminden okur ve negatif ya
+                  da aralık dışı değer verebilir. Yalnız öğretim/karşılaştırma amaçlıdır; raporlanmaz.</li>
+              <li><strong>Tanımlayıcı istatistikler</strong> — girilen sütunların özetidir, LD hesabı değildir.</li>
+            </ul>
+          </div>
+
+          <div class="col-xl-6">
+            <h6 class="text-primary">Sonuçları okuma</h6>
+            <ul class="small text-muted">
+              <li><strong>LD50 ve %95 GA</strong>: raporlanacak değer. Aralık ne kadar darsa kestirim o kadar
+                  güvenilirdir; LD90'ın aralığı doğal olarak daha geniştir çünkü eğrinin kuyruğundadır.</li>
+              <li><strong>"GA hesaplanamadı"</strong>: eğim sıfırdan anlamlı biçimde farklı değil (Finney'in
+                  g ≥ 1 durumu). Genellikle çok az doz, çok küçük gruplar ya da hiç kısmi yanıt olmaması
+                  demektir; LD50 sayısı görünse bile güvenilmez.</li>
+              <li><strong>Eğim (β₁)</strong>: büyükse popülasyon homojen ve doz-yanıt dik; küçükse
+                  bireyler arası tolerans farkı yüksek. Standart hatası (±) katsayının belirsizliğidir.</li>
+              <li><strong>R²</strong> burada seçim ölçütü <strong>değildir</strong>: kantal veride R² gruplar
+                  arası oran farkını ölçer, 4PL'de dört parametre nedeniyle yapay olarak yüksektir. Yöntemleri
+                  GA genişliği ve yakınsama uyarısıyla değerlendirin.</li>
+              <li>Probit ile logit LD50'si belirgin ayrışıyorsa veri eğrinin biçimini belirleyemiyor demektir;
+                  ek doz grubu gerekir.</li>
+              <li>"Yakınsamadı" uyarısı çıkan hiçbir sonuç raporlanmamalıdır.</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Ön şartlar</h6>
+            <ul class="small text-muted">
+              <li>Denekler bağımsız ve doz gruplarına <strong>rastgele</strong> atanmış olmalı; aynı hayvanın
+                  tekrarlı gözlemi kantal veri değildir.</li>
+              <li>Yanıt <strong>ikili</strong> ve tek bir gözlem penceresinde (ör. 24 saat, 14 gün) tanımlı olmalı.</li>
+              <li>Grup büyüklükleri tercihen eşit; eşit değilse probit/logit bunu ağırlıklandırmayla hesaba
+                  katar, 4PL katmaz.</li>
+              <li>Tür, cinsiyet, yaş ve uygulama yolu bir analizde tek olmalı; karışık gruplar eğimi bozar.</li>
+              <li>Kontrol grubunda ölüm <strong>olmamalı</strong>. Varsa Abbott düzeltmesi gerekir; bu
+                  uygulama o düzeltmeyi <strong>yapmaz</strong>, veriyi önceden düzeltmelisiniz.</li>
+            </ul>
+
+            <h6 class="text-primary mt-3">Kısıtlar</h6>
+            <div class="alert alert-warning small py-2">
+              <strong>Klasik LD50 deneyi artık düzenleyici standart değildir.</strong> OECD 401 yürürlükten
+              kalkmış; akut toksisite için sabit doz (OECD 420), akut toksik sınıf (423) ve yukarı-aşağı
+              (425) yöntemleri çok daha az hayvanla çalışır ve nokta kestirimi yerine sınıf/aralık verir.
+              Bu araç, elde <em>zaten var olan</em> grup verisinin analizi ve öğretim içindir; yeni bir
+              deney tasarlamak için değil.
+            </div>
+            <ul class="small text-muted">
+              <li><strong>Ekstrapolasyon yapmayın.</strong> Test edilen en yüksek dozun ötesindeki LD90,
+                  eğrinin uzatılmasıdır; güven aralığı bunu ancak kısmen yansıtır.</li>
+              <li><strong>Küçük gruplar geniş aralık verir.</strong> 5'er hayvanlık gruplarda %95 GA sık sık
+                  iki kat genişliğe ulaşır; kestirimi tek sayıyla değil aralığıyla raporlayın.</li>
+              <li><strong>Yalnız tek bir uç nokta modellenir.</strong> Ölüm zamanı, doz-zaman etkileşimi ya da
+                  alt-letal etkiler bu analize girmez.</li>
+              <li><strong>Karşılaştırma testi yoktur.</strong> İki formülasyonun LD50'sinin farklı olup
+                  olmadığı için güven aralıklarının örtüşmesine bakılabilir, ancak bu resmî bir testin
+                  (ör. paralellik testi, olasılık oranı) yerine geçmez.</li>
+              <li><strong>Birimler kullanıcı sorumluluğundadır.</strong> Sonuç "mg/kg" olarak etiketlenir;
+                  farklı birimle girilmiş veri farklı birimde okunmalıdır.</li>
+            </ul>
+          </div>
+        </div>
+      }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+root = true
+
+###############################################################################
+# Tüm dosyalar için varsayılan kodlama ve satır sonu ayarları
+# UTF-8 (BOM'suz) zorunlu kılınır; Türkçe karakterlerin (ı, İ, ş, ç, ö, ü, ğ)
+# bozulmasını önler.
+###############################################################################
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = false
+trim_trailing_whitespace = false
+indent_style = space
+
+[*.{razor,cshtml,cs,css,js,json,html}]
+charset = utf-8
+indent_size = 4
+
+[*.{razor,cshtml}]
+indent_size = 4
+
+[*.{json,js}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

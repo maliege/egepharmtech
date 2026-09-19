@@ -1,0 +1,1042 @@
+﻿@page "/ldcalc"
+<SiteTitle Text="LD50/LD90 Hesaplama" />
+@using System.Text.Json
+@using EgePharmTech.Helpers
+@using Microsoft.JSInterop
+@using EgePharmTech.Middleware
+@using EgePharmTech.Components.UI
+@using EgePharmTech.Core.Services
+@using EgePharmTech.Core.KinetikAnalysis
+
+@inject AnalysisStateDescriptiveStats State
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<section class="container-fluid p-4">
+<h5 class="mb-3 text-primary fw-bold"><i class="bi bi-clipboard2-pulse me-2"></i>@L["LD50/LD90 Hesaplama"]</h5>
+
+@* Düzen: sol sütunda veri girişi + yöntem seçimi (yaklaşık üçte bir), sağ sütunda
+   kullanım rehberi (üçte iki). Rehber varsayılan olarak AÇIK: bu sütun ona ayrıldı.
+   Grafik, sonuçlar üretildiğinde sonuç bloğunun başında tam genişlikte çizilir. *@
+<div class="row">
+  <div class="col-lg-4 col-md-5">
+    <h5>@L["Doz-Yanıt Verisi"]</h5>
+    <p class="text-muted small">@L["Doz (mg/kg), Yanıt (ölüm sayısı), Hayvan Sayısı"]</p>
+
+    <HandsontableGrid @ref="_hotData"
+                      Data="State.DoseResponseData"
+                      Columns="_columns"
+                      Height="420"
+                      MinRows="40" />
+
+    <div class="mt-3 d-flex gap-2">
+      <button class="btn btn-primary" @onclick="CalculateAsync">@L["Hesapla"]</button>
+      <button class="btn btn-secondary" @onclick="ClearAsync">@L["Temizle"]</button>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">@L["Yöntem Seçimi"]</h5>
+      </div>
+      <div class="card-body">
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" @bind="_calculateDescriptive" id="chkDescriptive" />
+          <label class="form-check-label" for="chkDescriptive">
+            @L["Tanımlayıcı İstatistikler"]
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" @bind="_calculateLinear" id="chkLinear" />
+          <label class="form-check-label" for="chkLinear">
+            @L["Doğrusal Regresyon (y=mx+n)"]
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" @bind="_calculateLogistic" id="chkLogistic" />
+          <label class="form-check-label" for="chkLogistic">
+            @L["Lojistik Regresyon"]
+          </label>
+        </div>
+
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" @bind="_calculateProbit" id="chkProbit" />
+          <label class="form-check-label" for="chkProbit">
+            @L["Probit Analizi (klasik)"]
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" @bind="_calculateLogit" id="chkLogit" />
+          <label class="form-check-label" for="chkLogit">
+            @L["Logit Analizi (klasik)"]
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 col-md-7">
+    @* Kullanım rehberi (TR/EN) ayrı bileşende: Components/Guides/LDCalcGuide.razor *@
+    <LDCalcGuide />
+  </div>
+</div>
+
+@if (_results is not null)
+{
+  <div class="mt-4">
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">@L["Doz-Yanıt Eğrisi"]</h5>
+      </div>
+      <div class="card-body">
+        <div style="position: relative; height: 480px;">
+          <canvas id="@_chartId"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">@L["Sonuçlar"]</h5>
+      </div>
+      <div class="card-body">
+        @if (_results.DescriptiveStats is not null)
+        {
+          <h6>@L["Tanımlayıcı İstatistikler"]</h6>
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>@L["Metrik"]</th>
+                <th>@L["Doz"]</th>
+                <th>@L["Yanıt"]</th>
+                <th>@L["Mortalite (%)"]</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>n</strong></td>
+                <td>@_results.DescriptiveStats.DoseCount</td>
+                <td>@_results.DescriptiveStats.ResponseCount</td>
+                <td>@_results.DescriptiveStats.MortalityCount</td>
+              </tr>
+              <tr>
+                <td><strong>@L["Ortalama"]</strong></td>
+                <td>@_results.DescriptiveStats.DoseMean.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.ResponseMean.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.MortalityMean.ToString("F2")</td>
+              </tr>
+              <tr>
+                <td><strong>@L["Medyan"]</strong></td>
+                <td>@_results.DescriptiveStats.DoseMedian.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.ResponseMedian.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.MortalityMedian.ToString("F2")</td>
+              </tr>
+              <tr>
+                <td><strong>@L["Std. Sapma"]</strong></td>
+                <td>@_results.DescriptiveStats.DoseStdDev.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.ResponseStdDev.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.MortalityStdDev.ToString("F2")</td>
+              </tr>
+              <tr>
+                <td><strong>Min</strong></td>
+                <td>@_results.DescriptiveStats.DoseMin.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.ResponseMin.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.MortalityMin.ToString("F2")</td>
+              </tr>
+              <tr>
+                <td><strong>Max</strong></td>
+                <td>@_results.DescriptiveStats.DoseMax.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.ResponseMax.ToString("F4")</td>
+                <td>@_results.DescriptiveStats.MortalityMax.ToString("F2")</td>
+              </tr>
+            </tbody>
+          </table>
+          <hr />
+        }
+
+        @if (_results.LinearRegression is not null)
+        {
+          <h6>@L["Doğrusal Regresyon (y = mx + n)"]</h6>
+          <div class="row">
+            <div class="col-md-6">
+              <table class="table table-sm table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>@L["Eğim (m)"]</strong></td>
+                    <td>@_results.LinearRegression.Slope.ToString("F6")</td>
+                  </tr>
+                  <tr>
+                    <td><strong>@L["Kesim (n)"]</strong></td>
+                    <td>@_results.LinearRegression.Intercept.ToString("F6")</td>
+                  </tr>
+                  <tr>
+                    <td><strong>R²</strong></td>
+                    <td>@_results.LinearRegression.RSquared.ToString("F6")</td>
+                  </tr>
+                  <tr class="table-info">
+                    <td><strong>LD50</strong></td>
+                    <td><strong>@FormatDose(_results.LinearRegression.LD50)</strong></td>
+                  </tr>
+                  <tr class="table-warning">
+                    <td><strong>LD90</strong></td>
+                    <td><strong>@FormatDose(_results.LinearRegression.LD90)</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <p class="small text-muted">
+                <strong>@L["Denklem"]:</strong> @L["Mortalite"]% = @_results.LinearRegression.Slope.ToString("F4") × @L["Doz"] + @_results.LinearRegression.Intercept.ToString("F4")
+              </p>
+              <p class="small text-muted">
+                @L["LD50 ve LD90 değerleri, sırasıyla %50 ve %90 mortalite için ters hesaplama ile bulunmuştur (doğrunun başladığı noktadan itibaren)."]
+              </p>
+            </div>
+          </div>
+          <hr />
+        }
+
+        @if (_results.LogisticRegression is not null)
+        {
+          <h6>@L["Lojistik Regresyon (4-parametreli)"]</h6>
+          <div class="row">
+            <div class="col-md-6">
+              <table class="table table-sm table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Min (A)</strong></td>
+                    <td>@_results.LogisticRegression.A.ToString("F4")</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Max (D)</strong></td>
+                    <td>@_results.LogisticRegression.D.ToString("F4")</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Hill Slope (B)</strong></td>
+                    <td>@_results.LogisticRegression.B.ToString("F4")</td>
+                  </tr>
+                  <tr>
+                    <td><strong>EC50 (C)</strong></td>
+                    <td>@_results.LogisticRegression.C.ToString("F4")</td>
+                  </tr>
+                  <tr>
+                    <td><strong>R²</strong></td>
+                    <td>@_results.LogisticRegression.RSquared.ToString("F6")</td>
+                  </tr>
+                  <tr class="table-info">
+                    <td><strong>LD50</strong></td>
+                    <td><strong>@FormatDose(_results.LogisticRegression.LD50)</strong></td>
+                  </tr>
+                  <tr class="table-warning">
+                    <td><strong>LD90</strong></td>
+                    <td><strong>@FormatDose(_results.LogisticRegression.LD90)</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <p class="small text-muted">
+                <strong>@L["Denklem"]:</strong> y = A + (D - A) / (1 + (C/x)^B)
+              </p>
+              <p class="small text-muted">
+                @L["Lojistik model, doz-yanıt eğrisinin sigmoid şeklini modeller. Parametreler Marquardt-Levenberg (Levenberg-Marquardt) iteratif yöntemiyle fit edilir; LD50 ve LD90 değerleri fit edilen eğrinin ters fonksiyonundan hesaplanır."]
+                @if (!_results.LogisticRegression.Converged)
+                {
+                  <span class="text-danger d-block mt-1">
+                    @L["Uyarı: İterasyon yakınsamadı; parametreler başlangıç tahminlerinde kalmış olabilir ve LD değerleri modelden değil ham veri interpolasyonundan geliyor olabilir."]
+                  </span>
+                }
+              </p>
+              <div class="alert alert-warning small py-2">
+                @if (Lang.IsEn)
+                {
+                  <strong>R² cannot be compared between the models shown here.</strong>
+                  <text> This model has 4 free parameters (probit/logit have 2) and R² is computed on the
+                  unweighted scale that the model optimises. The R² of the 4PL is therefore almost always
+                  higher; this does </text><strong>not</strong><text> mean it is the better method. Moreover
+                  this model never uses the number of animals (n) at each dose. The reference method for
+                  LD50/LD90 is probit/logit.</text>
+                  @if (_results.PointCount <= 4)
+                  {
+                    <span class="d-block mt-1">
+                      This data set has @_results.PointCount points and 4 parameters are being fitted;
+                      R² is meaningless in this case (with 3 points it is always 1.000000).
+                    </span>
+                  }
+                  @if (_results.LogisticRegression.A < 0 || _results.LogisticRegression.D > 100)
+                  {
+                    <span class="d-block mt-1">
+                      Furthermore the asymptotes have strayed into a physically impossible range for
+                      mortality (Min A = @_results.LogisticRegression.A.ToString("F2"),
+                      Max D = @_results.LogisticRegression.D.ToString("F2")); the model is not
+                      constrained to the 0–100 % limits.
+                    </span>
+                  }
+                }
+                else
+                {
+                  <strong>R² buradaki modeller arasında karşılaştırılamaz.</strong>
+                  <text> Bu modelin 4 serbest parametresi var (probit/logit'te 2) ve R²,
+                  modelin optimize ettiği ağırlıksız ölçekte hesaplanıyor. Bu yüzden
+                  4PL'in R²'si neredeyse her zaman daha yüksek çıkar; bu, daha iyi
+                  yöntem olduğu anlamına </text><strong>gelmez</strong><text>. Ayrıca bu model her
+                  dozdaki hayvan sayısını (n) hiç kullanmaz. LD50/LD90 için referans
+                  yöntem probit/logit'tir.</text>
+                  @if (_results.PointCount <= 4)
+                  {
+                    <span class="d-block mt-1">
+                      Bu veri setinde @_results.PointCount nokta var ve 4 parametre fit
+                      ediliyor; R² bu durumda anlamsızdır (3 noktada her zaman 1,000000 çıkar).
+                    </span>
+                  }
+                  @if (_results.LogisticRegression.A < 0 || _results.LogisticRegression.D > 100)
+                  {
+                    <span class="d-block mt-1">
+                      Ayrıca asimptotlar mortalite için fiziksel olarak imkânsız bir aralığa
+                      taşmış (Min A = @_results.LogisticRegression.A.ToString("F2"),
+                      Max D = @_results.LogisticRegression.D.ToString("F2")); model %0–100
+                      sınırlarıyla kısıtlanmamıştır.
+                    </span>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (_results.Probit is not null)
+        {
+          <hr />
+          @ProbitLogitCard(L["Probit Analizi (klasik)"].Value, "Φ⁻¹(p)", _results.Probit)
+        }
+
+        @if (_results.Logit is not null)
+        {
+          <hr />
+          @ProbitLogitCard(L["Logit Analizi (klasik)"].Value, "logit(p)", _results.Logit)
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+  <div class="alert alert-danger mt-3">
+    <strong>@L["Hata"]:</strong> @_errorMessage
+  </div>
+}
+
+</section>
+
+@code {
+  private HandsontableGrid? _hotData;
+  private readonly string _chartId = $"dose-response-chart-{Guid.NewGuid():N}";
+
+  // Sütun başlıkları arayüz dilinden gelir; L enjeksiyonu alan başlatıcısından sonra
+  // geldiği için liste OnInitialized'da kurulur.
+  private List<HandsontableGrid.ColumnConfig> _columns = new();
+
+  protected override void OnInitialized()
+  {
+    string T(string key) => L[key].Value;
+    _columns = new()
+    {
+      new() { Title = T("Doz (mg/kg)"), Data = "0", Type = "numeric", Width = 95, NumericFormat = "0.0000" },
+      new() { Title = T("Yanıt (ölüm)"), Data = "1", Type = "numeric", Width = 90, NumericFormat = "0" },
+      new() { Title = T("Hayvan Sayısı"), Data = "2", Type = "numeric", Width = 100, NumericFormat = "0" }
+    };
+  }
+
+  private bool _calculateDescriptive = true;
+  private bool _calculateLinear = true;
+  private bool _calculateLogistic = true;
+  private bool _calculateProbit = true;
+  private bool _calculateLogit = true;
+
+  private AnalysisResults? _results;
+  private string? _errorMessage;
+
+#if DEBUG
+  private bool _debugSeeded;
+
+  private const string _debugSampleData = @"10.0	2	10
+15.0	4	10
+20.0	6	10
+25.0	8	10
+30.0	9	10
+35.0	10	10";
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender && !_debugSeeded)
+    {
+      await Task.Delay(200); // Grid'in hazır olmasını bekle
+      if (_hotData is not null)
+      {
+        ApplyTsvToMatrix(State.DoseResponseData, _debugSampleData);
+        await _hotData.UpdateDataAsync(State.DoseResponseData);
+        _debugSeeded = true;
+      }
+    }
+  }
+
+  private static void ApplyTsvToMatrix(object?[][] matrix, string tsv)
+  {
+    var lines = tsv.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    int row = 0;
+    foreach (var line in lines)
+    {
+      if (row >= matrix.Length) break;
+      var parts = line.Split('\t');
+      for (int col = 0; col < parts.Length && col < matrix[row].Length; col++)
+      {
+        if (NumericCellParser.TryParse(parts[col], out var val))
+          matrix[row][col] = val;
+      }
+      row++;
+    }
+  }
+#endif
+
+  private async Task CalculateAsync()
+  {
+    _errorMessage = null;
+    _results = null;
+
+    try
+    {
+      if (_hotData is null)
+      {
+        _errorMessage = L["Grid henüz başlatılmadı."].Value;
+        return;
+      }
+
+      var rawData = await _hotData.GetDataAsync();
+      var matrix = ConvertJsonToArray(rawData);
+      if (matrix.Length == 0)
+      {
+        _errorMessage = L["Grid verisi okunamadı."].Value;
+        return;
+      }
+
+      var doseResponse = ParseDoseResponse(matrix);
+
+      if (doseResponse.Count < 3)
+      {
+        _errorMessage = L["En az 3 veri noktası gereklidir."].Value;
+        return;
+      }
+
+      var results = new AnalysisResults { PointCount = doseResponse.Count };
+
+      if (_calculateDescriptive)
+      {
+        results.DescriptiveStats = CalculateDescriptiveStatistics(doseResponse);
+      }
+
+      if (_calculateLinear)
+      {
+        results.LinearRegression = CalculateLinearRegression(doseResponse);
+      }
+
+      if (_calculateLogistic)
+      {
+        results.LogisticRegression = CalculateLogisticRegression(doseResponse);
+      }
+
+      if (_calculateProbit)
+      {
+        results.Probit = CalculateProbitLogit(doseResponse, DoseResponseLink.Probit);
+      }
+
+      if (_calculateLogit)
+      {
+        results.Logit = CalculateProbitLogit(doseResponse, DoseResponseLink.Logit);
+      }
+
+      _results = results;
+
+      // Sonuçları göster (canvas'ın DOM'a eklenmesi için render'ı tetikle)
+      StateHasChanged();
+      await Task.Yield();
+
+      // Grafik çiz
+      await DrawChartAsync(doseResponse, results);
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = ex.Message;
+    }
+  }
+
+  private async Task DrawChartAsync(List<DoseResponsePoint> data, AnalysisResults results)
+  {
+    try
+    {
+      var datasets = new List<object>();
+
+      // Gerçek veri noktaları
+      datasets.Add(new
+      {
+        label = L["Gözlenen Veriler"].Value,
+        data = data.Select(d => new { x = d.Dose, y = d.Mortality }).ToArray(),
+        type = "scatter",
+        backgroundColor = "rgba(54, 162, 235, 0.8)",
+        borderColor = "rgba(54, 162, 235, 1)",
+        pointRadius = 6
+      });
+
+      // Doğrusal regresyon çizgisi
+      if (results.LinearRegression is not null)
+      {
+        var minDose = data.Min(d => d.Dose);
+        var maxDose = data.Max(d => d.Dose);
+        var step = (maxDose - minDose) / 100;
+        if (step <= 0) step = Math.Max(minDose, 1) / 100;   // tek doz seviyesi: sonsuz döngüyü önle
+        var linearPoints = new List<object>();
+        for (double x = minDose; x <= maxDose; x += step)
+        {
+          var y = results.LinearRegression.Slope * x + results.LinearRegression.Intercept;
+          linearPoints.Add(new { x, y });
+        }
+
+        datasets.Add(new
+        {
+          label = L["Doğrusal Regresyon"].Value,
+          data = linearPoints.ToArray(),
+          type = "line",
+          borderColor = "rgba(255, 99, 132, 1)",
+          backgroundColor = "transparent",
+          pointRadius = 0,
+          borderWidth = 2
+        });
+      }
+
+      // Lojistik regresyon eğrisi
+      if (results.LogisticRegression is not null)
+      {
+        var minDose = data.Min(d => d.Dose);
+        var maxDose = data.Max(d => d.Dose);
+        var step = (maxDose - minDose) / 100;
+        if (step <= 0) step = Math.Max(minDose, 1) / 100;   // tek doz seviyesi: sonsuz döngüyü önle
+        var logisticPoints = new List<object>();
+        for (double x = minDose; x <= maxDose; x += step)
+        {
+          var A = results.LogisticRegression.A;
+          var D = results.LogisticRegression.D;
+          var B = results.LogisticRegression.B;
+          var C = results.LogisticRegression.C;
+          var y = DoseResponseAnalyzer.Logistic(x, A, B, C, D);
+          logisticPoints.Add(new { x, y });
+        }
+
+        datasets.Add(new
+        {
+          label = L["Lojistik Regresyon"].Value,
+          data = logisticPoints.ToArray(),
+          type = "line",
+          borderColor = "rgba(75, 192, 192, 1)",
+          backgroundColor = "transparent",
+          pointRadius = 0,
+          borderWidth = 2,
+          borderDash = new[] { 5, 5 }
+        });
+      }
+
+      // Probit eğrisi
+      if (results.Probit is not null)
+      {
+        datasets.Add(new
+        {
+          label = "Probit",
+          data = BuildProbitLogitCurve(data, results.Probit),
+          type = "line",
+          borderColor = "rgba(153, 102, 255, 1)",
+          backgroundColor = "transparent",
+          pointRadius = 0,
+          borderWidth = 2,
+          borderDash = new[] { 8, 4 }
+        });
+      }
+
+      // Logit eğrisi
+      if (results.Logit is not null)
+      {
+        datasets.Add(new
+        {
+          label = "Logit",
+          data = BuildProbitLogitCurve(data, results.Logit),
+          type = "line",
+          borderColor = "rgba(255, 159, 64, 1)",
+          backgroundColor = "transparent",
+          pointRadius = 0,
+          borderWidth = 2,
+          borderDash = new[] { 2, 2 }
+        });
+      }
+
+      var config = new
+      {
+        type = "scatter",
+        data = new
+        {
+          datasets = datasets.ToArray()
+        },
+        options = new
+        {
+          responsive = true,
+          maintainAspectRatio = false,
+          scales = new
+          {
+            xAxes = new[]
+            {
+              new
+              {
+                type = "linear",
+                position = "bottom",
+                scaleLabel = new { display = true, labelString = L["Doz (mg/kg)"].Value }
+              }
+            },
+            yAxes = new[]
+            {
+              new
+              {
+                scaleLabel = new { display = true, labelString = L["Mortalite (%)"].Value },
+                ticks = new { min = 0, max = 100 }
+              }
+            }
+          },
+          legend = new { display = true, position = "top" },
+          tooltips = new { enabled = true }
+        }
+      };
+
+      await JS.InvokeVoidAsync("chartInterop.renderChart", _chartId, config);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"Chart error: {ex.Message}");
+    }
+  }
+
+  // Probit/Logit eğrisini doz aralığında örnekler (log-doz GLM: 100·link⁻¹(β₀+β₁·ln x)).
+  private static object[] BuildProbitLogitCurve(List<DoseResponsePoint> data, ProbitLogitFitResult fit)
+  {
+    var minDose = data.Min(d => d.Dose);
+    var maxDose = data.Max(d => d.Dose);
+    var step = (maxDose - minDose) / 100;
+    if (step <= 0) step = Math.Max(minDose, 1) / 100;
+
+    var points = new List<object>();
+    for (double x = minDose; x <= maxDose; x += step)
+    {
+      var y = ProbitLogitAnalyzer.PredictPercent(x, fit.B0, fit.B1, fit.Link);
+      points.Add(new { x, y });
+    }
+    return points.ToArray();
+  }
+
+  private async Task ClearAsync()
+  {
+    if (_hotData is null) return;
+
+    for (int i = 0; i < State.DoseResponseData.Length; i++)
+    {
+      for (int j = 0; j < State.DoseResponseData[i].Length; j++)
+      {
+        State.DoseResponseData[i][j] = null;
+      }
+    }
+
+    await _hotData.UpdateDataAsync(State.DoseResponseData);
+    _results = null;
+    _errorMessage = null;
+  }
+
+  private static object?[][] ConvertJsonToArray(object? data)
+  {
+    if (data is null) return Array.Empty<object?[]>();
+
+    if (data is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
+    {
+      var rows = new List<object?[]>();
+      foreach (var row in jsonElement.EnumerateArray())
+      {
+        if (row.ValueKind == JsonValueKind.Array)
+        {
+          var cells = new List<object?>();
+          foreach (var cell in row.EnumerateArray())
+          {
+            cells.Add(cell.ValueKind switch
+            {
+              JsonValueKind.Number => cell.GetDouble(),
+              JsonValueKind.String => cell.GetString(),
+              JsonValueKind.Null => null,
+              JsonValueKind.Undefined => null,
+              _ => cell.ToString()
+            });
+          }
+          rows.Add(cells.ToArray());
+        }
+      }
+      return rows.ToArray();
+    }
+
+    if (data is object?[][] arr) return arr;
+
+    return Array.Empty<object?[]>();
+  }
+
+  private static bool TryToDouble(object? o, out double v)
+  {
+    v = 0;
+    if (o is null) return false;
+    if (o is double d) { v = d; return true; }
+
+    var s = o.ToString();
+    if (string.IsNullOrWhiteSpace(s)) return false;
+
+    return NumericCellParser.TryParse(s, out v);
+  }
+
+  private List<DoseResponsePoint> ParseDoseResponse(object?[][] raw)
+  {
+    var list = new List<DoseResponsePoint>();
+
+    foreach (var row in raw)
+    {
+      if (row.Length < 3) continue;
+
+      if (TryToDouble(row[0], out var dose) &&
+          TryToDouble(row[1], out var response) &&
+          TryToDouble(row[2], out var total))
+      {
+        if (dose > 0 && total > 0)
+        {
+          list.Add(new DoseResponsePoint
+          {
+            Dose = dose,
+            Response = response,
+            Total = total,
+            Mortality = (response / total) * 100.0
+          });
+        }
+      }
+    }
+
+    return list.OrderBy(p => p.Dose).ToList();
+  }
+
+  private DescriptiveStatistics CalculateDescriptiveStatistics(List<DoseResponsePoint> data)
+  {
+    var doses = data.Select(d => d.Dose).ToArray();
+    var responses = data.Select(d => d.Response).ToArray();
+    var mortalities = data.Select(d => d.Mortality).ToArray();
+
+    return new DescriptiveStatistics
+    {
+      DoseCount = doses.Length,
+      ResponseCount = responses.Length,
+      MortalityCount = mortalities.Length,
+
+      DoseMean = doses.Average(),
+      ResponseMean = responses.Average(),
+      MortalityMean = mortalities.Average(),
+
+      DoseMedian = CalculateMedian(doses),
+      ResponseMedian = CalculateMedian(responses),
+      MortalityMedian = CalculateMedian(mortalities),
+
+      DoseStdDev = CalculateStdDev(doses),
+      ResponseStdDev = CalculateStdDev(responses),
+      MortalityStdDev = CalculateStdDev(mortalities),
+
+      DoseMin = doses.Min(),
+      ResponseMin = responses.Min(),
+      MortalityMin = mortalities.Min(),
+
+      DoseMax = doses.Max(),
+      ResponseMax = responses.Max(),
+      MortalityMax = mortalities.Max()
+    };
+  }
+
+  private double CalculateMedian(double[] values)
+  {
+    var sorted = values.OrderBy(v => v).ToArray();
+    int n = sorted.Length;
+    if (n == 0) return 0;
+    if (n % 2 == 1)
+      return sorted[n / 2];
+    return (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0;
+  }
+
+  private double CalculateStdDev(double[] values)
+  {
+    if (values.Length < 2) return 0;
+    var mean = values.Average();
+    var sumSq = values.Sum(v => (v - mean) * (v - mean));
+    return Math.Sqrt(sumSq / (values.Length - 1));
+  }
+
+  private LinearRegressionResult CalculateLinearRegression(List<DoseResponsePoint> data)
+  {
+    // Basit doğrusal regresyon: Mortality% ~ Dose
+    var n = data.Count;
+    var sumX = data.Sum(d => d.Dose);
+    var sumY = data.Sum(d => d.Mortality);
+    var sumXY = data.Sum(d => d.Dose * d.Mortality);
+    var sumX2 = data.Sum(d => d.Dose * d.Dose);
+
+    var slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    var intercept = (sumY - slope * sumX) / n;
+
+    // R²
+    var meanY = sumY / n;
+    var ssTotal = data.Sum(d => (d.Mortality - meanY) * (d.Mortality - meanY));
+    var ssResidual = data.Sum(d =>
+    {
+      var predicted = slope * d.Dose + intercept;
+      return (d.Mortality - predicted) * (d.Mortality - predicted);
+    });
+    var rSquared = 1 - (ssResidual / ssTotal);
+
+    // LD50: y = 50 => x = (50 - intercept) / slope
+    var ld50 = (50 - intercept) / slope;
+    var ld90 = (90 - intercept) / slope;
+
+    return new LinearRegressionResult
+    {
+      Slope = slope,
+      Intercept = intercept,
+      RSquared = rSquared,
+      LD50 = ld50,
+      LD90 = ld90
+    };
+  }
+
+  private LogisticRegressionResult CalculateLogisticRegression(List<DoseResponsePoint> data)
+  {
+    // 4-parametreli lojistik (sigmoid / Hill): y = A + (D - A) / (1 + (C/x)^B)
+    // Kinetik modülüyle aynı Marquardt-Levenberg (Levenberg-Marquardt) çözücüsünü
+    // kullanan birleşik Core motoru üzerinden fit edilir.
+    var doses = data.Select(d => d.Dose).ToArray();
+    var mortalities = data.Select(d => d.Mortality).ToArray();
+
+    var fit = DoseResponseAnalyzer.FitLogistic(doses, mortalities);
+
+    return new LogisticRegressionResult
+    {
+      A = fit.A,
+      D = fit.D,
+      B = fit.B,
+      C = fit.C,
+      RSquared = fit.RSquared,
+      LD50 = fit.LD50,
+      LD90 = fit.LD90,
+      Converged = fit.Converged
+    };
+  }
+
+  private ProbitLogitFitResult? CalculateProbitLogit(List<DoseResponsePoint> data, DoseResponseLink link)
+  {
+    // Klasik Probit / Logit analizi: log-doz ekseninde IRLS (Iteratively Reweighted
+    // Least Squares) ile, her dozdaki hayvan sayısına (n) göre binom ağırlıklandırma.
+    // Klasik Finney probit tablolarının modern, tablosuz karşılığıdır.
+    var doses = data.Select(d => d.Dose).ToArray();
+    var responses = data.Select(d => d.Response).ToArray();
+    var totals = data.Select(d => d.Total).ToArray();
+
+    try
+    {
+      return ProbitLogitAnalyzer.Fit(doses, responses, totals, link);
+    }
+    catch
+    {
+      return null;
+    }
+  }
+
+  // LD değerini görüntüleme için biçimlendirir; hesaplanamıyorsa "Hesaplanamadı" döner.
+  private string FormatDose(double value)
+  {
+    if (double.IsNaN(value) || double.IsInfinity(value))
+      return L["Hesaplanamadı"].Value;
+    return $"{value:F4} mg/kg";
+  }
+
+  // Standart hatayı katsayının yanında " ± 0,3510" biçiminde gösterir; yoksa boş.
+  private static string FormatSe(double se)
+  {
+    if (double.IsNaN(se) || double.IsInfinity(se)) return "";
+    return $" ± {se:F4}";
+  }
+
+  // %95 fidusiyal (Fieller) güven aralığı; sınırsızsa nedenini açıklar.
+  private string FormatCi(double lower, double upper)
+  {
+    if (double.IsNaN(lower) || double.IsNaN(upper))
+      return L["%95 GA: hesaplanamadı (eğim sıfırdan anlamlı biçimde farklı değil)"].Value;
+    return $"{L["%95 GA"].Value}: {lower:F4} – {upper:F4} mg/kg";
+  }
+
+  // Probit / Logit sonuç kartı (her iki model aynı yapıyı paylaşır).
+  private RenderFragment ProbitLogitCard(string title, string linkLabel, ProbitLogitFitResult fit) => __builder =>
+  {
+    <h6>
+      @title
+      <span class="badge bg-success align-middle">@L["LD50 için referans yöntem"]</span>
+    </h6>
+    <div class="row">
+      <div class="col-md-6">
+        <table class="table table-sm table-bordered">
+          <tbody>
+            <tr>
+              <td><strong>@L["Kesim (β₀)"]</strong></td>
+              <td>@fit.B0.ToString("F4")<span class="text-muted">@FormatSe(fit.SeB0)</span></td>
+            </tr>
+            <tr>
+              <td><strong>@L["Eğim (β₁)"]</strong></td>
+              <td>@fit.B1.ToString("F4")<span class="text-muted">@FormatSe(fit.SeB1)</span></td>
+            </tr>
+            <tr>
+              <td><strong>R²</strong></td>
+              <td>@fit.RSquared.ToString("F6")</td>
+            </tr>
+            <tr class="table-info">
+              <td><strong>LD50</strong></td>
+              <td>
+                <strong>@FormatDose(fit.LD50)</strong>
+                <span class="small text-muted d-block">@FormatCi(fit.LD50Lower, fit.LD50Upper)</span>
+              </td>
+            </tr>
+            <tr class="table-warning">
+              <td><strong>LD90</strong></td>
+              <td>
+                <strong>@FormatDose(fit.LD90)</strong>
+                <span class="small text-muted d-block">@FormatCi(fit.LD90Lower, fit.LD90Upper)</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <p class="small text-muted">
+          <strong>@L["Denklem"]:</strong> @linkLabel = β₀ + β₁·ln(@L["doz"])
+        </p>
+        <p class="small text-muted">
+          @if (Lang.IsEn)
+          {
+            <text>Classical @(fit.Link == DoseResponseLink.Probit ? "probit" : "logit") analysis.
+            The parameters are fitted by </text><strong>IRLS (Iteratively Reweighted Least Squares)</strong><text> with
+            binomial weighting according to the number of animals (n) — the modern, table-free
+            counterpart of the classical Finney tables. Because it applies binomial weighting, this
+            is the method to take as the reference when estimating LD50/LD90.</text>
+          }
+          else
+          {
+            <text>Klasik @(fit.Link == DoseResponseLink.Probit ? "probit" : "logit") analizi.
+            Parametreler, hayvan sayısına (n) göre binom ağırlıklandırma yapan </text><strong>IRLS (Iteratively Reweighted Least Squares)</strong><text> yöntemiyle fit edilir —
+            bu, klasik Finney tablolarının modern, tablosuz karşılığıdır. Binom
+            ağırlıklandırma yaptığı için LD50/LD90 tahmininde referans alınması
+            gereken yöntem budur.</text>
+          }
+          @if (!fit.Converged)
+          {
+            <span class="text-danger d-block mt-1">
+              @L["Uyarı: İterasyon tam yakınsamadı; sonuçlar yaklaşık olabilir. Bu yüzden standart hata ve güven aralığı hesaplanmadı."]
+            </span>
+          }
+        </p>
+        <p class="small text-muted">
+          @if (Lang.IsEn)
+          {
+            <text>The </text><strong>95 % confidence interval</strong><text> is computed by Fieller's (fiducial) method —
+            these are the limits reported by classical Finney probit analysis. If the slope does not
+            differ significantly from zero (Finney's g ≥ 1 case) the limits are mathematically
+            unbounded and "could not be computed" is shown instead of a number.</text>
+          }
+          else
+          {
+            <strong>%95 güven aralığı</strong><text> Fieller (fidusiyal) yöntemiyle hesaplanır —
+            klasik Finney probit analizinin bildirdiği sınırlar bunlardır. Eğim sıfırdan
+            anlamlı biçimde farklı değilse (Finney'in g ≥ 1 durumu) sınırlar matematiksel
+            olarak sınırsızdır ve sayı yerine "hesaplanamadı" gösterilir.</text>
+          }
+        </p>
+      </div>
+    </div>
+  };
+
+  // Model classes
+  private record DoseResponsePoint
+  {
+    public double Dose { get; init; }
+    public double Response { get; init; }
+    public double Total { get; init; }
+    public double Mortality { get; init; }
+  }
+
+  private class AnalysisResults
+  {
+    public DescriptiveStatistics? DescriptiveStats { get; set; }
+    public LinearRegressionResult? LinearRegression { get; set; }
+    public LogisticRegressionResult? LogisticRegression { get; set; }
+    public ProbitLogitFitResult? Probit { get; set; }
+    public ProbitLogitFitResult? Logit { get; set; }
+
+    // Kaç doz noktası fit edildi (4PL'in serbestlik derecesi uyarısı için).
+    public int PointCount { get; set; }
+  }
+
+  private record DescriptiveStatistics
+  {
+    public int DoseCount { get; init; }
+    public int ResponseCount { get; init; }
+    public int MortalityCount { get; init; }
+
+    public double DoseMean { get; init; }
+    public double ResponseMean { get; init; }
+    public double MortalityMean { get; init; }
+
+    public double DoseMedian { get; init; }
+    public double ResponseMedian { get; init; }
+    public double MortalityMedian { get; init; }
+
+    public double DoseStdDev { get; init; }
+    public double ResponseStdDev { get; init; }
+    public double MortalityStdDev { get; init; }
+
+    public double DoseMin { get; init; }
+    public double ResponseMin { get; init; }
+    public double MortalityMin { get; init; }
+
+    public double DoseMax { get; init; }
+    public double ResponseMax { get; init; }
+    public double MortalityMax { get; init; }
+  }
+
+  private record LinearRegressionResult
+  {
+    public double Slope { get; init; }
+    public double Intercept { get; init; }
+    public double RSquared { get; init; }
+    public double LD50 { get; init; }
+    public double LD90 { get; init; }
+  }
+
+  private record LogisticRegressionResult
+  {
+    public double A { get; init; } // Min
+    public double D { get; init; } // Max
+    public double B { get; init; } // Hill slope
+    public double C { get; init; } // EC50
+    public double RSquared { get; init; }
+    public double LD50 { get; init; }
+    public double LD90 { get; init; }
+    public bool Converged { get; init; }
+  }
+}

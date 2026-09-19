@@ -1,0 +1,41 @@
+﻿@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<button class="theme-toggle-btn" @onclick="ToggleTheme" title="@L[isDarkTheme ? "Açık temaya geç" : "Koyu temaya geç"]">
+    <i class="bi @(isDarkTheme ? "bi-sun-fill" : "bi-moon-fill")"></i>
+</button>
+
+@code {
+    private bool isDarkTheme = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var theme = await JS.InvokeAsync<string>("themeManager.initialize");
+                isDarkTheme = theme == "dark";
+                StateHasChanged();
+            }
+            catch
+            {
+                // JavaScript henüz yüklenmemişse varsayılan kullan
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        try
+        {
+            var newTheme = await JS.InvokeAsync<string>("themeManager.toggleTheme");
+            isDarkTheme = newTheme == "dark";
+        }
+        catch
+        {
+            // Fallback
+            isDarkTheme = !isDarkTheme;
+        }
+    }
+}

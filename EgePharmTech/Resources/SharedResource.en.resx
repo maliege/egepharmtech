@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Arayüz metinlerinin İngilizce karşılıkları. Anahtar = Türkçe kaynak metin (SharedResource.cs'e bakın).
+    Türkçe için ayrı dosya yok: kültür tr ise ya da anahtar burada yoksa localizer anahtarı döndürür.
+  -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Menü ve altbilgi -->
+  <data name="Anasayfa" xml:space="preserve"><value>Home</value></data>
+  <data name="ana sayfa" xml:space="preserve"><value>home</value></data>
+  <data name="Farmasötik Teknoloji" xml:space="preserve"><value>Pharmaceutical Technology</value></data>
+  <data name="Rehberler" xml:space="preserve"><value>Guides</value></data>
+  <data name="Hakkında" xml:space="preserve"><value>About</value></data>
+  <data name="Hakkımda" xml:space="preserve"><value>About me</value></data>
+  <data name="İletişim" xml:space="preserve"><value>Contact</value></data>
+  <data name="Bize Ulaşın" xml:space="preserve"><value>Contact us</value></data>
+  <data name="Dil" xml:space="preserve"><value>Language</value></data>
+  <data name="Tüm hakları saklıdır." xml:space="preserve"><value>All rights reserved.</value></data>
+  <data name="Kaynak kodu" xml:space="preserve"><value>Source code</value></data>
+  <data name="Farmasötik teknoloji hesaplama araçları" xml:space="preserve"><value>Pharmaceutical technology calculation tools</value></data>
+
+  <!-- Araç adları ve sayfa başlıkları -->
+  <data name="Ternary Phase Diagram" xml:space="preserve"><value>Ternary Phase Diagram</value></data>
+  <data name="Üçgen Faz Diyagramı" xml:space="preserve"><value>Ternary Phase Diagram</value></data>
+  <data name="Kinetik Analiz" xml:space="preserve"><value>Kinetic Analysis</value></data>
+  <data name="F1 ve F2 Testi" xml:space="preserve"><value>f1 and f2 Test</value></data>
+  <data name="F1 / F2 Testi" xml:space="preserve"><value>f1 / f2 Test</value></data>
+  <data name="F1 / F2 Analizi" xml:space="preserve"><value>f1 / f2 Analysis</value></data>
+  <data name="T-Test Analizi" xml:space="preserve"><value>t-Test</value></data>
+  <data name="t-Testi" xml:space="preserve"><value>t-Test</value></data>
+  <data name="LD Hesabı" xml:space="preserve"><value>LD50 Calculator</value></data>
+  <data name="LD50/LD90 Hesaplama" xml:space="preserve"><value>LD50/LD90 Calculation</value></data>
+  <data name="Kinetik Analiz Rehberi" xml:space="preserve"><value>Kinetic Analysis Guide</value></data>
+  <data name="Üçgen Faz Diyagramı Rehberi" xml:space="preserve"><value>Ternary Phase Diagram Guide</value></data>
+  <data name="Farmasötik teknoloji için istatistik ve hesaplama araçları" xml:space="preserve"><value>Statistical and computational tools for pharmaceutical technology</value></data>
+  <data name="Farmasötik teknoloji ve bilimsel hesaplama araçları" xml:space="preserve"><value>Pharmaceutical technology and scientific computation tools</value></data>
+  <data name="EPT_MetaAciklama" xml:space="preserve"><value>Free, open-source tools for pharmaceutical technology: dissolution kinetics (16 release models, AIC ranking), f1/f2 similarity factors, pseudo-ternary phase diagrams with area and centroid, LD50 dose–response and t-test. Turkish edition at egepharmtech.tr, English at egepharmtech.com.</value></data>
+
+  <!-- EgePharmTech ana sayfa -->
+  <data name="Farmasötik teknoloji için açık hesaplama araçları" xml:space="preserve"><value>Open computational tools for pharmaceutical technology</value></data>
+  <data name="EPT_Lead" xml:space="preserve"><value>Dissolution kinetics, release-profile comparison, pseudo-ternary phase diagrams, dose–response and basic statistics: free tools that run in the browser and work directly with laboratory data.</value></data>
+  <data name="EPT_Paragraf" xml:space="preserve"><value>The tools are web versions of desktop programs developed since 1995 at the Department of Pharmaceutical Technology, Faculty of Pharmacy, Ege University (İzmir, Türkiye). The kinetics engine's results have been compared with DDSolver outputs, and the source code is open. Data you enter never leaves your browser session; nothing is stored on the server.</value></data>
+  <data name="EPT_DilNotu" xml:space="preserve"><value>The Turkish edition is at egepharmtech.tr, the English edition at egepharmtech.com; the TR/EN switch at the top right changes the language.</value></data>
+  <data name="Öne çıkan araçlar" xml:space="preserve"><value>Featured tools</value></data>
+  <data name="Başlat" xml:space="preserve"><value>Open</value></data>
+  <data name="Üç bileşenli sistemlerin faz diyagramını çizer, karışım bölgelerini görselleştirir." xml:space="preserve"><value>Draws pseudo-ternary phase diagrams and measures the area and centroid of each region.</value></data>
+  <data name="Salım verisini Higuchi, Korsmeyer-Peppas, Weibull, Hopfenberg gibi modellere fit eder." xml:space="preserve"><value>Fits release data to Higuchi, Korsmeyer–Peppas, Weibull, Hopfenberg and twelve more models; ranks them by AIC.</value></data>
+  <data name="İki dissolüsyon profilini fark (f1) ve benzerlik (f2) faktörleriyle karşılaştırır." xml:space="preserve"><value>Compares two dissolution profiles with the difference (f1) and similarity (f2) factors.</value></data>
+  <data name="Salım verisini Higuchi, Korsmeyer-Peppas, Weibull gibi modellere fit eder" xml:space="preserve"><value>Fits release data to Higuchi, Korsmeyer–Peppas, Weibull and other models</value></data>
+  <data name="İki dissolüsyon profilini fark (f1) ve benzerlik (f2) faktörleriyle karşılaştırır" xml:space="preserve"><value>Compares two dissolution profiles with the f1 and f2 factors</value></data>
+  <data name="Bağımsız ve eşleştirilmiş örneklem t-testi, Levene varyans homojenliği testiyle" xml:space="preserve"><value>Independent and paired-sample t-tests, with Levene's test for equal variances</value></data>
+  <data name="Doz-yanıt verisinden probit, logit ve 4PL ile LD50/LD90 ve güven aralıkları" xml:space="preserve"><value>LD50/LD90 and confidence intervals from dose–response data by probit, logit and 4PL</value></data>
+  <data name="Üç bileşenli sistemlerin faz diyagramını çizer, karışım bölgelerini gösterir" xml:space="preserve"><value>Draws pseudo-ternary phase diagrams and shows the mixture regions</value></data>
+  <data name="Modeller, uyum, ölçütler, işlenmiş örnek, sık hatalar ve Türkiye'deki gelenek; 48 kaynak" xml:space="preserve"><value>Models, fitting, criteria, a worked example, common mistakes and the Turkish school; 48 references</value></data>
+  <data name="Okuma, su titrasyonu, faz bölgeleri, alan ve merkez, terminoloji; 36 kaynak" xml:space="preserve"><value>Reading the diagram, water titration, phase regions, area and centroid, terminology; 36 references</value></data>
+
+  <!-- EgePharmTech hakkında -->
+  <data name="EPT_Hakkinda_1" xml:space="preserve"><value>EgePharmTech is a collection of free, open-source computational tools for pharmaceutical technology: dissolution kinetics, f1/f2 profile comparison, pseudo-ternary phase diagrams, dose–response analysis and basic statistics.</value></data>
+  <data name="EPT_Hakkinda_2" xml:space="preserve"><value>The tools were written by Mehmet Ali Ege, PhD, lecturer at the Department of Pharmaceutical Technology, Faculty of Pharmacy, Ege University (İzmir, Türkiye). Most of them descend from desktop programs used in the department since 1995; the pseudo-ternary phase-diagram tool dates from 2001. The "Ege" in the name is both the author's surname and Ege University (Aegean University, İzmir), where the tools originated; the site is not an official publication of the university.</value></data>
+  <data name="EPT_Hakkinda_3" xml:space="preserve"><value>The source code is published on GitHub under the MIT licence, and the kinetics engine's results have been compared with DDSolver 1.0 outputs. If you use the tools in a publication, please cite them as described in the repository's CITATION file.</value></data>
+  <data name="EPT_Hakkinda_4" xml:space="preserve"><value>EgePharmTech is the pharmaceutical-technology edition of maege.tr, which also hosts the author's amateur-radio, astronomy and botany applications.</value></data>
+  <data name="Yazar hakkında" xml:space="preserve"><value>About the author</value></data>
+  <data name="GitHub deposu" xml:space="preserve"><value>GitHub repository</value></data>
+
+  <!-- Kinetik Analiz aracı -->
+  <data name="Veri Girişi" xml:space="preserve"><value>Data Entry</value></data>
+  <data name="Hopfenberg geometrisi" xml:space="preserve"><value>Hopfenberg geometry</value></data>
+  <data name="Silindir (n=2)" xml:space="preserve"><value>Cylinder (n=2)</value></data>
+  <data name="Küre (n=3)" xml:space="preserve"><value>Sphere (n=3)</value></data>
+  <data name="Yarım küre (n=1,5)" xml:space="preserve"><value>Half sphere (n=1.5)</value></data>
+  <data name="Üçgen (n=4)" xml:space="preserve"><value>Triangle (n=4)</value></data>
+  <data name="Varyantlar" xml:space="preserve"><value>Variants</value></data>
+  <data name="Costa &amp; Sousa Lobo: n yalnız F&lt;%60 bölgesinden belirlenmelidir" xml:space="preserve"><value>Costa &amp; Sousa Lobo: n should be determined only from the F&lt;60% region</value></data>
+  <data name="KP: tüm noktalar" xml:space="preserve"><value>KP: all points</value></data>
+  <data name="Analiz Et" xml:space="preserve"><value>Analyse</value></data>
+  <data name="Varyantlar yalnız modelin desteklediği yerde uygulanır (şartname §7)." xml:space="preserve"><value>Variants are applied only where the model supports them (spec §7).</value></data>
+  <data name="Zaman - Salım Grafiği" xml:space="preserve"><value>Time – Release Chart</value></data>
+  <data name="Analiz sonrası grafik burada görünecek" xml:space="preserve"><value>The chart will appear here after the analysis</value></data>
+  <data name="Analiz yapılamadı" xml:space="preserve"><value>Analysis could not be performed</value></data>
+  <data name="Veri okunurken dikkat edilmesi gerekenler" xml:space="preserve"><value>Notes from reading the data</value></data>
+  <data name="Profil Özeti (model-bağımsız)" xml:space="preserve"><value>Profile Summary (model-independent)</value></data>
+  <data name="%·zaman" xml:space="preserve"><value>%·time</value></data>
+  <data name="Dissolüsyon Etkinliği (DE)" xml:space="preserve"><value>Dissolution Efficiency (DE)</value></data>
+  <data name="Ortalama Dissolüsyon Süresi (MDT)" xml:space="preserve"><value>Mean Dissolution Time (MDT)</value></data>
+  <data name="Son nokta" xml:space="preserve"><value>Last point</value></data>
+  <data name="Costa &amp; Sousa Lobo (2001), Eq. 41 (DE) ve Eq. 42 (MDT). Hiçbir modele fit gerektirmez." xml:space="preserve"><value>Costa &amp; Sousa Lobo (2001), Eq. 41 (DE) and Eq. 42 (MDT). No model fit is required.</value></data>
+  <data name="Model Sıralaması (AIC'e göre — küçük daha iyi)" xml:space="preserve"><value>Model Ranking (by AIC — lower is better)</value></data>
+  <data name="veri noktası" xml:space="preserve"><value>data points</value></data>
+  <data name="Katsayılar" xml:space="preserve"><value>Coefficients</value></data>
+  <data name="Ağırlık" xml:space="preserve"><value>Weight</value></data>
+  <data name="Tahmini salım grafiği için tıklayın" xml:space="preserve"><value>Click to plot the predicted release</value></data>
+  <data name="Yakınsama başarısız — tohum değerleri gösteriliyor" xml:space="preserve"><value>Convergence failed — seed values shown</value></data>
+  <data name="Mekanizma Analizi (kısıtlı veri kümesi — sıralamaya girmez)" xml:space="preserve"><value>Mechanism Analysis (restricted data set — not ranked)</value></data>
+  <data name="Yorum" xml:space="preserve"><value>Notes</value></data>
+  <data name="Sembol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="Değer" xml:space="preserve"><value>Value</value></data>
+  <data name="Birim" xml:space="preserve"><value>Unit</value></data>
+  <data name="Açıklama" xml:space="preserve"><value>Description</value></data>
+  <data name="İkincil Parametreler" xml:space="preserve"><value>Secondary Parameters</value></data>
+  <data name="Hedef" xml:space="preserve"><value>Target</value></data>
+  <data name="Süre" xml:space="preserve"><value>Time</value></data>
+  <data name="Tahmini Salım Değerleri" xml:space="preserve"><value>Predicted Release Values</value></data>
+  <data name="Zaman" xml:space="preserve"><value>Time</value></data>
+  <data name="Gözlenen" xml:space="preserve"><value>Observed</value></data>
+  <data name="Tekrar" xml:space="preserve"><value>Rep</value></data>
+  <data name="Ortalama" xml:space="preserve"><value>Mean</value></data>
+  <data name="StdSapma" xml:space="preserve"><value>SD</value></data>
+  <data name="Gözlenen Salım (%)" xml:space="preserve"><value>Observed release (%)</value></data>
+  <data name="Tahmini" xml:space="preserve"><value>Predicted</value></data>
+  <data name="Tahmini Salım (%)" xml:space="preserve"><value>Predicted release (%)</value></data>
+  <data name="Salım (%)" xml:space="preserve"><value>Release (%)</value></data>
+  <data name="Zaman - Salım Profili" xml:space="preserve"><value>Time – Release Profile</value></data>
+
+  <!-- f1f2 aracı -->
+  <data name="F1 / F2 Analizi — Çözünme Profili Karşılaştırması" xml:space="preserve"><value>f1 / f2 Analysis — Dissolution Profile Comparison</value></data>
+  <data name="Referans" xml:space="preserve"><value>Reference</value></data>
+  <data name="Test Ürünü" xml:space="preserve"><value>Test Product</value></data>
+  <data name="Hesapla" xml:space="preserve"><value>Calculate</value></data>
+  <data name="12 tekrar zorunlu" xml:space="preserve"><value>12 replicates required</value></data>
+  <data name="%85 kesme kuralı" xml:space="preserve"><value>85 % cut-off rule</value></data>
+  <data name="Grafik" xml:space="preserve"><value>Chart</value></data>
+  <data name="Rapor" xml:space="preserve"><value>Report</value></data>
+  <data name="Dikkat edilmesi gerekenler" xml:space="preserve"><value>Points to note</value></data>
+  <data name="Bu uyarılar hesabı durdurmaz; aşağıdaki f1/f2 değerleri yine de hesaplanmıştır. Koşulların sağlanıp sağlanmadığına karar vermek kullanıcıya aittir." xml:space="preserve"><value>These warnings do not stop the calculation; the f1/f2 values below have been calculated regardless. It is up to the user to decide whether the conditions are met.</value></data>
+  <data name="%85 kesme zamanı" xml:space="preserve"><value>85 % cut-off time</value></data>
+  <data name="n (kesme öncesi)" xml:space="preserve"><value>n (before cut-off)</value></data>
+  <data name="Kesme indeksi" xml:space="preserve"><value>Cut-off index</value></data>
+  <data name="n (ortak zaman noktası)" xml:space="preserve"><value>n (common time points)</value></data>
+  <data name="Zaman noktaları" xml:space="preserve"><value>Time points</value></data>
+  <data name="Referans ortalaması" xml:space="preserve"><value>Reference mean</value></data>
+  <data name="Referans std. sapma" xml:space="preserve"><value>Reference std. deviation</value></data>
+  <data name="Test ürünü ortalaması" xml:space="preserve"><value>Test product mean</value></data>
+  <data name="Test ürünü std. sapma" xml:space="preserve"><value>Test product std. deviation</value></data>
+  <data name="Kural: referans veya test ürününden biri %85'e ulaştığı ilk zaman noktasında durulur, o nokta dahil edilir." xml:space="preserve"><value>Rule: stop at the first time point at which either the reference or the test product reaches 85 %; that point is included.</value></data>
+  <data name="Kural: %85 kesme kuralı kapalı." xml:space="preserve"><value>Rule: 85 % cut-off rule disabled.</value></data>
+  <data name="t={0} ({1} tekrar)" xml:space="preserve"><value>t={0} ({1} replicates)</value></data>
+  <data name="{0}: &quot;12 tekrar zorunlu&quot; seçeneği açık olduğu için şu zaman noktaları analiz dışı bırakıldı — {1}." xml:space="preserve"><value>{0}: because the "12 replicates required" option is enabled, the following time points were excluded from the analysis — {1}.</value></data>
+  <data name="t={0} (ortalama {1})" xml:space="preserve"><value>t={0} (mean {1})</value></data>
+  <data name="{0}: ortalaması %100'e ulaştığı ya da sıfır/negatif olduğu için şu zaman noktaları analiz dışı bırakıldı — {1}. Profil tam çözünmeye ulaşıyorsa plato noktalarının düştüğünü unutmayın." xml:space="preserve"><value>{0}: the following time points were excluded from the analysis because their mean reached 100 % or was zero/negative — {1}. If the profile reaches complete dissolution, bear in mind that the plateau points drop out.</value></data>
+  <data name="Test ürünü" xml:space="preserve"><value>Test product</value></data>
+  <data name="Hesaplamada yalnızca {0} ortak zaman noktası kullanıldı. f2 için genellikle en az 3 nokta aranır; bu değer güvenilir değildir." xml:space="preserve"><value>Only {0} common time point(s) were used in the calculation. At least 3 points are usually required for f2; this value is not reliable.</value></data>
+  <data name="{0}: t={1} noktasında RSD %{2} — ilk zaman noktaları için sınır %{3}." xml:space="preserve"><value>{0}: RSD {2} % at t={1} — the limit for the first time point is {3} %.</value></data>
+  <data name="{0}: t={1} noktasında RSD %{2} — sonraki zaman noktaları için sınır %{3}." xml:space="preserve"><value>{0}: RSD {2} % at t={1} — the limit for subsequent time points is {3} %.</value></data>
+  <data name="Referans (%)" xml:space="preserve"><value>Reference (%)</value></data>
+  <data name="Test ürünü (%)" xml:space="preserve"><value>Test product (%)</value></data>
+  <data name="Referans – Test ürünü (dissolüsyon profili)" xml:space="preserve"><value>Reference vs Test product (dissolution profile)</value></data>
+
+  <!-- ldcalc aracı -->
+  <data name="Doz-Yanıt Verisi" xml:space="preserve"><value>Dose–Response Data</value></data>
+  <data name="Doz (mg/kg), Yanıt (ölüm sayısı), Hayvan Sayısı" xml:space="preserve"><value>Dose (mg/kg), Response (number of deaths), Number of Animals</value></data>
+  <data name="Temizle" xml:space="preserve"><value>Clear</value></data>
+  <data name="Yöntem Seçimi" xml:space="preserve"><value>Method Selection</value></data>
+  <data name="Tanımlayıcı İstatistikler" xml:space="preserve"><value>Descriptive Statistics</value></data>
+  <data name="Doğrusal Regresyon (y=mx+n)" xml:space="preserve"><value>Linear Regression (y=mx+n)</value></data>
+  <data name="Lojistik Regresyon" xml:space="preserve"><value>Logistic Regression</value></data>
+  <data name="Probit Analizi (klasik)" xml:space="preserve"><value>Probit Analysis (classical)</value></data>
+  <data name="Logit Analizi (klasik)" xml:space="preserve"><value>Logit Analysis (classical)</value></data>
+  <data name="Doz-Yanıt Eğrisi" xml:space="preserve"><value>Dose–Response Curve</value></data>
+  <data name="Sonuçlar" xml:space="preserve"><value>Results</value></data>
+  <data name="Metrik" xml:space="preserve"><value>Metric</value></data>
+  <data name="Doz" xml:space="preserve"><value>Dose</value></data>
+  <data name="Yanıt" xml:space="preserve"><value>Response</value></data>
+  <data name="Mortalite (%)" xml:space="preserve"><value>Mortality (%)</value></data>
+  <data name="Medyan" xml:space="preserve"><value>Median</value></data>
+  <data name="Std. Sapma" xml:space="preserve"><value>Std. Dev.</value></data>
+  <data name="Doğrusal Regresyon (y = mx + n)" xml:space="preserve"><value>Linear Regression (y = mx + n)</value></data>
+  <data name="Eğim (m)" xml:space="preserve"><value>Slope (m)</value></data>
+  <data name="Kesim (n)" xml:space="preserve"><value>Intercept (n)</value></data>
+  <data name="Denklem" xml:space="preserve"><value>Equation</value></data>
+  <data name="Mortalite" xml:space="preserve"><value>Mortality</value></data>
+  <data name="LD50 ve LD90 değerleri, sırasıyla %50 ve %90 mortalite için ters hesaplama ile bulunmuştur (doğrunun başladığı noktadan itibaren)." xml:space="preserve"><value>The LD50 and LD90 values are obtained by inverse calculation for 50 % and 90 % mortality respectively (from the point where the line starts).</value></data>
+  <data name="Lojistik Regresyon (4-parametreli)" xml:space="preserve"><value>Logistic Regression (4-parameter)</value></data>
+  <data name="Lojistik model, doz-yanıt eğrisinin sigmoid şeklini modeller. Parametreler Marquardt-Levenberg (Levenberg-Marquardt) iteratif yöntemiyle fit edilir; LD50 ve LD90 değerleri fit edilen eğrinin ters fonksiyonundan hesaplanır." xml:space="preserve"><value>The logistic model describes the sigmoid shape of the dose–response curve. The parameters are fitted by the iterative Marquardt–Levenberg (Levenberg–Marquardt) method; the LD50 and LD90 values are computed from the inverse function of the fitted curve.</value></data>
+  <data name="Uyarı: İterasyon yakınsamadı; parametreler başlangıç tahminlerinde kalmış olabilir ve LD değerleri modelden değil ham veri interpolasyonundan geliyor olabilir." xml:space="preserve"><value>Warning: the iteration did not converge; the parameters may have remained at their starting estimates and the LD values may come from interpolation of the raw data rather than from the model.</value></data>
+  <data name="Hata" xml:space="preserve"><value>Error</value></data>
+  <data name="LD50 için referans yöntem" xml:space="preserve"><value>Reference method for LD50</value></data>
+  <data name="Kesim (β₀)" xml:space="preserve"><value>Intercept (β₀)</value></data>
+  <data name="Eğim (β₁)" xml:space="preserve"><value>Slope (β₁)</value></data>
+  <data name="doz" xml:space="preserve"><value>dose</value></data>
+  <data name="Uyarı: İterasyon tam yakınsamadı; sonuçlar yaklaşık olabilir. Bu yüzden standart hata ve güven aralığı hesaplanmadı." xml:space="preserve"><value>Warning: the iteration did not fully converge; the results may be approximate. The standard error and confidence interval were therefore not computed.</value></data>
+  <data name="Doz (mg/kg)" xml:space="preserve"><value>Dose (mg/kg)</value></data>
+  <data name="Yanıt (ölüm)" xml:space="preserve"><value>Response (deaths)</value></data>
+  <data name="Hayvan Sayısı" xml:space="preserve"><value>Number of Animals</value></data>
+  <data name="Grid henüz başlatılmadı." xml:space="preserve"><value>The grid has not been initialised yet.</value></data>
+  <data name="Grid verisi okunamadı." xml:space="preserve"><value>The grid data could not be read.</value></data>
+  <data name="En az 3 veri noktası gereklidir." xml:space="preserve"><value>At least 3 data points are required.</value></data>
+  <data name="Gözlenen Veriler" xml:space="preserve"><value>Observed Data</value></data>
+  <data name="Doğrusal Regresyon" xml:space="preserve"><value>Linear Regression</value></data>
+  <data name="Hesaplanamadı" xml:space="preserve"><value>Could not be computed</value></data>
+  <data name="%95 GA: hesaplanamadı (eğim sıfırdan anlamlı biçimde farklı değil)" xml:space="preserve"><value>95 % CI: could not be computed (slope not significantly different from zero)</value></data>
+  <data name="%95 GA" xml:space="preserve"><value>95 % CI</value></data>
+
+  <!-- ternary aracı -->
+  <data name="Diyagram" xml:space="preserve"><value>Diagram</value></data>
+  <data name="Satır Ekle" xml:space="preserve"><value>Add Row</value></data>
+  <data name="Satır Sil" xml:space="preserve"><value>Delete Row</value></data>
+  <data name="Örnek Veri" xml:space="preserve"><value>Sample Data</value></data>
+  <data name="-- Seçin --" xml:space="preserve"><value>-- Select --</value></data>
+  <data name="Örnek" xml:space="preserve"><value>Sample</value></data>
+  <data name="Çalışmayı sakla" xml:space="preserve"><value>Save your work</value></data>
+  <data name="Veri, ayarlar ve grup stilleri tek .json dosyasında" xml:space="preserve"><value>Data, settings and group styles in a single .json file</value></data>
+  <data name="Dosyaya kaydet" xml:space="preserve"><value>Save to file</value></data>
+  <data name="Daha önce kaydedilmiş .json dosyasını yükle" xml:space="preserve"><value>Load a previously saved .json file</value></data>
+  <data name="Dosyadan aç" xml:space="preserve"><value>Open from file</value></data>
+  <data name="bu tarayıcıdaki kopyayı sil" xml:space="preserve"><value>delete the copy in this browser</value></data>
+  <data name="Başlık" xml:space="preserve"><value>Title</value></data>
+  <data name="Eksen Aralığı" xml:space="preserve"><value>Axis Interval</value></data>
+  <data name="5 birim (0, 5, 10, ...)" xml:space="preserve"><value>5 units (0, 5, 10, ...)</value></data>
+  <data name="10 birim (0, 10, 20, ...)" xml:space="preserve"><value>10 units (0, 10, 20, ...)</value></data>
+  <data name="20 birim (0, 20, 40, ...)" xml:space="preserve"><value>20 units (0, 20, 40, ...)</value></data>
+  <data name="Polygon Kapatma" xml:space="preserve"><value>Polygon Closing</value></data>
+  <data name="Poligonu Kapat" xml:space="preserve"><value>Close Polygon</value></data>
+  <data name="Min Değer Kapatma" xml:space="preserve"><value>Minimum-Value Closing</value></data>
+  <data name="Kenar Kapatma" xml:space="preserve"><value>Edge Closing</value></data>
+  <data name="Kapatma Kenarı" xml:space="preserve"><value>Closing Edge</value></data>
+  <data name="Kenarları yumuşat (Bezier)" xml:space="preserve"><value>Smooth edges (Bezier)</value></data>
+  <data name="Yumuşatma" xml:space="preserve"><value>Smoothing</value></data>
+  <data name="(%60 ≈ klasik Catmull-Rom)" xml:space="preserve"><value>(60% ≈ classic Catmull-Rom)</value></data>
+  <data name="Eğri ölçüm noktalarından geçer; kenar üzerindeki kapatma noktalarına düz çizgiyle bağlanır. Alan ve merkez, yumuşatılmış çerçeveden hesaplanır. İki ölçüm arasındaki gerçek sınır bilinmediği için bu bir görsel yorumdur." xml:space="preserve"><value>The curve passes through the measured points and is joined to the closing points on the edge by straight lines. Area and centroid are computed from the smoothed outline. Since the true boundary between two measurements is unknown, this is a visual interpretation.</value></data>
+  <data name="Gradient dolgu göster" xml:space="preserve"><value>Show gradient fill</value></data>
+  <data name="Gradient Opaklık" xml:space="preserve"><value>Gradient opacity</value></data>
+  <data name="Poligon kenar opaklığı" xml:space="preserve"><value>Polygon edge opacity</value></data>
+  <data name="Poligon dolgu opaklığı" xml:space="preserve"><value>Polygon fill opacity</value></data>
+  <data name="Bu iki kaydırıcı bütün gruplar için varsayılandır. Bir gruba diyagramda tıklayıp kendi rengini ve opaklığını verebilirsiniz; grup değeri varsayılanı ezer." xml:space="preserve"><value>These two sliders are the defaults for all groups. Click a group in the diagram to give it its own colour and opacity; the group value overrides the default.</value></data>
+  <data name="Ternary Diyagram" xml:space="preserve"><value>Ternary Diagram</value></data>
+  <data name="Kullanım kılavuzu ve kuramsal arka plan" xml:space="preserve"><value>User guide and theoretical background</value></data>
+  <data name="Rehber" xml:space="preserve"><value>Guide</value></data>
+  <data name="Diyagramı SVG dosyası olarak indir" xml:space="preserve"><value>Download the diagram as an SVG file</value></data>
+  <data name="SVG indir" xml:space="preserve"><value>Download SVG</value></data>
+  <data name="seçili grup" xml:space="preserve"><value>selected group</value></data>
+  <data name="Seçimi kaldır" xml:space="preserve"><value>Clear selection</value></data>
+  <data name="Dolgu rengi" xml:space="preserve"><value>Fill colour</value></data>
+  <data name="Kenar rengi" xml:space="preserve"><value>Edge colour</value></data>
+  <data name="Dolgu opaklığı" xml:space="preserve"><value>Fill opacity</value></data>
+  <data name="Kenar opaklığı" xml:space="preserve"><value>Edge opacity</value></data>
+  <data name="Kenar kalınlığı" xml:space="preserve"><value>Edge width</value></data>
+  <data name="Varsayılana dön" xml:space="preserve"><value>Reset to default</value></data>
+  <data name="Stil grup adına bağlıdır; aynı adlı grup sonraki çalışmalarda da bu rengi alır." xml:space="preserve"><value>The style is bound to the group name; a group with the same name will get this colour in later sessions too.</value></data>
+  <data name="{0} satırda yağ + sürfaktan + su toplamı 100 değil" xml:space="preserve"><value>In {0} row(s) oil + surfactant + water does not total 100</value></data>
+  <data name="(tolerans ±{0}). Nokta yağ ve sürfaktan yüzdesinden yerleştirilir, su kalan olarak okunur; bu satırlar girilen suya göre yanlış yerde durur. Düzeltip yeniden hesaplayın." xml:space="preserve"><value>(tolerance ±{0}). A point is placed from the oil and surfactant percentages and water is read as the remainder; these rows therefore sit in the wrong place relative to the water entered. Correct them and recalculate.</value></data>
+  <data name="{0} · sıra {1}: toplam {2} ({3})" xml:space="preserve"><value>{0} · row {1}: total {2} ({3})</value></data>
+  <data name="… ve {0} satır daha" xml:space="preserve"><value>… and {0} more rows</value></data>
+  <data name="Grup" xml:space="preserve"><value>Group</value></data>
+  <data name="Alan" xml:space="preserve"><value>Area</value></data>
+  <data name="Seçmek için tıklayın" xml:space="preserve"><value>Click to select</value></data>
+  <data name="Sıra" xml:space="preserve"><value>Order</value></data>
+  <data name="Veri yükleyin ve hesapla butonuna tıklayın." xml:space="preserve"><value>Load data and click Calculate.</value></data>
+  <data name="Bu tarayıcıda otomatik kaydedilir." xml:space="preserve"><value>Saved automatically in this browser.</value></data>
+  <data name="Bu tarayıcıda otomatik kaydedildi ({0})." xml:space="preserve"><value>Saved automatically in this browser ({0}).</value></data>
+  <data name="Bu tarayıcıda saklama kullanılamıyor (özel pencere olabilir)." xml:space="preserve"><value>Storage is not available in this browser (possibly a private window).</value></data>
+  <data name="Otomatik kayıt başarısız." xml:space="preserve"><value>Autosave failed.</value></data>
+  <data name="Bu tarayıcıdaki kopya silindi; bir sonraki değişiklikte yeniden kaydedilir." xml:space="preserve"><value>The copy in this browser was deleted; it will be saved again on the next change.</value></data>
+  <data name="{0} indirildi." xml:space="preserve"><value>{0} downloaded.</value></data>
+  <data name="Dosya oluşturulamadı: {0}" xml:space="preserve"><value>File could not be created: {0}</value></data>
+  <data name="Dosya çok büyük (en fazla 2 MB)." xml:space="preserve"><value>File too large (2 MB maximum).</value></data>
+  <data name="Dosya okunamadı: bu bir maege.tr diyagram dosyası değil." xml:space="preserve"><value>File could not be read: this is not a maege.tr diagram file.</value></data>
+  <data name="{0} yüklendi ({1} satır)." xml:space="preserve"><value>{0} loaded ({1} rows).</value></data>
+  <data name="SVG bulunamadı." xml:space="preserve"><value>SVG not found.</value></data>
+  <data name="SVG oluşturulamadı: {0}" xml:space="preserve"><value>SVG could not be created: {0}</value></data>
+  <data name="Bu tarayıcıdaki kayıt geri yüklendi ({0})." xml:space="preserve"><value>The copy saved in this browser was restored ({0}).</value></data>
+  <data name="Son çalışmanız geri yüklendi ({0} satır)." xml:space="preserve"><value>Your last session was restored ({0} rows).</value></data>
+  <data name="{0} satır yüklendi." xml:space="preserve"><value>{0} rows loaded.</value></data>
+  <data name="Temizlendi." xml:space="preserve"><value>Cleared.</value></data>
+  <data name="Grid yüklenemedi." xml:space="preserve"><value>Grid could not be loaded.</value></data>
+  <data name="Hesaplanıyor..." xml:space="preserve"><value>Calculating...</value></data>
+  <data name="Veri alınamadı." xml:space="preserve"><value>Data could not be read.</value></data>
+  <data name="Geçerli veri yok." xml:space="preserve"><value>No valid data.</value></data>
+
+  <!-- ttest aracı -->
+  <data name="Her satır bir eşi temsil eder; iki sütun da aynı satırda dolu olmalıdır." xml:space="preserve"><value>Each row represents one pair; both columns must be filled in the same row.</value></data>
+  <data name="Grupların veri sayısı farklı olabilir; sütunlar birbirinden bağımsız okunur." xml:space="preserve"><value>The groups may contain different numbers of values; the columns are read independently of each other.</value></data>
+  <data name="Test Parametreleri" xml:space="preserve"><value>Test Parameters</value></data>
+  <data name="Anlamlılık Düzeyi (α):" xml:space="preserve"><value>Significance Level (α):</value></data>
+  <data name="0.01 (99% güven)" xml:space="preserve"><value>0.01 (99% confidence)</value></data>
+  <data name="0.05 (95% güven)" xml:space="preserve"><value>0.05 (95% confidence)</value></data>
+  <data name="0.10 (90% güven)" xml:space="preserve"><value>0.10 (90% confidence)</value></data>
+  <data name="Analizi Başlat" xml:space="preserve"><value>Run Analysis</value></data>
+  <data name="Analiz Sonuçları" xml:space="preserve"><value>Analysis Results</value></data>
+  <data name="Grup A" xml:space="preserve"><value>Group A</value></data>
+  <data name="Grup B" xml:space="preserve"><value>Group B</value></data>
+  <data name="N (Örnek Sayısı)" xml:space="preserve"><value>N (Sample Size)</value></data>
+  <data name="Ortalama (Mean)" xml:space="preserve"><value>Mean</value></data>
+  <data name="Std. Sapma (SD)" xml:space="preserve"><value>Std. Deviation (SD)</value></data>
+  <data name="Std. Hata (SE)" xml:space="preserve"><value>Std. Error (SE)</value></data>
+  <data name="Test İstatistikleri" xml:space="preserve"><value>Test Statistics</value></data>
+  <data name="t değeri" xml:space="preserve"><value>t value</value></data>
+  <data name="Serbestlik Derecesi (df)" xml:space="preserve"><value>Degrees of Freedom (df)</value></data>
+  <data name="p-değeri (iki kuyruklu)" xml:space="preserve"><value>p-value (two-tailed)</value></data>
+  <data name="Anlamlılık Düzeyi (α)" xml:space="preserve"><value>Significance Level (α)</value></data>
+  <data name="Sonuç" xml:space="preserve"><value>Result</value></data>
+  <data name="İstatistiksel olarak anlamlı fark VAR" xml:space="preserve"><value>Statistically significant difference FOUND</value></data>
+  <data name="İstatistiksel olarak anlamlı fark YOK" xml:space="preserve"><value>NO statistically significant difference</value></data>
+  <data name="Levene Varyans Homojenliği Testi:" xml:space="preserve"><value>Levene's Test for Homogeneity of Variance:</value></data>
+  <data name="✓ Varyanslar homojen (eşit varyans varsayımı sağlanıyor)" xml:space="preserve"><value>✓ Variances are homogeneous (the equal-variance assumption holds)</value></data>
+  <data name="⚠ Varyanslar heterojen (Welch düzeltmesi uygulandı)" xml:space="preserve"><value>⚠ Variances are heterogeneous (Welch correction applied)</value></data>
+  <data name="Ortalamalar Farkı:" xml:space="preserve"><value>Difference of Means:</value></data>
+  <data name="Güven Aralığı" xml:space="preserve"><value>Confidence Interval</value></data>
+  <data name="Cohen's d (Etki Büyüklüğü)" xml:space="preserve"><value>Cohen's d (Effect Size)</value></data>
+  <data name="Çok küçük etki" xml:space="preserve"><value>Negligible effect</value></data>
+  <data name="Küçük etki" xml:space="preserve"><value>Small effect</value></data>
+  <data name="Orta büyüklükte etki" xml:space="preserve"><value>Medium effect</value></data>
+  <data name="Büyük etki" xml:space="preserve"><value>Large effect</value></data>
+  <data name="Eşleştirilmiş testte her satırda iki değer de dolu olmalıdır. Tek tarafı dolu satır(lar):" xml:space="preserve"><value>In the paired test both values must be filled in every row. Row(s) with only one side filled:</value></data>
+  <data name="Her iki grupta da en az 2 veri olmalıdır." xml:space="preserve"><value>Each group must contain at least 2 values.</value></data>
+  <data name="Analiz tamamlandı." xml:space="preserve"><value>Analysis complete.</value></data>
+  <data name="Hata:" xml:space="preserve"><value>Error:</value></data>
+
+  <!-- Tema düğmesi -->
+  <data name="Açık temaya geç" xml:space="preserve"><value>Switch to light theme</value></data>
+  <data name="Koyu temaya geç" xml:space="preserve"><value>Switch to dark theme</value></data>
+  <!-- Kinetik: model seçimi -->
+  <data name="Modeller" xml:space="preserve"><value>Models</value></data>
+  <data name="Tümü" xml:space="preserve"><value>All</value></data>
+  <data name="Hiçbiri" xml:space="preserve"><value>None</value></data>
+  <data name="Klasik beşli" xml:space="preserve"><value>Classic five</value></data>
+  <data name="Zero-order, First-order, Higuchi, Hixson-Crowell, Korsmeyer-Peppas" xml:space="preserve"><value>Zero-order, First-order, Higuchi, Hixson-Crowell, Korsmeyer-Peppas</value></data>
+  <data name="Seçilmeyen modeller fit edilmez; AIC ağırlıkları yalnız seçilen modeller arasında hesaplanır." xml:space="preserve"><value>Unselected models are not fitted; Akaike weights are computed only among the selected models.</value></data>
+  <data name="En az bir model seçin." xml:space="preserve"><value>Select at least one model.</value></data>
+</root>

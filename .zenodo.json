@@ -1,0 +1,34 @@
+{
+  "title": "EgePharmTech: open computational tools for pharmaceutical technology",
+  "description": "<p>Open-source web application (Blazor Server, .NET 10) and library for pharmaceutical technology computations. Modules: (1) dissolution-kinetics engine with 16 release models fitted by nonlinear least squares in the F(%) domain, AIC/AICc/MSC ranking and Akaike weights, Korsmeyer&ndash;Peppas F&le;60% rule, Hopfenberg geometry exponents including the Karasulu half-sphere and triangle, results compared with DDSolver 1.0 outputs; (2) pseudo-ternary phase-diagram tool with polygon area and centroid calculation, in use since 2001; (3) f1/f2 similarity factors and model-independent profile metrics; (4) dose&ndash;response (LD50) and t-test utilities. Detailed bilingual guides with Crossref-verified references accompany the tools. Sites: https://egepharmtech.com (English), https://egepharmtech.tr (Turkish).</p><p><b>Türkçe:</b> Farmasötik teknoloji için açık kaynak hesaplama araçları: dissolüsyon kinetiği motoru, psödo-üçlü faz diyagramı, f1/f2 benzerlik faktörleri, doz&ndash;yanıt ve t-testi.</p>",
+  "creators": [
+    {
+      "name": "Ege, Mehmet Ali",
+      "affiliation": "Ege Üniversitesi Eczacılık Fakültesi, Farmasötik Teknoloji Anabilim Dalı, İzmir, Türkiye"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "dissolution kinetics",
+    "drug release modelling",
+    "Korsmeyer-Peppas",
+    "Weibull",
+    "Akaike information criterion",
+    "pseudo-ternary phase diagram",
+    "microemulsion",
+    "similarity factor f2",
+    "pharmaceutical technology",
+    "Blazor",
+    ".NET"
+  ],
+  "related_identifiers": [
+    { "identifier": "https://egepharmtech.com", "relation": "isSupplementTo", "resource_type": "other", "scheme": "url" },
+    { "identifier": "https://egepharmtech.tr", "relation": "isSupplementTo", "resource_type": "other", "scheme": "url" },
+    { "identifier": "10.1208/s12248-010-9185-1", "relation": "references", "scheme": "doi" },
+    { "identifier": "10.1016/S0928-0987(01)00095-1", "relation": "references", "scheme": "doi" },
+    { "identifier": "10.1016/S0939-6411(99)00082-X", "relation": "references", "scheme": "doi" }
+  ]
+}

@@ -1,0 +1,189 @@
+/* Hakkımda Bölümü Stilleri */
+.about-me {
+    padding: 20px 20px;
+    background: var(--bg-secondary);
+}
+
+.about-me .container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.about-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+}
+
+.about-header {
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.about-icon {
+    font-size: 1.5rem;
+}
+
+.about-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-inverse);
+}
+
+.about-content {
+    padding: 25px 30px;
+}
+
+.about-content .lead {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    margin-bottom: 25px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 6px 6px 0;
+}
+
+.about-section {
+    margin-bottom: 25px;
+}
+
+.about-section h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.about-section h3 i {
+    color: var(--accent-primary);
+}
+
+/* Timeline Stilleri */
+.timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.timeline li {
+    position: relative;
+    padding: 15px 0 15px 30px;
+    border-left: 2px solid var(--border-color);
+    margin-left: 70px;
+    color: var(--text-primary);
+}
+
+.timeline li:before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 20px;
+    width: 14px;
+    height: 14px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 0 0 2px var(--accent-primary);
+}
+
+.timeline .year {
+    position: absolute;
+    left: -90px;
+    top: 15px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    font-size: 0.9rem;
+    width: 75px;
+    text-align: right;
+}
+
+/* Projeler Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.project-item {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.project-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.project-year {
+    display: inline-block;
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+}
+
+.project-item strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+}
+
+.project-item p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.about-section ul:not(.timeline) {
+    padding-left: 20px;
+}
+
+.about-section ul:not(.timeline) li {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.about-section p {
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-content {
+        padding: 20px;
+    }
+
+    .timeline li {
+        padding-left: 30px;
+        margin-left: 40px;
+    }
+
+    .timeline .year {
+        left: -70px;
+        width: 90px;
+        font-size: 0.9rem;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}

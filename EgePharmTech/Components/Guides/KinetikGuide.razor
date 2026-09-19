@@ -1,0 +1,266 @@
+﻿@* Kinetik Analiz sayfasının "Kullanım rehberi" akordiyonu. İçerik motorun gerçek davranışıyla
+   (F≤60 filtresi, AIC sıralaması, geometri sabiti, uyarı bayrakları) birebir uyumlu tutulmalı;
+   kuramsal arka plan /about-kinetic-analysis sayfasında. Uzun paragraflar resx anahtarı yapılmaz;
+   Türkçe ve İngilizce blok yan yana durur, ikisi birlikte güncellenir. *@
+<div class="accordion mb-4" id="kinetikRehber">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#kinetikRehberGovde"
+                    aria-expanded="false" aria-controls="kinetikRehberGovde">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (Lang.IsEn)
+                {
+                    <text>User guide: data entry, options, reading the results and limitations</text>
+                }
+                else
+                {
+                    <text>Kullanım rehberi: veri girişi, seçenekler, sonuçların okunması ve kısıtlar</text>
+                }
+            </button>
+        </h2>
+        <div id="kinetikRehberGovde" class="accordion-collapse collapse" data-bs-parent="#kinetikRehber">
+            <div class="accordion-body">
+            @if (Lang.IsEn)
+            {
+                <div class="row g-4">
+                    <div class="col-lg-6">
+
+                        <h6 class="text-primary">What it does</h6>
+                        <p class="small text-muted">
+                            Fits a dissolution/release profile (% released versus time) to <strong>16 kinetic
+                            models</strong>, ranks the models by <strong>AIC</strong> and reports T25…T90 from the
+                            coefficients of the selected model. The aim is not merely to find the best-fitting curve
+                            but to reach a defensible interpretation of the release mechanism. For the theoretical
+                            background, the Turkish naming conventions and the references see the
+                            <a href="/about-kinetic-analysis">detailed guide</a>.
+                        </p>
+
+                        <h6 class="text-primary mt-3">Data entry</h6>
+                        <ul class="small text-muted">
+                            <li>The <strong>Time</strong> column must be positive; the unit is free (min, h) but must be
+                                the same in every row. The point t = 0, F = 0 is not entered; it is assumed.</li>
+                            <li><strong>Release is entered as a percentage (0–100)</strong>. If fractions (0–1) are
+                                entered a warning is shown; models that approach saturation assume a 100 % ceiling,
+                                so the result would be meaningless.</li>
+                            <li>If replicates (Rep 1–6) are entered, the mean and standard deviation are computed
+                                automatically and the analysis uses the <strong>mean</strong>. If you only have
+                                means, type them directly into the <strong>Mean</strong> column.</li>
+                            <li>If the profile decreases with time the data are treated as <em>"drug remaining"</em>
+                                and converted to release as 100 − F; this is reported as a warning.</li>
+                            <li>Values above 100 % are not discarded; they are used as entered and a warning is
+                                given.</li>
+                            <li>Copy-and-paste from Excel or another spreadsheet works; the decimal separator may be
+                                a comma or a point.</li>
+                        </ul>
+
+                        <h6 class="text-primary mt-3">Options</h6>
+                        <ul class="small text-muted">
+                            <li><strong>Geometry</strong> is used in two places: in Hopfenberg the exponent n (slab 1,
+                                cylinder 2, sphere 3) is not fitted but taken from here; in Korsmeyer–Peppas the
+                                geometry-specific thresholds of Costa &amp; Sousa Lobo, Table 1 (slab 0.50/1.00 ·
+                                cylinder 0.45/0.89 · sphere 0.43/0.85) are applied when interpreting n. Hopfenberg
+                                is excluded from the ranking when slab or sphere is selected: for a slab it is the
+                                same curve as Zero-order, for a sphere the same as Hixson–Crowell; ranking one curve
+                                under two names distorts the Akaike weights. <em>Half sphere (n = 1.5)</em> and
+                                <em>triangle (n = 4)</em> follow Karasulu, Ertan &amp; Köse (2000), who adapted the
+                                Katzhendler equation to HPMC theophylline tablets; since Costa &amp; Sousa Lobo give
+                                no Korsmeyer–Peppas thresholds for these geometries, the slab thresholds are used.</li>
+                            <li><strong>Tlag</strong>: lag time, can be added to every model; F = 0 for t &lt; Tlag.
+                                A negative value is allowed and usually means an "intercept".</li>
+                            <li><strong>F0</strong>: initial burst; only in models without a ceiling (Zero-order,
+                                Higuchi, Korsmeyer–Peppas). In saturating models Fmax is used instead of F0.</li>
+                            <li><strong>Fmax</strong>: incomplete-release plateau; only in First-order and Weibull.
+                                Logistic (Fmax) and Gompertz (Fmax) already carry Fmax in their equations.</li>
+                            <li><strong>KP: all points</strong>: by default Korsmeyer–Peppas is fitted only to the
+                                <strong>F ≤ 60 %</strong> region (Costa &amp; Sousa Lobo). If this box is ticked the
+                                whole profile is used; the interpretation of n may then be unreliable.</li>
+                            <li><strong>Models</strong>: by default all 16 models are fitted. Untick the ones you do not
+                                want to compare, or use "Classic five" (Zero-order, First-order, Higuchi, Hixson–Crowell,
+                                Korsmeyer–Peppas). Unselected models are not fitted at all, so the Akaike weights are
+                                distributed only among the selected ones; the selection is kept while you stay on the site.</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <h6 class="text-primary">Reading the results</h6>
+                        <ul class="small text-muted">
+                            <li>The <strong>profile summary</strong> (AUC, DE, MDT) does not depend on any model; use
+                                it to compare two formulations with a single number.</li>
+                            <li><strong>Ranking is by AIC</strong> (lower is better); raw R² does not penalise the
+                                number of parameters and therefore unduly favours complex models. The
+                                <strong>weight</strong> is the relative probability that the model is the best one;
+                                similar weights mean "the data cannot tell these models apart".</li>
+                            <li>Korsmeyer–Peppas in the <strong>mechanism analysis</strong> table is not part of the
+                                AIC ranking because it uses a different data set (F ≤ 60 %). Its question is
+                                different: not "which model describes the profile best?" but "what is the mechanism
+                                in the early phase?"</li>
+                            <li>Clicking a row plots that model's curve; the coefficients, their units and T25…T90
+                                appear in the panel below. <em>Non Calc</em> means the curve never reaches the target
+                                (e.g. Fmax &lt; 75 %, or the Makoid–Banakar peak stays below the target).</li>
+                            <li><strong>Warning flags</strong> must be taken seriously: Fmax &gt; 100 %, Fmax far above
+                                the highest observed release (no plateau observed), F0 out of range, n ≈ 0 or m ≈ 0
+                                (degenerate power law), degrees of freedom ≤ 1 and "convergence failed" all say that
+                                the fit is unreliable despite a low SS.</li>
+                        </ul>
+
+                        <h6 class="text-primary mt-3">Prerequisites</h6>
+                        <ul class="small text-muted">
+                            <li>At least <strong>5–6 time points</strong>; with fewer, 2–3-parameter models "memorise"
+                                the data. No analysis is performed with fewer than 3 points.</li>
+                            <li>The points should cover both the <strong>rising part and the plateau</strong>; plateau
+                                points alone cannot determine the rate constant.</li>
+                            <li>Replicates must come from independent vessels sampled at the same time point;
+                                re-reading the same vessel is not a replicate.</li>
+                            <li>The release percentage must be calculated against the <strong>same label
+                                amount</strong>; otherwise the plateau deviates from 100 % and the Fmax variant
+                                misleads.</li>
+                        </ul>
+
+                        <h6 class="text-primary mt-3">Limitations</h6>
+                        <div class="alert alert-warning small py-2">
+                            <strong>The best-fitting model is not proof of the mechanism.</strong> Empirical models
+                            (Weibull, Makoid–Banakar, Peppas–Sahlin) fit almost any curve; a low AIC says "describes
+                            the data well", not "release happens this way". Interpret together with the physics of
+                            the formulation.
+                        </div>
+                        <ul class="small text-muted">
+                            <li><strong>Not for comparing two profiles.</strong> For reference–test similarity use the
+                                <a href="/f1f2">f1/f2 tool</a>.</li>
+                            <li><strong>Extrapolation is unreliable.</strong> Times such as T90 that lie beyond the
+                                last measurement are extensions of the curve; they make a claim about an unmeasured
+                                region.</li>
+                            <li><strong>The spread of the replicates does not enter the model.</strong> The analysis
+                                uses the mean; differences in variance between time points (heteroscedasticity) are
+                                ignored (weighting is not exposed in the interface).</li>
+                            <li><strong>Formulation-dependent.</strong> Weibull may win in one series and Higuchi in
+                                another; imposing one model across series needs a justification.</li>
+                            <li><strong>Not a regulatory acceptance criterion.</strong> It does not replace
+                                pharmacopoeial or guideline tests (e.g. f2 ≥ 50); it is a tool for formulation
+                                development and mechanistic interpretation.</li>
+                        </ul>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    <div class="col-lg-6">
+
+                        <h6 class="text-primary">Ne işe yarar?</h6>
+                        <p class="small text-muted">
+                            Bir dissolüsyon/salım profilini (zamana karşı % salım) <strong>16 kinetik modele</strong>
+                            fit eder, modelleri <strong>AIC</strong>'e göre sıralar ve seçilen modelin
+                            katsayılarıyla T25…T90 sürelerini verir. Amaç yalnızca en iyi uyan eğriyi bulmak
+                            değil, salım mekanizması hakkında savunulabilir bir yorum çıkarmaktır. Kuramsal
+                            arka plan, Türk literatüründeki ad karşılıkları ve kaynaklar için <a href="/about-kinetic-analysis">ayrıntılı rehbere</a> bakın.
+                        </p>
+
+                        <h6 class="text-primary mt-3">Veri girişi</h6>
+                        <ul class="small text-muted">
+                            <li><strong>Zaman</strong> sütunu pozitif olmalı; birim serbesttir (dk, saat) ama
+                                tüm satırlarda aynı olmalı. t = 0, F = 0 noktası girilmez, varsayılır.</li>
+                            <li><strong>Salım yüzde (0–100) olarak</strong> girilir. Kesir (0–1) girilirse uyarı
+                                çıkar; doyuma giden modeller %100 tavanını varsaydığı için sonuç anlamsız olur.</li>
+                            <li>Tekrarlar (Tekrar 1–6) girilirse ortalama ve standart sapma otomatik hesaplanır ve
+                                analiz <strong>ortalamayla</strong> yapılır. Elinizde yalnız ortalama varsa doğrudan
+                                <strong>Ortalama</strong> sütununa yazabilirsiniz.</li>
+                            <li>Profil zamanla azalıyorsa veri <em>"kalan ilaç"</em> formatında sayılır ve
+                                100 − F ile salıma çevrilir; bu durum uyarı olarak bildirilir.</li>
+                            <li>%100'ü aşan değerler atılmaz, olduğu gibi kullanılır ve uyarı verilir.</li>
+                            <li>Excel/elektronik tablodan kopyala-yapıştır çalışır; ondalık ayracı virgül ya da
+                                nokta olabilir.</li>
+                        </ul>
+
+                        <h6 class="text-primary mt-3">Seçenekler</h6>
+                        <ul class="small text-muted">
+                            <li><strong>Geometri</strong> iki yerde kullanılır: Hopfenberg'de üstel n (slab 1,
+                                silindir 2, küre 3) fit edilmez, buradan alınır; Korsmeyer-Peppas'ta n'in
+                                mekanizma yorumu için Costa &amp; Sousa Lobo Tablo 1'in geometriye özgü eşikleri
+                                (slab 0,50/1,00 · silindir 0,45/0,89 · küre 0,43/0,85) uygulanır. Hopfenberg
+                                slab ve küre seçiliyken sıralamaya girmez: slab'da Zero-order ile, kürede
+                                Hixson-Crowell ile aynı eğridir; aynı eğriyi iki ad altında sıralamak Akaike
+                                ağırlıklarını çarpıtır. <em>Yarım küre (n = 1,5)</em> ve <em>üçgen (n = 4)</em>
+                                Karasulu, Ertan &amp; Köse (2000) önerisidir: Katzhendler denklemi HPMC teofilin
+                                tabletlerine uyarlanmıştır; bu geometrilerde Korsmeyer-Peppas n eşikleri için
+                                Costa &amp; Sousa Lobo'da değer olmadığından slab eşikleri kullanılır.</li>
+                            <li><strong>Tlag</strong>: gecikme süresi, tüm modellere eklenebilir; t &lt; Tlag için
+                                F = 0. Negatif çıkması serbesttir ve genellikle "kesişim" anlamına gelir.</li>
+                            <li><strong>F0</strong>: başlangıç patlaması (burst); yalnız tavansız modellerde
+                                (Zero-order, Higuchi, Korsmeyer-Peppas). Doyuma giden modellerde F0 yerine
+                                Fmax kullanılır.</li>
+                            <li><strong>Fmax</strong>: eksik salım platosu; yalnız First-order ve Weibull'da.
+                                Logistic (Fmax) ve Gompertz (Fmax) zaten Fmax'ı denkleminde taşır.</li>
+                            <li><strong>KP: tüm noktalar</strong>: varsayılan olarak Korsmeyer-Peppas yalnız
+                                <strong>F ≤ %60</strong> bölgesine fit edilir (Costa &amp; Sousa Lobo). Bu
+                                kutu işaretlenirse tüm profil kullanılır; n yorumu güvenilmez olabilir.</li>
+                            <li><strong>Modeller</strong>: varsayılan olarak 16 modelin hepsi fit edilir. Karşılaştırmak
+                                istemediklerinizin işaretini kaldırın ya da "Klasik beşli"yi seçin (Zero-order, First-order,
+                                Higuchi, Hixson-Crowell, Korsmeyer-Peppas). Seçilmeyen modeller hiç fit edilmez; Akaike
+                                ağırlıkları yalnız seçilenler arasında dağılır. Seçim sitede kaldığınız sürece korunur.</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <h6 class="text-primary">Sonuçları okuma</h6>
+                        <ul class="small text-muted">
+                            <li><strong>Profil özeti</strong> (AUC, DE, MDT) hiçbir modele bağlı değildir; iki
+                                formülasyonu tek sayıyla karşılaştırmak için kullanılır.</li>
+                            <li><strong>Sıralama AIC ile</strong> yapılır (küçük daha iyi); ham R² parametre
+                                sayısını cezalandırmadığı için karmaşık modelleri haksız yere öne çıkarır.
+                                <strong>Ağırlık</strong>, modelin en iyi olma göreli olasılığıdır; birbirine yakın
+                                ağırlıklar "veri bu modelleri ayırt edemiyor" demektir.</li>
+                            <li><strong>Mekanizma analizi</strong> tablosundaki Korsmeyer-Peppas, farklı bir veri
+                                kümesi (F ≤ %60) kullandığı için AIC sıralamasına girmez. Sorusu farklıdır:
+                                "profili en iyi hangi model anlatır?" değil, "erken fazda mekanizma nedir?"</li>
+                            <li>Satıra tıklayınca o modelin eğrisi grafiğe çizilir; katsayılar, birimleri ve
+                                T25…T90 alt panelde görünür. <em>Non Calc</em>, hedefin eğri tarafından
+                                ulaşılamadığı (ör. Fmax &lt; %75, ya da Makoid-Banakar tepesinin hedefin
+                                altında kalması) anlamına gelir.</li>
+                            <li><strong>Uyarı bayrakları</strong> ciddiye alınmalı: Fmax &gt; %100, gözlenen en
+                                yüksek salımın çok üstünde Fmax (plato gözlenmemiş), aralık dışı F0, n ≈ 0 ya da
+                                m ≈ 0 (dejenere güç yasası), serbestlik derecesi ≤ 1 ve "yakınsama başarısız"
+                                işaretleri, düşük SS'e rağmen o fit'in güvenilmez olduğunu söyler.</li>
+                        </ul>
+
+                        <h6 class="text-primary mt-3">Ön şartlar</h6>
+                        <ul class="small text-muted">
+                            <li>En az <strong>5–6 zaman noktası</strong>; 2–3 parametreli modellerde daha azı
+                                veriyi "ezberler". 3 noktadan azıyla analiz yapılmaz.</li>
+                            <li>Noktalar salımın <strong>yükselen bölümünü ve platoyu</strong> birlikte kapsamalı;
+                                yalnız plato noktaları hız sabitini belirleyemez.</li>
+                            <li>Tekrarlar aynı zaman noktasında alınmış bağımsız kaplardan gelmeli; aynı kabın
+                                tekrar okuması tekrar sayılmaz.</li>
+                            <li>Salım yüzdesi <strong>aynı etiket miktarına</strong> göre hesaplanmış olmalı;
+                                aksi halde plato %100'den sapar ve Fmax varyantı yanıltır.</li>
+                        </ul>
+
+                        <h6 class="text-primary mt-3">Kısıtlar</h6>
+                        <div class="alert alert-warning small py-2">
+                            <strong>En iyi uyan model, mekanizmanın kanıtı değildir.</strong> Ampirik modeller
+                            (Weibull, Makoid-Banakar, Peppas-Sahlin) neredeyse her eğriye uyar;
+                            düşük AIC "veriyi iyi tarif eder" der, "salım böyle olur" demez. Yorum, formülasyon
+                            fiziğiyle birlikte yapılmalıdır.
+                        </div>
+                        <ul class="small text-muted">
+                            <li><strong>İki profili karşılaştırmak için değildir.</strong> Referans–test
+                                benzerliği için <a href="/f1f2">F1/F2 aracını</a> kullanın.</li>
+                            <li><strong>Ekstrapolasyon güvenilmez.</strong> T90 gibi süreler son ölçüm zamanının
+                                ötesindeyse eğrinin uzatılmasıdır; ölçülmemiş bölge hakkında iddia içerir.</li>
+                            <li><strong>Tekrarların dağılımı modele girmez.</strong> Analiz ortalamayla yapılır;
+                                zaman noktaları arasındaki varyans farkı (heteroskedastisite) dikkate alınmaz
+                                (ağırlıklandırma arayüzde açık değildir).</li>
+                            <li><strong>Formülasyona bağlıdır.</strong> Bir seride Weibull, diğerinde Higuchi
+                                en iyi çıkabilir; seriler arasında sabit bir model dayatmak için gerekçe
+                                gerekir.</li>
+                            <li><strong>Regülatuvar kabul kriteri değildir.</strong> Farmakope ve kılavuz
+                                testlerinin (ör. f2 ≥ 50) yerine geçmez; formülasyon geliştirme ve mekanizma
+                                yorumu için bir araçtır.</li>
+                        </ul>
+                    </div>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+</div>

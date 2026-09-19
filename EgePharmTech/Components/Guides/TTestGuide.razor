@@ -1,0 +1,197 @@
+@* t-Testi sayfasının "Kullanım rehberi" akordiyonu. İçerik uygulamanın gerçekte yaptığıyla birebir
+   uyumlu tutulmalı (özellikle Levene -> Welch geçişi ve iki yönlü p-değeri). Sayfada veri girişi
+   kolonunun yanındaki boş alanda durduğu için varsayılan olarak AÇIK. Uzun paragraflar resx anahtarı
+   yapılmaz; Türkçe ve İngilizce blok yan yana durur, ikisi birlikte güncellenir. *@
+<div class="accordion mb-4 h-100" id="ttestRehber">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#ttestRehberGovde"
+                    aria-expanded="true" aria-controls="ttestRehberGovde">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (Lang.IsEn)
+                {
+                    <text>Use in pharmaceutical technology, prerequisites and limitations</text>
+                }
+                else
+                {
+                    <text>Farmasötik teknolojide kullanımı, ön şartlar ve kısıtlar</text>
+                }
+            </button>
+        </h2>
+        <div id="ttestRehberGovde" class="accordion-collapse collapse show" data-bs-parent="#ttestRehber">
+            <div class="accordion-body">
+            @if (Lang.IsEn)
+            {
+                <h6 class="text-primary">What it does</h6>
+                <p class="small text-muted">
+                    The t-test assesses whether <strong>the difference between the means of two groups</strong>
+                    is small enough to be explained by measurement variability or reflects a real
+                    difference. It is intended for <strong>two</strong> groups only and requires
+                    <strong>continuous</strong> data (percentage dissolved, content in mg, hardness in N,
+                    % moisture and the like).
+                </p>
+
+                <h6 class="text-primary mt-3">Which test to choose?</h6>
+                <p class="small text-muted mb-1">
+                    <strong>Independent samples:</strong> two separate groups with no one-to-one pairing
+                    between them. Typical uses in pharmaceutical technology:
+                </p>
+                <ul class="small text-muted">
+                    <li>Comparing the mean active-ingredient content of two production batches</li>
+                    <li>Comparing two formulations or two granulation methods in terms of tablet hardness,
+                        friability, weight variation or disintegration time</li>
+                    <li>Percentage dissolved of the reference and test products <em>at a single specified
+                        time point</em></li>
+                    <li>Comparing groups produced with two different compression forces, drying
+                        temperatures or pieces of equipment</li>
+                </ul>
+                <p class="small text-muted mb-1">
+                    <strong>Paired samples:</strong> each row holds two measurements of <em>the same
+                    unit</em>; the row order must be preserved. Typical uses:
+                </p>
+                <ul class="small text-muted">
+                    <li>Assay values of the same batch at the start (t=0) and after stability storage (e.g. month 6)</li>
+                    <li>The same samples measured by two analytical methods (e.g. HPLC and UV) in
+                        method-comparison/validation studies</li>
+                    <li>Moisture content of the same granule lot before and after drying</li>
+                    <li>Measurements on the same subject before and after administration</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">Prerequisites</h6>
+                <ul class="small text-muted">
+                    <li><strong>Independence:</strong> the measurements must be independent of each other.
+                        Repeated readings of the same tablet are not independent; they are replicates of a
+                        single observation and do not count as separate data points.</li>
+                    <li><strong>Normality:</strong> in the independent test each group, and in the paired
+                        test the <em>differences</em>, are expected to be approximately normally distributed.
+                        The smaller the sample, the more critical this assumption becomes.</li>
+                    <li><strong>Homogeneity of variance</strong> (independent test only): this application
+                        checks it with Levene's test. If p &lt; 0.05 it <strong>switches automatically to
+                        the Welch correction</strong> and computes the degrees of freedom accordingly; no
+                        further action is needed on your part.</li>
+                    <li><strong>Representative sampling:</strong> the samples must have been taken so that
+                        they represent the batch.</li>
+                    <li><strong>Row integrity in the paired test:</strong> a row holding only one value is
+                        excluded from the analysis; the application reports the row number.</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">Limitations</h6>
+                <div class="alert alert-warning small py-2">
+                    <strong>The absence of a significant difference does not mean "equivalent".</strong>
+                    p &gt; 0.05 does not say that there is <em>no</em> difference; it says that the data at
+                    hand provide no evidence of one. In a small sample a real difference is easily missed.
+                    A claim of equivalence requires an equivalence test (e.g. TOST) or a predefined
+                    acceptance criterion.
+                </div>
+                <ul class="small text-muted">
+                    <li><strong>Not suitable for whole dissolution profiles.</strong>
+                        Running a separate t-test at every time point inflates the false-positive rate.
+                        Profiles are compared with the f1/f2 factors — the site's
+                        <a href="/f1f2">f1/f2 module</a> is there for that purpose.</li>
+                    <li><strong>Not for more than two groups.</strong> Successive t-tests must give way to
+                        ANOVA; otherwise the error rate accumulates with every comparison.</li>
+                    <li><strong>Sensitive to outliers.</strong> It is built on the mean and standard
+                        deviation; a single extreme value can decide the result. The data should be
+                        inspected visually before analysis.</li>
+                    <li><strong>p alone is not enough.</strong> In a large sample even practically
+                        negligible differences come out significant. The <em>confidence interval</em> and
+                        the <em>Cohen's d</em> effect size given in the results panel should therefore be
+                        interpreted together: a difference may be statistically significant yet
+                        pharmaceutically unimportant.</li>
+                    <li><strong>It does not replace tests with a pharmacopoeial criterion.</strong>
+                        For matters such as content uniformity the acceptance criterion of the relevant
+                        pharmacopoeia applies; the t-test cannot be used in its place.</li>
+                    <li>This application computes a <strong>two-tailed</strong> p-value: it answers
+                        "is there a difference?", not "is A greater than B?".</li>
+                </ul>
+            }
+            else
+            {
+                <h6 class="text-primary">Ne işe yarar?</h6>
+                <p class="small text-muted">
+                    t-testi, <strong>iki grubun ortalaması arasındaki farkın</strong> ölçüm
+                    dalgalanmasıyla açıklanabilecek kadar küçük mü, yoksa gerçek bir fark mı
+                    olduğunu değerlendirir. Yalnızca <strong>iki</strong> grup içindir ve
+                    <strong>sürekli</strong> veri gerektirir (çözünme yüzdesi, mg cinsinden
+                    içerik, N cinsinden sertlik, % nem gibi).
+                </p>
+
+                <h6 class="text-primary mt-3">Hangi testi seçmeli?</h6>
+                <p class="small text-muted mb-1">
+                    <strong>Bağımsız örneklem:</strong> iki ayrı grup, aralarında birebir
+                    eşleşme yok. Farmasötik teknolojide tipik kullanımlar:
+                </p>
+                <ul class="small text-muted">
+                    <li>İki üretim serisinin (batch) ortalama etkin madde içeriğinin karşılaştırılması</li>
+                    <li>İki farklı formülasyonun ya da granülasyon yönteminin tablet sertliği,
+                        friabilitesi, ağırlık dağılımı veya dağılma süresi bakımından karşılaştırılması</li>
+                    <li>Referans ve test ürününün <em>belirli tek bir zaman noktasındaki</em>
+                        çözünme yüzdesi</li>
+                    <li>İki farklı basım kuvveti, kurutma sıcaklığı veya ekipmanla üretilmiş
+                        grupların karşılaştırılması</li>
+                </ul>
+                <p class="small text-muted mb-1">
+                    <strong>Eşleştirilmiş örneklem:</strong> her satır <em>aynı birimin</em>
+                    iki ölçümüdür; sıra bozulmamalıdır. Tipik kullanımlar:
+                </p>
+                <ul class="small text-muted">
+                    <li>Aynı serinin başlangıç (t=0) ve stabilite sonrası (ör. 6. ay) tayin değerleri</li>
+                    <li>Aynı numunelerin iki analitik yöntemle ölçülmesi (ör. HPLC ile UV),
+                        metot karşılaştırma/validasyon çalışmalarında</li>
+                    <li>Aynı granül partisinin kurutma öncesi ve sonrası nem içeriği</li>
+                    <li>Aynı denekte uygulama öncesi ve sonrası ölçüm</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">Ön şartlar</h6>
+                <ul class="small text-muted">
+                    <li><strong>Bağımsızlık:</strong> ölçümler birbirinden bağımsız olmalı.
+                        Aynı tabletten tekrarlanan okumalar bağımsız değildir; onlar tek bir
+                        gözlemin tekrarıdır, ayrı veri noktası sayılmaz.</li>
+                    <li><strong>Normallik:</strong> bağımsız testte her grubun, eşleştirilmiş
+                        testte ise <em>farkların</em> yaklaşık normal dağılması beklenir.
+                        Örneklem küçüldükçe bu varsayım daha kritik hale gelir.</li>
+                    <li><strong>Varyans homojenliği</strong> (yalnız bağımsız test):
+                        bu uygulama Levene testiyle kontrol eder. p &lt; 0,05 çıkarsa
+                        <strong>otomatik olarak Welch düzeltmesine geçer</strong> ve serbestlik
+                        derecesini buna göre hesaplar; ayrıca bir işlem yapmanız gerekmez.</li>
+                    <li><strong>Temsili örnekleme:</strong> numuneler seriyi temsil edecek
+                        şekilde alınmış olmalı.</li>
+                    <li><strong>Eşleştirilmiş testte satır bütünlüğü:</strong> bir satırda tek
+                        değer varsa o satır analize girmez; uygulama satır numarasını bildirir.</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">Kısıtlar</h6>
+                <div class="alert alert-warning small py-2">
+                    <strong>Anlamlı fark çıkmaması "eşdeğerdir" demek değildir.</strong>
+                    p &gt; 0,05, farkın <em>olmadığını</em> değil, eldeki veriyle farkı
+                    gösterecek kanıtın bulunmadığını söyler. Küçük örneklemde gerçek bir fark
+                    kolayca gözden kaçar. Eşdeğerlik iddiası için eşdeğerlik testi (ör. TOST)
+                    ya da önceden tanımlanmış bir kabul kriteri gerekir.
+                </div>
+                <ul class="small text-muted">
+                    <li><strong>Çözünme profillerinin tamamı için uygun değildir.</strong>
+                        Her zaman noktasında ayrı t-testi yapmak yanlış pozitif olasılığını
+                        şişirir. Profil karşılaştırması için f1/f2 faktörleri kullanılır —
+                        sitedeki <a href="/f1f2">F1/F2 modülü</a> bunun içindir.</li>
+                    <li><strong>İkiden fazla grup varsa kullanılmaz.</strong> Ardışık t-testleri
+                        yerine ANOVA gerekir; aksi halde her karşılaştırmada hata payı birikir.</li>
+                    <li><strong>Aykırı değerlere duyarlıdır.</strong> Ortalama ve standart sapma
+                        üzerine kuruludur; tek bir uç değer sonucu belirleyebilir. Analiz
+                        öncesi veriyi gözle taramak gerekir.</li>
+                    <li><strong>p tek başına yeterli değildir.</strong> Büyük örneklemde pratikte
+                        önemsiz farklar da anlamlı çıkar. Bu yüzden sonuç panelinde verilen
+                        <em>güven aralığı</em> ve <em>Cohen's d</em> etki büyüklüğü birlikte
+                        yorumlanmalıdır: fark istatistiksel olarak anlamlı olsa bile
+                        farmasötik açıdan önemsiz olabilir.</li>
+                    <li><strong>Farmakope kriteri olan testlerin yerine geçmez.</strong>
+                        İçerik yeknesaklığı gibi konularda ilgili farmakopenin kendi kabul
+                        kriteri uygulanır; t-testi bunun yerine kullanılamaz.</li>
+                    <li>Bu uygulama <strong>iki yönlü (two-tailed)</strong> p-değeri hesaplar:
+                        "fark var mı?" sorusunu yanıtlar, "A, B'den büyük mü?" sorusunu değil.</li>
+                </ul>
+            }
+            </div>
+        </div>
+    </div>
+</div>
