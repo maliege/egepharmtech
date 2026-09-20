@@ -2,10 +2,10 @@
 // Blazor Server sunucuyla canlı bağlantı ister; bu yüzden uygulama kabuğu ya da _blazor istekleri
 // önbelleğe ALINMAZ. Yalnız gezinme (navigate) istekleri ele alınır: ağ öncelikli, ağ yoksa
 // offline.html. Diğer istekler (statik dosyalar, SignalR, CDN) tarayıcıya olduğu gibi bırakılır.
-// Her alan adı (maege.tr, egepharmtech.tr, egepharmtech.com) kendi origin'inde ayrı bir worker çalıştırır.
-const CACHE = 'EgePharmTech-offline-v3';
+// Her alan adı (egepharmtech.tr, egepharmtech.com) kendi origin'inde ayrı bir worker çalıştırır.
+const CACHE = 'EgePharmTech-offline-v4';
 const OFFLINE_URL = '/offline.html';
-const PRECACHE = [OFFLINE_URL, '/img/icon-192.png', '/img/icon-512.png', '/favicon.svg', '/img/egepharmtech/favicon.svg'];
+const PRECACHE = [OFFLINE_URL, '/img/egepharmtech/favicon.svg', '/img/egepharmtech/icon-192.png', '/img/egepharmtech/icon-512.png'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
