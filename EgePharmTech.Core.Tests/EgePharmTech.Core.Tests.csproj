@@ -33,6 +33,7 @@
   <ItemGroup>
     <None Include="kinetik_test_fixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="ddsolver_reference_cases.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="stats_reference.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

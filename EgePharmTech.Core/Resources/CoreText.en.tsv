@@ -100,3 +100,31 @@ Bölge için en az 3 köşe gerekir.	A region needs at least 3 vertices.
 Veri bulunamadı	No data found
 {0} grup hesaplandı	{0} group(s) calculated
 Hesaplama hatası: {0}	Calculation error: {0}
+# --- OneWayAnova ---
+{0} grubunda tek gözlem var; grup analize alınmadı.	Group {0} has a single observation; it was excluded from the analysis.
+ANOVA için en az iki gruba ve her grupta en az iki gözleme gerek var.	ANOVA needs at least two groups with at least two observations each.
+Grup içi varyans sıfır: bütün gözlemler kendi grup ortalamasına eşit. F tanımsız.	Within-group variance is zero: every observation equals its group mean. F is undefined.
+Levene testi anlamlı (p = {0:0.0000}): varyanslar homojen değil. Klasik F testi ve Tukey HSD eşit varyans varsayar; sonucu ihtiyatla yorumlayın (Welch ANOVA / Games-Howell düşünülebilir).	Levene's test is significant (p = {0:0.0000}): variances are not homogeneous. The classical F test and Tukey HSD assume equal variances; interpret with caution (consider Welch ANOVA / Games-Howell).
+Bazı gruplarda yalnız iki gözlem var; varyans tahminleri kararsızdır.	Some groups have only two observations; variance estimates are unstable.
+# --- MultipleRegression ---
+Tahmin için {0} açıklayıcı değer girilmeli.	{0} predictor values are required for a prediction.
+X ve Y satır sayıları eşleşmiyor.	X and Y row counts do not match.
+Veri yok.	No data.
+Gözlem sayısı ({0}) parametre sayısından ({1}) büyük olmalı.	The number of observations ({0}) must exceed the number of parameters ({1}).
+Tasarım matrisi tekil: bir açıklayıcı değişken diğerlerinin doğrusal bileşimi ya da sabit. Değişkenleri gözden geçirin.	The design matrix is singular: a predictor is constant or a linear combination of the others. Review the variables.
+(Sabit)	(Intercept)
+Hata serbestlik derecesi çok düşük ({0}); katsayı testleri güçsüz, aralıklar geniştir.	Residual degrees of freedom are very low ({0}); coefficient tests have little power and intervals are wide.
+Standartlaştırılmış artığı |3|'ü aşan gözlem(ler): {0}. Olası aykırı değer.	Observation(s) with standardized residual beyond |3|: {0}. Possible outlier.
+Yüksek çoklu doğrusallık (VIF > 10): {0}. Katsayılar kararsız olabilir.	High multicollinearity (VIF > 10): {0}. Coefficients may be unstable.
+Durbin-Watson = {0:0.00}: artıklar sıralı bağımlılık gösteriyor olabilir.	Durbin-Watson = {0:0.00}: residuals may be serially correlated.
+# --- CalibrationCurve ---
+Konsantrasyon ve yanıt sayıları eşleşmiyor.	Concentration and response counts do not match.
+Kalibrasyon için en az üç farklı konsantrasyon düzeyi gerekir.	Calibration needs at least three distinct concentration levels.
+En az dört gözlem gerekir.	At least four observations are required.
+r² = {0:0.0000} < 0,99: doğrusallık zayıf. Aralığı daraltmayı, ağırlıklı regresyonu ya da başka bir modeli düşünün.	r² = {0:0.0000} < 0.99: linearity is weak. Consider narrowing the range, weighted regression or another model.
+Kesim noktası sıfırdan anlamlı farklı (p = {0:0.0000}). Tek noktalı kalibrasyon ya da orijinden geçen doğru bu veri için uygun değildir.	The intercept differs significantly from zero (p = {0:0.0000}). Single-point calibration or a line through the origin is not appropriate for these data.
+LOQ ({0:0.###}) en düşük standardın ({1:0.###}) üstünde: en düşük düzey nicel olarak güvenilir değildir ya da LOQ'yu deneysel olarak doğrulayın.	LOQ ({0:0.###}) lies above the lowest standard ({1:0.###}): the lowest level is not reliably quantifiable, or verify the LOQ experimentally.
+Ortalama geri hesap doğruluğu kabul sınırı dışında (±%15, en düşük düzeyde ±%20): {0}.	Mean back-calculated accuracy outside acceptance limits (±15%, ±20% at the lowest level): {0}.
+Tekrar %RSD'si %15'i aşan düzey(ler): {0}.	Level(s) with replicate RSD above 15%: {0}.
+Bazı düzeylerde tek ölçüm var; tekrar kesinliği (%RSD) hesaplanamaz.	Some levels have a single measurement; replicate precision (RSD%) cannot be computed.
+ICH Q2(R2) doğrusallık için en az beş konsantrasyon düzeyi önerir; burada {0} düzey var.	ICH Q2(R2) recommends at least five concentration levels for linearity; there are {0} here.
