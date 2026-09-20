@@ -26,6 +26,9 @@ public sealed class AnalysisStateStatistics
     public double CalibrationAlpha { get; set; } = 0.05;
     public string CalibrationConcUnit { get; set; } = "µg/mL";
 
+    /// <summary>Kalibrasyon bilinmeyenleri: etiket, ölçülen yanıt, tekrar sayısı (ters tahmin; eğitim amaçlı adım adım gösterim).</summary>
+    public object?[][] CalibrationUnknowns { get; } = CreateMatrix(15, 3);
+
     private static object?[][] CreateMatrix(int rows, int cols)
     {
         var data = new object?[rows][];

@@ -413,4 +413,14 @@
   <data name="Geri hesap" xml:space="preserve"><value>Back-calc.</value></data>
   <data name="Doğruluk %" xml:space="preserve"><value>Accuracy %</value></data>
   <data name="Sarı satırlar geri hesap doğruluğu ±%15 (en düşük düzeyde ±%20) sınırı dışındaki standartlardır." xml:space="preserve"><value>Yellow rows are standards whose back-calculated accuracy lies outside ±15% (±20% at the lowest level).</value></data>
+  <!-- Kalibrasyon: bilinmeyen örnekler / ters tahmin -->
+  <data name="Bilinmeyen örnekler (isteğe bağlı)" xml:space="preserve"><value>Unknown samples (optional)</value></data>
+  <data name="Ölçülen yanıtı girin; konsantrasyon eğriden ters tahminle hesaplanır. Tekrar sayısı (m) boşsa 1 alınır; yanıt birden çok ölçümün ortalamasıysa m'yi yazın, güven aralığı daralır." xml:space="preserve"><value>Enter the measured response; the concentration is obtained from the curve by inverse prediction. If the replicate count (m) is empty, 1 is assumed; if the response is the mean of several measurements, enter m and the confidence interval narrows.</value></data>
+  <data name="Bilinmeyen örnekler: ters tahmin" xml:space="preserve"><value>Unknown samples: inverse prediction</value></data>
+  <data name="aralık dışı" xml:space="preserve"><value>out of range</value></data>
+  <data name="LOQ altı" xml:space="preserve"><value>below LOQ</value></data>
+  <data name="Sarı satır: hesaplanan konsantrasyon kalibre edilen aralığın dışında, sonuç ekstrapolasyondur. LOQ altındaki değerler yalnız nitel bilgi verir." xml:space="preserve"><value>Yellow row: the computed concentration lies outside the calibrated range, so the result is an extrapolation. Values below the LOQ are only qualitative.</value></data>
+  <data name="Adım adım: ters tahmin nasıl hesaplanır?" xml:space="preserve"><value>Step by step: how is the inverse prediction computed?</value></data>
+  <data name="Bu eğri için sabitler" xml:space="preserve"><value>Constants for this curve</value></data>
+  <data name="Bilinmeyenler" xml:space="preserve"><value>Unknowns</value></data>
 </root>
