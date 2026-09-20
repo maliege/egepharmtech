@@ -24,7 +24,7 @@ dotnet run --project EgePharmTech/EgePharmTech.csproj --launch-profile http   # 
   `Site/SiteProfile.cs`, yönlendirme `Middleware/BrandRedirectMiddleware.cs`, SMTP `Services/`.
 - `EgePharmTech.Core.Tests/`: xUnit; `DdsolverReferenceTests` gerçek DDSolver 1.0 çıktılarıyla karşılaştırma fikstürü.
   Kinetik motorunda değişiklikte mutlaka çalıştır. `StatisticsReferenceTests` SciPy/statsmodels referanslarıyla (`stats_reference.json`)
-  karşılaştırır; referans üretim betiği test dosyasının başlığında anlatılır.
+  karşılaştırır; referans üretim betiği `tools/make_stats_reference.py`.
 
 Ayrıntı: `CONTRIBUTING.md`.
 
