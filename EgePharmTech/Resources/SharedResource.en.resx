@@ -141,7 +141,6 @@
   <data name="{0}: &quot;12 tekrar zorunlu&quot; seçeneği açık olduğu için şu zaman noktaları analiz dışı bırakıldı — {1}." xml:space="preserve"><value>{0}: because the "12 replicates required" option is enabled, the following time points were excluded from the analysis — {1}.</value></data>
   <data name="t={0} (ortalama {1})" xml:space="preserve"><value>t={0} (mean {1})</value></data>
   <data name="{0}: ortalaması %100'e ulaştığı ya da sıfır/negatif olduğu için şu zaman noktaları analiz dışı bırakıldı — {1}. Profil tam çözünmeye ulaşıyorsa plato noktalarının düştüğünü unutmayın." xml:space="preserve"><value>{0}: the following time points were excluded from the analysis because their mean reached 100 % or was zero/negative — {1}. If the profile reaches complete dissolution, bear in mind that the plateau points drop out.</value></data>
-  <data name="Test ürünü" xml:space="preserve"><value>Test product</value></data>
   <data name="Hesaplamada yalnızca {0} ortak zaman noktası kullanıldı. f2 için genellikle en az 3 nokta aranır; bu değer güvenilir değildir." xml:space="preserve"><value>Only {0} common time point(s) were used in the calculation. At least 3 points are usually required for f2; this value is not reliable.</value></data>
   <data name="{0}: t={1} noktasında RSD %{2} — ilk zaman noktaları için sınır %{3}." xml:space="preserve"><value>{0}: RSD {2} % at t={1} — the limit for the first time point is {3} %.</value></data>
   <data name="{0}: t={1} noktasında RSD %{2} — sonraki zaman noktaları için sınır %{3}." xml:space="preserve"><value>{0}: RSD {2} % at t={1} — the limit for subsequent time points is {3} %.</value></data>
@@ -180,7 +179,6 @@
   <data name="LD50 için referans yöntem" xml:space="preserve"><value>Reference method for LD50</value></data>
   <data name="Kesim (β₀)" xml:space="preserve"><value>Intercept (β₀)</value></data>
   <data name="Eğim (β₁)" xml:space="preserve"><value>Slope (β₁)</value></data>
-  <data name="doz" xml:space="preserve"><value>dose</value></data>
   <data name="Uyarı: İterasyon tam yakınsamadı; sonuçlar yaklaşık olabilir. Bu yüzden standart hata ve güven aralığı hesaplanmadı." xml:space="preserve"><value>Warning: the iteration did not fully converge; the results may be approximate. The standard error and confidence interval were therefore not computed.</value></data>
   <data name="Doz (mg/kg)" xml:space="preserve"><value>Dose (mg/kg)</value></data>
   <data name="Yanıt (ölüm)" xml:space="preserve"><value>Response (deaths)</value></data>

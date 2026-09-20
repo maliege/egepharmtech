@@ -102,13 +102,13 @@ public class KineticEngineInvariantTests
         {
             var res = KineticEngine.FitAll(T, F, opt);
             foreach (var fit in res.Fits.Concat(res.MechanismFits))
-                yield return new object[] { fit.ModelName, fit, opt };
+                yield return new object[] { fit.ModelName, fit };
         }
     }
 
     [Theory]
     [MemberData(nameof(AllFitsOnSpecData))]
-    public void Secondary_times_are_consistent_with_the_fitted_curve(string name, ModelFit fit, VariantOptions opt)
+    public void Secondary_times_are_consistent_with_the_fitted_curve(string name, ModelFit fit)
     {
         var targets = new Dictionary<string, double>
         {
@@ -126,7 +126,7 @@ public class KineticEngineInvariantTests
 
     [Theory]
     [MemberData(nameof(AllFitsOnSpecData))]
-    public void Secondary_times_are_monotone(string name, ModelFit fit, VariantOptions opt)
+    public void Secondary_times_are_monotone(string name, ModelFit fit)
     {
         var order = new[] { "T25", "T50", "T75", "T80", "T90" };
         var vals = order.Select(k => fit.Secondary.FirstOrDefault(s => s.Symbol == k)?.Value).ToArray();
@@ -140,7 +140,7 @@ public class KineticEngineInvariantTests
 
     [Theory]
     [MemberData(nameof(AllFitsOnSpecData))]
-    public void Fit_reports_finite_gof_and_parameters(string name, ModelFit fit, VariantOptions opt)
+    public void Fit_reports_finite_gof_and_parameters(string name, ModelFit fit)
     {
         Assert.True(double.IsFinite(fit.Gof.SS) && fit.Gof.SS >= 0, $"{name}: SS={fit.Gof.SS}");
         Assert.True(double.IsFinite(fit.Gof.Aic), $"{name}: AIC={fit.Gof.Aic}");
