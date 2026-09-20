@@ -1,14 +1,12 @@
 ﻿@page "/ternary-phase-diagram-app"
 <SiteTitle Text="Üçgen Faz Diyagramı" />
-@rendermode InteractiveServer
 @using System.Globalization
-@using EgePharmTech.Helpers
+@using EgePharmTech.Core.Helpers
 @using System.Text.Json
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components.Rendering
-@using EgePharmTech.Models
-@using EgePharmTech.Services
+@using EgePharmTech.Core.Models
 @using EgePharmTech.Core.Services
 @using EgePharmTech.Middleware
 @using EgePharmTech.Components.UI
@@ -18,7 +16,7 @@
 
 <section id="ternary-container" class="container-fluid p-4">
 
-    <h1>Ternary Phase Diagram</h1>
+    <h1>@L["Üçgen Faz Diyagramı"]</h1>
 
     <div class="row g-3 flex-lg-nowrap align-items-start">
         <div class="col-12 col-lg-4 tab-column">

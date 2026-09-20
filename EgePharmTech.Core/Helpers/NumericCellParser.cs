@@ -1,7 +1,7 @@
 #nullable enable
 using System.Globalization;
 
-namespace EgePharmTech.Helpers;
+namespace EgePharmTech.Core.Helpers;
 
 /// <summary>
 /// Grid hücrelerinden ve dış kaynaklardan gelen sayı metinlerini <b>kültürden

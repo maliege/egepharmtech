@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace EgePharmTech.Models;
+namespace EgePharmTech.Core.Models;
 
 /// <summary>
 /// Üçgen faz diyagramı sayfasının kaydedilebilir "belgesi": veri satırları, diyagram/grafik

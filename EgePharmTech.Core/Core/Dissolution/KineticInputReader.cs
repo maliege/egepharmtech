@@ -1,5 +1,5 @@
 #nullable enable
-using EgePharmTech.Helpers;
+using EgePharmTech.Core.Helpers;
 using EgePharmTech.Core.Localization;
 
 namespace EgePharmTech.Core.Dissolution;

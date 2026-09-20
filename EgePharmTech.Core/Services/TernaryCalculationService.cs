@@ -1,8 +1,8 @@
 ﻿using EgePharmTech.Core.Localization;
 
-namespace EgePharmTech.Services;
+namespace EgePharmTech.Core.Services;
 
-using EgePharmTech.Models;
+using EgePharmTech.Core.Models;
 
 public class TernaryCalculationService
 {
@@ -320,7 +320,7 @@ public class TernaryCalculationService
         {
             if (groupData.Count > 0 && groupData[^1].p != null)
             {
-                polygon[0] = new PointD { X = groupData[^1].p.X, Y = groupData[^1].p.Y };
+                polygon[0] = new PointD { X = groupData[^1].p!.X, Y = groupData[^1].p!.Y };
             }
         }
     }

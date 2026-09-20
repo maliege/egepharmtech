@@ -1,7 +1,7 @@
 ﻿@page "/ldcalc"
 <SiteTitle Text="LD50/LD90 Hesaplama" />
 @using System.Text.Json
-@using EgePharmTech.Helpers
+@using EgePharmTech.Core.Helpers
 @using Microsoft.JSInterop
 @using EgePharmTech.Middleware
 @using EgePharmTech.Components.UI
@@ -925,7 +925,7 @@
       </div>
       <div class="col-md-6">
         <p class="small text-muted">
-          <strong>@L["Denklem"]:</strong> @linkLabel = β₀ + β₁·ln(@L["doz"])
+          <strong>@L["Denklem"]:</strong> @linkLabel = β₀ + β₁·ln(@L["Doz"])
         </p>
         <p class="small text-muted">
           @if (Lang.IsEn)

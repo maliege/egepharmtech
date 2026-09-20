@@ -1,5 +1,5 @@
 ﻿@using System.Text.Json
-@using EgePharmTech.Helpers
+@using EgePharmTech.Core.Helpers
 @using Microsoft.JSInterop
 @using EgePharmTech.Middleware
 @using EgePharmTech.Core.Dissolution
@@ -595,7 +595,7 @@
         }
 
         Eleme(referans, L["Referans"].Value);
-        Eleme(test, L["Test ürünü"].Value);
+        Eleme(test, L["Test Ürünü"].Value);
 
         // Kesme sonrasi nokta sayisi
         if (kullanilanZamanlar.Length > 0 && kullanilanZamanlar.Length < 3)
@@ -609,7 +609,7 @@
             var zaman = kullanilanZamanlar[i];
             var sinir = i == 0 ? 20d : 10d;
 
-            foreach (var (tarama, ad) in new[] { (referans, L["Referans"].Value), (test, L["Test ürünü"].Value) })
+            foreach (var (tarama, ad) in new[] { (referans, L["Referans"].Value), (test, L["Test Ürünü"].Value) })
             {
                 if (!tarama.Rsd.TryGetValue(zaman, out var rsd)) continue;
                 if (rsd > sinir)

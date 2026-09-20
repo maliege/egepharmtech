@@ -1,5 +1,5 @@
 using EgePharmTech.Core.Services;
-using EgePharmTech.Models;
+using EgePharmTech.Core.Models;
 
 namespace EgePharmTech.Core.Tests;
 

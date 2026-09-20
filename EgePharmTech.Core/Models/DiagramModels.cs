@@ -1,4 +1,4 @@
-namespace EgePharmTech.Models;
+namespace EgePharmTech.Core.Models;
 
 public class Ttridata
 {

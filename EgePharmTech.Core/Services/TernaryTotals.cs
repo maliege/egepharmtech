@@ -1,6 +1,6 @@
-namespace EgePharmTech.Services;
+namespace EgePharmTech.Core.Services;
 
-using EgePharmTech.Models;
+using EgePharmTech.Core.Models;
 
 /// <summary>
 /// Üçgen diyagram satırlarında yağ + sürfaktan + su toplamının 100 olup olmadığını denetler.

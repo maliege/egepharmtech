@@ -1,5 +1,5 @@
 #nullable enable
-using EgePharmTech.Models;
+using EgePharmTech.Core.Models;
 using EgePharmTech.Core.Localization;
 
 namespace EgePharmTech.Core.Services;

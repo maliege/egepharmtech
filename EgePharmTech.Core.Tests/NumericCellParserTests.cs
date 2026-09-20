@@ -13,7 +13,7 @@
 //  bozuktu. Aşağıdaki testler doğru davranışı ve kültürden bağımsızlığı sabitler.
 // ============================================================================
 using System.Globalization;
-using EgePharmTech.Helpers;
+using EgePharmTech.Core.Helpers;
 
 namespace EgePharmTech.Core.Tests;
 
