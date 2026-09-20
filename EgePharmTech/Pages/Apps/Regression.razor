@@ -1,0 +1,378 @@
+@page "/regression"
+<SiteTitle Text="Çoklu Regresyon" />
+@using System.Globalization
+@using EgePharmTech.Components.UI
+@using EgePharmTech.Core.Helpers
+@using EgePharmTech.Core.Services
+@using EgePharmTech.Core.Statistics
+@using EgePharmTech.Helpers
+@using Microsoft.JSInterop
+@inject AnalysisStateStatistics State
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<section class="container-fluid p-4">
+    <ToastComponent @ref="_toast" />
+    <h5 class="mb-3 text-primary fw-bold"><i class="bi bi-graph-up-arrow me-2"></i>@L["Çoklu Doğrusal Regresyon"]</h5>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>@L["Veri Girişi"]</h5>
+                </div>
+                <div class="card-body p-2">
+                    <HandsontableGrid @ref="_grid" Data="State.RegressionData" Columns="_columns" Height="380" MinRows="50"
+                                      OnDataChanged="OnGridChanged" />
+                    <small class="text-muted d-block mt-2 px-1">
+                        @L["İlk sütun yanıt (Y), sonrakiler açıklayıcı değişkenler (X). Tamamen boş X sütunları modele girmez; Y ya da kullanılan bir X hücresi boş olan satırlar atlanır ve bildirilir."]
+                    </small>
+                    <div class="row g-2 mt-2 px-1">
+                        <div class="col-4">
+                            <input class="form-control form-control-sm" placeholder="Y" value="@State.RegressionResponseName"
+                                   @onchange="e => State.RegressionResponseName = e.Value?.ToString() ?? string.Empty" aria-label="Y" />
+                        </div>
+                        @for (int i = 0; i < AnalysisStateStatistics.RegressionPredictors; i++)
+                        {
+                            var idx = i;
+                            <div class="col-4">
+                                <input class="form-control form-control-sm" placeholder="@($"X{idx + 1}")" value="@State.RegressionPredictorNames[idx]"
+                                       @onchange="e => State.RegressionPredictorNames[idx] = e.Value?.ToString() ?? string.Empty" aria-label="@($"X{idx + 1}")" />
+                            </div>
+                        }
+                    </div>
+                    <small class="text-muted d-block mt-1 px-1">@L["Değişken adları (isteğe bağlı; katsayı tablosu ve denklemde kullanılır)."]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <RegressionGuide />
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-3">@L["Model Parametreleri"]</h5>
+                    <div class="d-flex flex-wrap gap-4 align-items-end">
+                        <div>
+                            <label class="form-label"><strong>@L["Anlamlılık Düzeyi (α):"]</strong></label>
+                            <select class="form-select w-auto" @bind="State.RegressionAlpha">
+                                <option value="0.01">@L["0.01 (99% güven)"]</option>
+                                <option value="0.05">@L["0.05 (95% güven)"]</option>
+                                <option value="0.10">@L["0.10 (90% güven)"]</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="regIntercept" @bind="_intercept" />
+                            <label class="form-check-label" for="regIntercept">@L["Sabit terim (kesim) dahil"]</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary btn-lg" @onclick="ComputeAsync">
+                        <i class="bi bi-play-fill me-2"></i>@L["Analizi Başlat"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_skipped.Count > 0)
+    {
+        <div class="alert alert-warning py-2 small">
+            @L["Eksik hücresi olan satır(lar) atlandı:"] @string.Join(", ", _skipped.Take(10))@(_skipped.Count > 10 ? " …" : "")
+        </div>
+    }
+
+    @if (_result is not null)
+    {
+        var r = _result;
+        <div class="card shadow-sm mb-4">
+            <div class="card-header @(r.Significant ? "bg-success" : "bg-secondary") text-white">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>@L["Analiz Sonuçları"]</h5>
+            </div>
+            <div class="card-body">
+                @if (r.Flags.Count > 0)
+                {
+                    <div class="alert alert-warning py-2">
+                        <ul class="mb-0 small">
+                            @foreach (var f in r.Flags) { <li>@f</li> }
+                        </ul>
+                    </div>
+                }
+
+                <p class="mb-3"><strong>@L["Denklem"]:</strong> <code>@r.Equation(CultureInfo.CurrentCulture)</code></p>
+
+                <div class="row">
+                    <div class="col-lg-7">
+                        <h6 class="text-primary mb-2">@L["Katsayılar"]</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>@L["Terim"]</th><th class="text-end">@L["Katsayı"]</th><th class="text-end">SE</th><th class="text-end">t</th><th class="text-end">p</th>
+                                        <th class="text-end">@L["Güven Aralığı"] (@Pct(r.Alpha))</th>
+                                        @if (r.K >= 2) { <th class="text-end">VIF</th> }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < r.Coefficients.Count; i++)
+                                    {
+                                        var c = r.Coefficients[i];
+                                        int xi = i - (r.HasIntercept ? 1 : 0);
+                                        <tr class="@(c.P < r.Alpha ? "" : "text-muted")">
+                                            <td>@c.Name</td><td class="text-end">@c.Estimate.ToString("G6")</td><td class="text-end">@c.Se.ToString("G5")</td>
+                                            <td class="text-end">@c.T.ToString("F3")</td><td class="text-end">@FormatP(c.P)</td>
+                                            <td class="text-end">[@c.Lower.ToString("G5"), @c.Upper.ToString("G5")]</td>
+                                            @if (r.K >= 2)
+                                            {
+                                                <td class="text-end">@(xi >= 0 && !double.IsNaN(r.Vif[xi]) ? r.Vif[xi].ToString("F2") : "")</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="text-muted d-block mb-3">@L["Gri satırlar α düzeyinde anlamlı olmayan katsayılardır. VIF > 10 çoklu doğrusallığa işaret eder."]</small>
+
+                        <h6 class="text-primary mb-2">@L["Varyans analizi (model)"]</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr><th>@L["Kaynak"]</th><th class="text-end">SS</th><th class="text-end">df</th><th class="text-end">MS</th><th class="text-end">F</th><th class="text-end">p</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>@L["Regresyon"]</td><td class="text-end">@r.SsRegression.ToString("G6")</td><td class="text-end">@r.DfRegression</td>
+                                        <td class="text-end">@((r.SsRegression / r.DfRegression).ToString("G6"))</td><td class="text-end">@r.F.ToString("F3")</td><td class="text-end">@FormatP(r.FP)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>@L["Artık (hata)"]</td><td class="text-end">@r.SsResidual.ToString("G6")</td><td class="text-end">@r.DfResidual</td>
+                                        <td class="text-end">@((r.SsResidual / r.DfResidual).ToString("G6"))</td><td></td><td></td>
+                                    </tr>
+                                    <tr class="table-light"><td>@L["Toplam"]</td><td class="text-end">@r.SsTotal.ToString("G6")</td><td class="text-end">@(r.DfRegression + r.DfResidual)</td><td></td><td></td><td></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <h6 class="text-primary mb-2">@L["Uyum ölçütleri"]</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr><td>n</td><td class="text-end">@r.N</td></tr>
+                                <tr><td>R²</td><td class="text-end">@r.R2.ToString("F4")</td></tr>
+                                <tr><td>@L["Düzeltilmiş R²"]</td><td class="text-end">@r.R2Adj.ToString("F4")</td></tr>
+                                <tr><td>RMSE (s)</td><td class="text-end">@r.Rmse.ToString("G5")</td></tr>
+                                <tr><td>Durbin-Watson</td><td class="text-end">@r.DurbinWatson.ToString("F3")</td></tr>
+                                <tr class="@(r.Significant ? "table-success" : "table-secondary")">
+                                    <td><strong>@L["Model"]</strong></td>
+                                    <td class="text-end">@(r.Significant ? L["anlamlı (p < α)"] : L["anlamlı değil (p ≥ α)"])</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="height: 230px;"><canvas id="@_chartFitId"></canvas></div>
+                        <div style="height: 200px;" class="mt-2"><canvas id="@_chartResidId"></canvas></div>
+                    </div>
+                </div>
+
+                <hr />
+                <h6 class="text-primary mb-2">@L["Tahmin"]</h6>
+                <p class="small text-muted mb-2">@L["Yeni bir gözlemin X değerlerini girin: ortalama yanıt için güven aralığı ve tek gözlem için öngörü aralığı hesaplanır."]</p>
+                <div class="d-flex flex-wrap gap-2 align-items-end">
+                    @for (int i = 0; i < _usedX.Count; i++)
+                    {
+                        var idx = _usedX[i];
+                        <div>
+                            <label class="form-label small mb-0">@PredictorName(idx)</label>
+                            <input class="form-control form-control-sm" style="width: 110px" value="@State.RegressionPredictionInput[idx]"
+                                   @onchange="e => State.RegressionPredictionInput[idx] = e.Value?.ToString() ?? string.Empty" />
+                        </div>
+                    }
+                    <button class="btn btn-outline-primary btn-sm" @onclick="PredictAsync"><i class="bi bi-crosshair me-1"></i>@L["Tahmin et"]</button>
+                </div>
+                @if (_prediction is not null)
+                {
+                    var p = _prediction;
+                    <table class="table table-sm table-bordered w-auto mt-3">
+                        <tbody>
+                            <tr><td>@L["Tahmini yanıt (ŷ)"]</td><td class="text-end"><strong>@p.Fit.ToString("G6")</strong></td></tr>
+                            <tr><td>@L["Standart hata (ortalama)"]</td><td class="text-end">@p.SeFit.ToString("G5")</td></tr>
+                            <tr><td>@L["Güven aralığı (ortalama yanıt)"] @Pct(r.Alpha)</td><td class="text-end">[@p.CiLower.ToString("G6"), @p.CiUpper.ToString("G6")]</td></tr>
+                            <tr><td>@L["Öngörü aralığı (tek gözlem)"] @Pct(r.Alpha)</td><td class="text-end">[@p.PiLower.ToString("G6"), @p.PiUpper.ToString("G6")]</td></tr>
+                        </tbody>
+                    </table>
+                    @if (_extrapolation)
+                    {
+                        <small class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>@L["Girilen X değerleri verinin aralığı dışında: tahmin ekstrapolasyondur."]</small>
+                    }
+                }
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    private HandsontableGrid? _grid;
+    private ToastComponent? _toast;
+    private MultipleRegressionResult? _result;
+    private RegressionPrediction? _prediction;
+    private bool _extrapolation;
+    private bool _intercept = true;
+    private bool _drawChart;
+    private List<int> _skipped = [];
+    private List<int> _usedX = [];
+    private double[][] _xRows = [];
+    private readonly string _chartFitId = $"reg-fit-{Guid.NewGuid():N}";
+    private readonly string _chartResidId = $"reg-resid-{Guid.NewGuid():N}";
+    private List<HandsontableGrid.ColumnConfig> _columns = [];
+
+    protected override void OnInitialized()
+    {
+        _columns = [new HandsontableGrid.ColumnConfig { Title = "Y", Data = "y", Type = "numeric", Width = 85, NumericFormat = "0.####" }];
+        _columns.AddRange(Enumerable.Range(1, AnalysisStateStatistics.RegressionPredictors)
+            .Select(i => new HandsontableGrid.ColumnConfig { Title = $"X{i}", Data = $"x{i}", Type = "numeric", Width = 85, NumericFormat = "0.####" }));
+    }
+
+    private Task OnGridChanged(List<object[]> changes)
+    {
+        GridJson.ApplyChanges(State.RegressionData, changes);
+        return Task.CompletedTask;
+    }
+
+    private string PredictorName(int idx) =>
+        string.IsNullOrWhiteSpace(State.RegressionPredictorNames[idx]) ? $"X{idx + 1}" : State.RegressionPredictorNames[idx];
+
+    private async Task ComputeAsync()
+    {
+        if (_grid is null) { _toast?.ShowFailed(L["Grid yüklenemedi."].Value); return; }
+        var table = GridJson.ToTable(await _grid.GetDataAsync());
+
+        // Kullanılan X sütunları: en az bir sayısal hücresi olanlar
+        var cols = StatisticsInputReader.ReadColumns(table, 1 + AnalysisStateStatistics.RegressionPredictors);
+        _usedX = Enumerable.Range(0, AnalysisStateStatistics.RegressionPredictors).Where(i => cols[i + 1].Count > 0).ToList();
+        if (_usedX.Count == 0)
+        {
+            _result = null; _prediction = null;
+            _toast?.ShowFailed(L["En az bir X sütunu doldurun."].Value);
+            return;
+        }
+
+        var wanted = new List<int> { 0 };
+        wanted.AddRange(_usedX.Select(i => i + 1));
+        var rows = StatisticsInputReader.ReadCompleteRows(table, wanted);
+        _skipped = rows.SkippedRowNumbers.ToList();
+
+        var y = rows.Rows.Select(r => r[0]).ToList();
+        _xRows = rows.Rows.Select(r => r.Skip(1).ToArray()).ToList().ToArray();
+        var names = _usedX.Select(PredictorName).ToList();
+
+        try
+        {
+            _result = MultipleRegression.Fit(_xRows, y, names, State.RegressionAlpha, _intercept);
+            _prediction = null;
+            _drawChart = true;
+            _toast?.ShowSuccess(L["Analiz tamamlandı."].Value);
+        }
+        catch (Exception ex)
+        {
+            _result = null; _prediction = null;
+            _toast?.ShowFailed($"{L["Hata:"].Value} {ex.Message}");
+        }
+    }
+
+    private Task PredictAsync()
+    {
+        if (_result is null) return Task.CompletedTask;
+        var x = new double[_usedX.Count];
+        for (int i = 0; i < _usedX.Count; i++)
+        {
+            if (!NumericCellParser.TryGetDouble(State.RegressionPredictionInput[_usedX[i]], out x[i]))
+            {
+                _toast?.ShowFailed(L["Tahmin için tüm X değerlerini sayı olarak girin."].Value);
+                return Task.CompletedTask;
+            }
+        }
+        try
+        {
+            _prediction = _result.Predict(x);
+            _extrapolation = false;
+            for (int j = 0; j < x.Length; j++)
+            {
+                double min = _xRows.Min(r => r[j]), max = _xRows.Max(r => r[j]);
+                if (x[j] < min || x[j] > max) _extrapolation = true;
+            }
+        }
+        catch (Exception ex) { _toast?.ShowFailed($"{L["Hata:"].Value} {ex.Message}"); }
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_drawChart && _result is not null)
+        {
+            _drawChart = false;
+            await DrawChartsAsync(_result);
+        }
+    }
+
+    private async Task DrawChartsAsync(MultipleRegressionResult r)
+    {
+        double lo = Math.Min(r.Fitted.Min(), r.Fitted.Zip(r.Residuals, (f, e) => f + e).Min());
+        double hi = Math.Max(r.Fitted.Max(), r.Fitted.Zip(r.Residuals, (f, e) => f + e).Max());
+        var fitCfg = new
+        {
+            type = "scatter",
+            data = new
+            {
+                datasets = new object[]
+                {
+                    new { label = L["Gözlenen − tahmin"].Value, data = r.Fitted.Select((f, i) => new { x = f, y = f + r.Residuals[i] }).ToArray(), backgroundColor = "rgba(13, 148, 136, 0.8)", pointRadius = 4 },
+                    new { label = "y = ŷ", data = new[] { new { x = lo, y = lo }, new { x = hi, y = hi } }, type = "line", fill = false, borderColor = "rgba(100, 116, 139, 0.9)", borderDash = new[] { 6, 4 }, pointRadius = 0, borderWidth = 1.5 }
+                }
+            },
+            options = new
+            {
+                responsive = true, maintainAspectRatio = false, legend = new { display = true, position = "bottom" },
+                scales = new
+                {
+                    xAxes = new[] { new { type = "linear", position = "bottom", scaleLabel = new { display = true, labelString = L["Tahmin edilen (ŷ)"].Value } } },
+                    yAxes = new[] { new { scaleLabel = new { display = true, labelString = L["Gözlenen (y)"].Value } } }
+                }
+            }
+        };
+        var residCfg = new
+        {
+            type = "scatter",
+            data = new
+            {
+                datasets = new object[]
+                {
+                    new { label = L["Standartlaştırılmış artık"].Value, data = r.Fitted.Select((f, i) => new { x = f, y = r.StandardizedResiduals[i] }).ToArray(), backgroundColor = "rgba(220, 38, 38, 0.75)", pointRadius = 4 },
+                    new { label = "0", data = new[] { new { x = r.Fitted.Min(), y = 0.0 }, new { x = r.Fitted.Max(), y = 0.0 } }, type = "line", fill = false, borderColor = "rgba(100, 116, 139, 0.9)", pointRadius = 0, borderWidth = 1 }
+                }
+            },
+            options = new
+            {
+                responsive = true, maintainAspectRatio = false, legend = new { display = false },
+                scales = new
+                {
+                    xAxes = new[] { new { type = "linear", position = "bottom", scaleLabel = new { display = true, labelString = L["Tahmin edilen (ŷ)"].Value } } },
+                    yAxes = new[] { new { scaleLabel = new { display = true, labelString = L["Std. artık"].Value } } }
+                }
+            }
+        };
+        try
+        {
+            await JS.InvokeVoidAsync("chartInterop.renderChart", _chartFitId, fitCfg);
+            await JS.InvokeVoidAsync("chartInterop.renderChart", _chartResidId, residCfg);
+        }
+        catch (Exception ex) { Console.WriteLine($"Chart error: {ex.Message}"); }
+    }
+
+    private static string Pct(double alpha) => Lang.IsEn ? $"{(1 - alpha) * 100:0.#}%" : $"%{(1 - alpha) * 100:0.#}";
+    private static string FormatP(double p) => double.IsNaN(p) ? "-" : p < 0.0001 ? "< " + (0.0001).ToString("0.0000") : p.ToString("F4");
+}

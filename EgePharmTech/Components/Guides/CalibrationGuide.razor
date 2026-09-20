@@ -1,0 +1,90 @@
+@* Kalibrasyon eğrisi sayfasının kullanım rehberi. Hesapla uyumlu tut: OLS, LOD = 3,3σ/S, LOQ = 10σ/S
+   (σ = s_y/x), geri hesap doğruluğu ±%15 / LLOQ'da ±%20, kesim testi. TR ve EN blok yan yana durur. *@
+<div class="accordion mb-4 h-100" id="calRehber">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#calRehberGovde"
+                    aria-expanded="true" aria-controls="calRehberGovde">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (Lang.IsEn) { <text>Analytical method validation: what the tool computes and how to judge it</text> }
+                else { <text>Analitik yöntem validasyonu: araç neyi hesaplar, nasıl değerlendirilir</text> }
+            </button>
+        </h2>
+        <div id="calRehberGovde" class="accordion-collapse collapse show" data-bs-parent="#calRehber">
+            <div class="accordion-body">
+            @if (Lang.IsEn)
+            {
+                <h6 class="text-primary">What it does</h6>
+                <p class="small text-muted">
+                    Fits a straight line (response = a + S·concentration) to calibration standards by ordinary least
+                    squares, reports the slope and intercept with confidence intervals, r², the residual standard deviation
+                    s<sub>y/x</sub>, and derives the detection and quantitation limits from the curve. Every standard is
+                    back-calculated so that accuracy per level can be checked.
+                </p>
+                <h6 class="text-primary mt-3">Typical uses</h6>
+                <ul class="small text-muted">
+                    <li>UV/Vis, HPLC or fluorescence calibration for assay, content uniformity and dissolution testing</li>
+                    <li>Linearity and range sections of an ICH Q2(R2) validation report</li>
+                    <li>Checking day-to-day curves: slope drift, intercept bias, RSD of replicate standards</li>
+                </ul>
+                <h6 class="text-primary mt-3">How to read the output</h6>
+                <ul class="small text-muted">
+                    <li><strong>r² alone is not linearity.</strong> Look at the residual-% plot: a systematic curve means the range is too wide or the detector saturates. r² ≥ 0.99 is a common acceptance value, not a proof.</li>
+                    <li><strong>Intercept test:</strong> if the intercept differs significantly from zero, single-point calibration or "response factor" quantitation will be biased at low concentrations.</li>
+                    <li><strong>LOD = 3.3·σ/S, LOQ = 10·σ/S</strong> with σ = s<sub>y/x</sub> (ICH Q2(R2) "standard deviation of the response and the slope"). They are estimates; ICH expects the LOQ to be confirmed by analysing standards at that level with acceptable precision and accuracy. The intercept standard deviation may be used as σ instead; the residual SD is used here because it does not depend on the concentration spacing.</li>
+                    <li><strong>Back-calculated accuracy:</strong> the FDA/EMA bioanalytical limits (±15%, ±20% at the lowest standard) are used to highlight levels; pharmacopoeial assay methods usually require tighter agreement.</li>
+                    <li><strong>Replicate RSD</strong> per level flags precision problems at individual standards.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Prerequisites and limitations</h6>
+                <ul class="small text-muted">
+                    <li>At least three, preferably five or more concentration levels spanning 80–120 % of the working range (ICH Q2(R2)); replicates entered as separate rows</li>
+                    <li>Constant variance across the range. If the residual-% plot shows a funnel, weighted (1/x, 1/x²) regression is more appropriate; this tool fits unweighted OLS only</li>
+                    <li>Do not extrapolate below the lowest or above the highest standard</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    References: ICH Q2(R2) <em>Validation of Analytical Procedures</em> (2023);
+                    Miller J.N., Miller J.C. (2018) <em>Statistics and Chemometrics for Analytical Chemistry</em>, 7th ed., Pearson;
+                    Shrivastava A., Gupta V.B. (2011) <em>Chron. Young Sci.</em> 2:21–25,
+                    <a href="https://doi.org/10.4103/2229-5186.79345" rel="noopener" target="_blank">doi:10.4103/2229-5186.79345</a>.
+                </p>
+            }
+            else
+            {
+                <h6 class="text-primary">Ne yapar?</h6>
+                <p class="small text-muted">
+                    Kalibrasyon standartlarına sıradan en küçük karelerle doğru (yanıt = a + S·konsantrasyon) uydurur;
+                    eğim ve kesimi güven aralıklarıyla, r²'yi, artık standart sapması s<sub>y/x</sub>'i verir ve saptama
+                    ile nicelendirme sınırlarını eğriden türetir. Her standart geri hesaplanır, böylece düzey başına
+                    doğruluk denetlenebilir.
+                </p>
+                <h6 class="text-primary mt-3">Tipik kullanımlar</h6>
+                <ul class="small text-muted">
+                    <li>Miktar tayini, içerik tekdüzeliği ve dissolüsyon testi için UV/Vis, HPLC ya da floresans kalibrasyonu</li>
+                    <li>ICH Q2(R2) validasyon raporunun doğrusallık ve aralık bölümleri</li>
+                    <li>Günlük eğrilerin denetimi: eğim kayması, kesim sapması, tekrar standartlarının RSD'si</li>
+                </ul>
+                <h6 class="text-primary mt-3">Çıktı nasıl okunur?</h6>
+                <ul class="small text-muted">
+                    <li><strong>r² tek başına doğrusallık değildir.</strong> Artık-% grafiğine bakın: sistematik eğrilik aralığın çok geniş olduğuna ya da dedektörün doyduğuna işaret eder. r² ≥ 0,99 yaygın bir kabul değeridir, kanıt değil.</li>
+                    <li><strong>Kesim testi:</strong> kesim sıfırdan anlamlı farklıysa tek noktalı kalibrasyon ya da "yanıt faktörü" ile nicelendirme düşük konsantrasyonlarda yanlı olur.</li>
+                    <li><strong>LOD = 3,3·σ/S, LOQ = 10·σ/S</strong>; σ = s<sub>y/x</sub> (ICH Q2(R2) "yanıtın standart sapması ve eğim" yaklaşımı). Bunlar tahmindir; ICH, LOQ'nun o düzeyde standartlar analiz edilerek kabul edilebilir kesinlik ve doğrulukla doğrulanmasını bekler. σ olarak kesimin standart sapması da kullanılabilir; burada artık SD tercih edilmiştir çünkü konsantrasyon aralıklarına bağlı değildir.</li>
+                    <li><strong>Geri hesap doğruluğu:</strong> düzeyleri işaretlemek için FDA/EMA biyoanalitik sınırları (±%15, en düşük standartta ±%20) kullanılır; farmakope miktar tayini yöntemleri genellikle daha dar uyum ister.</li>
+                    <li><strong>Tekrar RSD'si</strong> düzey başına tekil standartlardaki kesinlik sorunlarını gösterir.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Ön şartlar ve kısıtlar</h6>
+                <ul class="small text-muted">
+                    <li>Çalışma aralığının %80–120'sini kapsayan en az üç, tercihen beş ya da daha çok konsantrasyon düzeyi (ICH Q2(R2)); tekrarlar ayrı satırlara</li>
+                    <li>Aralık boyunca sabit varyans. Artık-% grafiği huni gösteriyorsa ağırlıklı (1/x, 1/x²) regresyon daha uygundur; bu araç yalnız ağırlıksız OLS uydurur</li>
+                    <li>En düşük standardın altına, en yükseğin üstüne ekstrapolasyon yapmayın</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    Kaynaklar: ICH Q2(R2) <em>Validation of Analytical Procedures</em> (2023);
+                    Miller J.N., Miller J.C. (2018) <em>Statistics and Chemometrics for Analytical Chemistry</em>, 7. bs., Pearson;
+                    Shrivastava A., Gupta V.B. (2011) <em>Chron. Young Sci.</em> 2:21–25,
+                    <a href="https://doi.org/10.4103/2229-5186.79345" rel="noopener" target="_blank">doi:10.4103/2229-5186.79345</a>.
+                </p>
+            }
+            </div>
+        </div>
+    </div>
+</div>

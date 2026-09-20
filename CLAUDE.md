@@ -18,12 +18,13 @@ dotnet run --project EgePharmTech/EgePharmTech.csproj --launch-profile http   # 
 
 ## Mimari
 
-- `EgePharmTech.Core/`: saf hesaplama (kinetik motor, f1/f2, doz–yanıt, t-testi, üçgen faz geometrisi). ASP.NET/Blazor
+- `EgePharmTech.Core/`: saf hesaplama (kinetik motor, f1/f2, doz–yanıt, t-testi/ANOVA/regresyon/kalibrasyon, üçgen faz geometrisi). ASP.NET/Blazor
   bağımlılığı yok; kullanıcıya dönen her metin `CoreText.T("Türkçe", args)`.
 - `EgePharmTech/`: sayfalar `Pages/Apps`, rehberler `Pages/AboutApps` + `Components/Guides`, alan adı kuralları
   `Site/SiteProfile.cs`, yönlendirme `Middleware/BrandRedirectMiddleware.cs`, SMTP `Services/`.
 - `EgePharmTech.Core.Tests/`: xUnit; `DdsolverReferenceTests` gerçek DDSolver 1.0 çıktılarıyla karşılaştırma fikstürü.
-  Kinetik motorunda değişiklikte mutlaka çalıştır.
+  Kinetik motorunda değişiklikte mutlaka çalıştır. `StatisticsReferenceTests` SciPy/statsmodels referanslarıyla (`stats_reference.json`)
+  karşılaştırır; referans üretim betiği test dosyasının başlığında anlatılır.
 
 Ayrıntı: `CONTRIBUTING.md`.
 

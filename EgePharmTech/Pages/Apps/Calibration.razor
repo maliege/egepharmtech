@@ -1,0 +1,293 @@
+@page "/calibration"
+<SiteTitle Text="Kalibrasyon Eğrisi" />
+@using EgePharmTech.Components.UI
+@using EgePharmTech.Core.Services
+@using EgePharmTech.Core.Statistics
+@using EgePharmTech.Helpers
+@using Microsoft.JSInterop
+@inject AnalysisStateStatistics State
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<section class="container-fluid p-4">
+    <ToastComponent @ref="_toast" />
+    <h5 class="mb-3 text-primary fw-bold"><i class="bi bi-rulers me-2"></i>@L["Kalibrasyon Eğrisi"]</h5>
+
+    <div class="row">
+        <div class="col-lg-4 col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>@L["Veri Girişi"]</h5>
+                </div>
+                <div class="card-body p-2">
+                    <HandsontableGrid @ref="_grid" Data="State.CalibrationData" Columns="_columns" Height="400" MinRows="40"
+                                      OnDataChanged="OnGridChanged" />
+                    <small class="text-muted d-block mt-2 px-1">
+                        @L["Her satır bir standart ölçümüdür; tekrarları aynı konsantrasyonla ayrı satırlara yazın. En az üç (tercihen beş) farklı düzey gerekir."]
+                    </small>
+                    <div class="mt-2 px-1">
+                        <label class="form-label small mb-0">@L["Konsantrasyon birimi"]</label>
+                        <input class="form-control form-control-sm w-auto" value="@State.CalibrationConcUnit"
+                               @onchange="e => State.CalibrationConcUnit = e.Value?.ToString() ?? string.Empty" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8 col-md-6">
+            <CalibrationGuide />
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-3">@L["Parametreler"]</h5>
+                    <label class="form-label"><strong>@L["Anlamlılık Düzeyi (α):"]</strong></label>
+                    <select class="form-select w-auto" @bind="State.CalibrationAlpha">
+                        <option value="0.01">@L["0.01 (99% güven)"]</option>
+                        <option value="0.05">@L["0.05 (95% güven)"]</option>
+                        <option value="0.10">@L["0.10 (90% güven)"]</option>
+                    </select>
+                    <small class="text-muted d-block mt-2">@L["Doğrusal en küçük kareler; LOD = 3,3·σ/S ve LOQ = 10·σ/S (σ = artık standart sapması s_y/x, S = eğim; ICH Q2(R2))."]</small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary btn-lg" @onclick="ComputeAsync">
+                        <i class="bi bi-play-fill me-2"></i>@L["Analizi Başlat"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_skipped.Count > 0)
+    {
+        <div class="alert alert-warning py-2 small">
+            @L["Eksik hücresi olan satır(lar) atlandı:"] @string.Join(", ", _skipped.Take(10))@(_skipped.Count > 10 ? " …" : "")
+        </div>
+    }
+
+    @if (_result is not null)
+    {
+        var r = _result;
+        var unit = string.IsNullOrWhiteSpace(State.CalibrationConcUnit) ? "" : $" ({State.CalibrationConcUnit})";
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>@L["Analiz Sonuçları"]</h5>
+            </div>
+            <div class="card-body">
+                @if (r.Flags.Count > 0)
+                {
+                    <div class="alert alert-warning py-2">
+                        <ul class="mb-0 small">
+                            @foreach (var f in r.Flags) { <li>@f</li> }
+                        </ul>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-lg-5">
+                        <h6 class="text-primary mb-2">@L["Regresyon doğrusu"]</h6>
+                        <p class="mb-2"><code>y = @r.Slope.ToString("G6")·x @(r.Intercept < 0 ? "−" : "+") @Math.Abs(r.Intercept).ToString("G6")</code></p>
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr><td>@L["Eğim (S)"]</td><td class="text-end">@r.Slope.ToString("G6") ± @r.SeSlope.ToString("G4")</td></tr>
+                                <tr><td>@L["Eğim güven aralığı"] @Pct(r.Alpha)</td><td class="text-end">[@r.SlopeLower.ToString("G6"), @r.SlopeUpper.ToString("G6")]</td></tr>
+                                <tr><td>@L["Kesim (a)"]</td><td class="text-end">@r.Intercept.ToString("G6") ± @r.SeIntercept.ToString("G4")</td></tr>
+                                <tr><td>@L["Kesim güven aralığı"] @Pct(r.Alpha)</td><td class="text-end">[@r.InterceptLower.ToString("G6"), @r.InterceptUpper.ToString("G6")]</td></tr>
+                                <tr>
+                                    <td>@L["Kesim = 0 testi"]</td>
+                                    <td class="text-end">t = @r.InterceptT.ToString("F3"), p = @FormatP(r.InterceptP)
+                                        @if (r.InterceptP < 0.05) { <span class="badge bg-warning text-dark ms-1">@L["≠ 0"]</span> }
+                                        else { <span class="badge bg-success ms-1">@L["≈ 0"]</span> }
+                                    </td>
+                                </tr>
+                                <tr><td>r</td><td class="text-end">@r.R.ToString("F5")</td></tr>
+                                <tr><td>r²</td><td class="text-end">@r.R2.ToString("F5")</td></tr>
+                                <tr><td>s<sub>y/x</sub> (@L["artık SD"])</td><td class="text-end">@r.Syx.ToString("G5")</td></tr>
+                                <tr><td>n / @L["düzey"] / df</td><td class="text-end">@r.N / @r.Levels / @r.Df</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h6 class="text-primary mb-2 mt-3">@L["Saptama ve nicelendirme sınırları"]</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr><td>LOD = @((3.3).ToString("0.0"))·s<sub>y/x</sub>/S</td><td class="text-end"><strong>@r.Lod.ToString("G4")</strong>@unit</td></tr>
+                                <tr><td>LOQ = 10·s<sub>y/x</sub>/S</td><td class="text-end"><strong>@r.Loq.ToString("G4")</strong>@unit</td></tr>
+                                <tr><td>@L["Kalibre edilen aralık"]</td><td class="text-end">@r.MinConc.ToString("G4") – @r.MaxConc.ToString("G4")@unit</td></tr>
+                            </tbody>
+                        </table>
+                        <small class="text-muted">@L["LOD/LOQ eğri istatistiğinden türetilmiş tahminlerdir; ICH Q2(R2) bunların LOQ düzeyinde uygun sayıda standartla deneysel olarak doğrulanmasını ister."]</small>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div style="height: 280px;"><canvas id="@_chartFitId"></canvas></div>
+                        <div style="height: 200px;" class="mt-2"><canvas id="@_chartResidId"></canvas></div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="row">
+                    <div class="col-lg-5">
+                        <h6 class="text-primary mb-2">@L["Düzey özeti"]</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr><th class="text-end">@L["Konsantrasyon"]</th><th class="text-end">n</th><th class="text-end">@L["Ort. yanıt"]</th><th class="text-end">SD</th><th class="text-end">%RSD</th><th class="text-end">@L["Ort. doğruluk %"]</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var lv in r.LevelSummary)
+                                    {
+                                        bool bad = Math.Abs(lv.MeanAccuracyPct - 100) > (lv.Conc == r.MinConc ? 20 : 15);
+                                        <tr class="@(bad ? "table-warning" : "")">
+                                            <td class="text-end">@lv.Conc.ToString("G5")</td><td class="text-end">@lv.N</td>
+                                            <td class="text-end">@lv.MeanResponse.ToString("G5")</td>
+                                            <td class="text-end">@(double.IsNaN(lv.Sd) ? "-" : lv.Sd.ToString("G4"))</td>
+                                            <td class="text-end">@(double.IsNaN(lv.RsdPct) ? "-" : lv.RsdPct.ToString("F2"))</td>
+                                            <td class="text-end">@lv.MeanAccuracyPct.ToString("F1")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <h6 class="text-primary mb-2">@L["Standartlar ve geri hesap"]</h6>
+                        <div class="table-responsive" style="max-height: 320px;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr><th class="text-end">@L["Konsantrasyon"]</th><th class="text-end">@L["Yanıt"]</th><th class="text-end">@L["Tahmin"]</th><th class="text-end">@L["Artık"]</th><th class="text-end">@L["Artık %"]</th><th class="text-end">@L["Geri hesap"]</th><th class="text-end">@L["Doğruluk %"]</th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in r.Points)
+                                    {
+                                        bool bad = Math.Abs(p.AccuracyPct - 100) > (p.Conc == r.MinConc ? 20 : 15);
+                                        <tr class="@(bad ? "table-warning" : "")">
+                                            <td class="text-end">@p.Conc.ToString("G5")</td><td class="text-end">@p.Response.ToString("G5")</td>
+                                            <td class="text-end">@p.Fitted.ToString("G5")</td><td class="text-end">@p.Residual.ToString("G3")</td>
+                                            <td class="text-end">@(double.IsNaN(p.ResidualPct) ? "-" : p.ResidualPct.ToString("F2"))</td>
+                                            <td class="text-end">@p.BackCalc.ToString("G5")</td><td class="text-end">@p.AccuracyPct.ToString("F1")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="text-muted">@L["Sarı satırlar geri hesap doğruluğu ±%15 (en düşük düzeyde ±%20) sınırı dışındaki standartlardır."]</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    private HandsontableGrid? _grid;
+    private ToastComponent? _toast;
+    private CalibrationResult? _result;
+    private bool _drawChart;
+    private List<int> _skipped = [];
+    private readonly string _chartFitId = $"cal-fit-{Guid.NewGuid():N}";
+    private readonly string _chartResidId = $"cal-resid-{Guid.NewGuid():N}";
+    private List<HandsontableGrid.ColumnConfig> _columns = [];
+
+    protected override void OnInitialized()
+    {
+        _columns =
+        [
+            new() { Title = L["Konsantrasyon"].Value, Data = "conc", Type = "numeric", Width = 120, NumericFormat = "0.#####" },
+            new() { Title = L["Yanıt"].Value, Data = "resp", Type = "numeric", Width = 120, NumericFormat = "0.#####" }
+        ];
+    }
+
+    private Task OnGridChanged(List<object[]> changes)
+    {
+        GridJson.ApplyChanges(State.CalibrationData, changes);
+        return Task.CompletedTask;
+    }
+
+    private async Task ComputeAsync()
+    {
+        if (_grid is null) { _toast?.ShowFailed(L["Grid yüklenemedi."].Value); return; }
+        var table = GridJson.ToTable(await _grid.GetDataAsync());
+        var rows = StatisticsInputReader.ReadCompleteRows(table, [0, 1]);
+        _skipped = rows.SkippedRowNumbers.ToList();
+        try
+        {
+            _result = CalibrationCurve.Fit(rows.Rows.Select(r => r[0]).ToList(), rows.Rows.Select(r => r[1]).ToList(), State.CalibrationAlpha);
+            _drawChart = true;
+            _toast?.ShowSuccess(L["Analiz tamamlandı."].Value);
+        }
+        catch (Exception ex)
+        {
+            _result = null;
+            _toast?.ShowFailed($"{L["Hata:"].Value} {ex.Message}");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_drawChart && _result is not null)
+        {
+            _drawChart = false;
+            await DrawChartsAsync(_result);
+        }
+    }
+
+    private async Task DrawChartsAsync(CalibrationResult r)
+    {
+        string xLabel = L["Konsantrasyon"].Value + (string.IsNullOrWhiteSpace(State.CalibrationConcUnit) ? "" : $" ({State.CalibrationConcUnit})");
+        double x0 = Math.Min(0, r.MinConc), x1 = r.MaxConc * 1.02;
+        var fitCfg = new
+        {
+            type = "scatter",
+            data = new
+            {
+                datasets = new object[]
+                {
+                    new { label = L["Standartlar"].Value, data = r.Points.Select(p => new { x = p.Conc, y = p.Response }).ToArray(), backgroundColor = "rgba(13, 148, 136, 0.85)", pointRadius = 4 },
+                    new { label = L["Regresyon doğrusu"].Value, data = new[] { new { x = x0, y = r.Predict(x0) }, new { x = x1, y = r.Predict(x1) } }, type = "line", fill = false, borderColor = "rgba(220, 38, 38, 0.9)", pointRadius = 0, borderWidth = 2 },
+                    new { label = "LOQ", data = new[] { new { x = r.Loq, y = r.Predict(x0) }, new { x = r.Loq, y = r.Predict(x1) } }, type = "line", fill = false, borderColor = "rgba(100, 116, 139, 0.8)", borderDash = new[] { 4, 4 }, pointRadius = 0, borderWidth = 1 }
+                }
+            },
+            options = new
+            {
+                responsive = true, maintainAspectRatio = false, legend = new { display = true, position = "bottom" },
+                scales = new
+                {
+                    xAxes = new[] { new { type = "linear", position = "bottom", scaleLabel = new { display = true, labelString = xLabel } } },
+                    yAxes = new[] { new { scaleLabel = new { display = true, labelString = L["Yanıt"].Value } } }
+                }
+            }
+        };
+        var residCfg = new
+        {
+            type = "scatter",
+            data = new
+            {
+                datasets = new object[]
+                {
+                    new { label = L["Artık %"].Value, data = r.Points.Where(p => !double.IsNaN(p.ResidualPct)).Select(p => new { x = p.Conc, y = p.ResidualPct }).ToArray(), backgroundColor = "rgba(220, 38, 38, 0.75)", pointRadius = 4 },
+                    new { label = "0", data = new[] { new { x = x0, y = 0.0 }, new { x = x1, y = 0.0 } }, type = "line", fill = false, borderColor = "rgba(100, 116, 139, 0.9)", pointRadius = 0, borderWidth = 1 }
+                }
+            },
+            options = new
+            {
+                responsive = true, maintainAspectRatio = false, legend = new { display = false },
+                scales = new
+                {
+                    xAxes = new[] { new { type = "linear", position = "bottom", scaleLabel = new { display = true, labelString = xLabel } } },
+                    yAxes = new[] { new { scaleLabel = new { display = true, labelString = L["Artık %"].Value } } }
+                }
+            }
+        };
+        try
+        {
+            await JS.InvokeVoidAsync("chartInterop.renderChart", _chartFitId, fitCfg);
+            await JS.InvokeVoidAsync("chartInterop.renderChart", _chartResidId, residCfg);
+        }
+        catch (Exception ex) { Console.WriteLine($"Chart error: {ex.Message}"); }
+    }
+
+    private static string Pct(double alpha) => Lang.IsEn ? $"{(1 - alpha) * 100:0.#}%" : $"%{(1 - alpha) * 100:0.#}";
+    private static string FormatP(double p) => double.IsNaN(p) ? "-" : p < 0.0001 ? "< " + (0.0001).ToString("0.0000") : p.ToString("F4");
+}

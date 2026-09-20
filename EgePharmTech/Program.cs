@@ -29,6 +29,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddScoped<AnalysisState>();
 builder.Services.AddScoped<AnalysisStateF1F2>();
 builder.Services.AddScoped<AnalysisStateDescriptiveStats>();
+builder.Services.AddScoped<AnalysisStateStatistics>();
 
 // İletişim formu: SMTP ayarları appsettings.Production.json (sunucuda) ya da kullanıcı sırlarında (yerelde).
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.SectionName));

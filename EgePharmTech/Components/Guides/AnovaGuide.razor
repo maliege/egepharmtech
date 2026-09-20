@@ -1,0 +1,86 @@
+@* Tek yönlü ANOVA sayfasının kullanım rehberi. İçerik hesapla birebir uyumlu tutulmalı: Levene ortalama
+   merkezli, Tukey HSD eşit olmayan n'lerde Tukey-Kramer, η²/ω² tanımları. TR ve EN blok yan yana durur. *@
+<div class="accordion mb-4 h-100" id="anovaRehber">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#anovaRehberGovde"
+                    aria-expanded="true" aria-controls="anovaRehberGovde">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (Lang.IsEn) { <text>Use in pharmaceutical technology, prerequisites and limitations</text> }
+                else { <text>Farmasötik teknolojide kullanımı, ön şartlar ve kısıtlar</text> }
+            </button>
+        </h2>
+        <div id="anovaRehberGovde" class="accordion-collapse collapse show" data-bs-parent="#anovaRehber">
+            <div class="accordion-body">
+            @if (Lang.IsEn)
+            {
+                <h6 class="text-primary">What it does</h6>
+                <p class="small text-muted">
+                    One-way analysis of variance asks whether the means of <strong>three or more</strong> independent
+                    groups differ more than measurement variability would explain. It generalises the independent-samples
+                    t-test; running several t-tests instead inflates the family-wise error rate.
+                </p>
+                <h6 class="text-primary mt-3">Typical uses</h6>
+                <ul class="small text-muted">
+                    <li>Comparing three or more formulations, batches or suppliers for hardness, assay, friability or disintegration time</li>
+                    <li>Effect of a process factor with several levels (compression force, drying temperature, mixing time) on a quality attribute</li>
+                    <li>Percentage dissolved at one time point across several formulations</li>
+                </ul>
+                <h6 class="text-primary mt-3">How to read the output</h6>
+                <ul class="small text-muted">
+                    <li><strong>ANOVA table:</strong> F = MS<sub>between</sub>/MS<sub>within</sub>; p &lt; α means at least one mean differs, without saying which.</li>
+                    <li><strong>Tukey HSD:</strong> all pairwise comparisons with the family-wise error held at α. With unequal group sizes the Tukey-Kramer standard error is used. A confidence interval that excludes zero marks a significant pair.</li>
+                    <li><strong>η² and ω²:</strong> share of total variance explained by group membership; ω² is the less biased population estimate.</li>
+                    <li><strong>Levene:</strong> tests equality of variances (mean-centred, as on the t-test page). If it is significant the F test and Tukey lose reliability; consider a Welch ANOVA or Games-Howell in dedicated software.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Prerequisites</h6>
+                <ul class="small text-muted">
+                    <li>Independent observations; each group at least two, preferably five or more values</li>
+                    <li>Approximately normal residuals and similar variances; ANOVA is fairly robust to moderate departures when group sizes are similar</li>
+                    <li>Continuous response. Counts, percentages near 0 or 100 and ordinal scores may need transformation or a non-parametric test (Kruskal-Wallis)</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    References: Levene H. (1960) in <em>Contributions to Probability and Statistics</em>, Stanford Univ. Press;
+                    Tukey J.W. (1949) <em>Biometrics</em> 5:99–114, <a href="https://doi.org/10.2307/3001913" rel="noopener" target="_blank">doi:10.2307/3001913</a>;
+                    Kramer C.Y. (1956) <em>Biometrics</em> 12:307–310, <a href="https://doi.org/10.2307/3001469" rel="noopener" target="_blank">doi:10.2307/3001469</a>.
+                    Results are compared with SciPy/statsmodels in the unit tests.
+                </p>
+            }
+            else
+            {
+                <h6 class="text-primary">Ne yapar?</h6>
+                <p class="small text-muted">
+                    Tek yönlü varyans analizi, <strong>üç ya da daha çok</strong> bağımsız grubun ortalamalarının ölçüm
+                    değişkenliğiyle açıklanabilecek olandan daha fazla farklılaşıp farklılaşmadığını sorar. Bağımsız
+                    örneklem t-testinin genellemesidir; onun yerine birden çok t-testi yapmak aile hata oranını şişirir.
+                </p>
+                <h6 class="text-primary mt-3">Tipik kullanımlar</h6>
+                <ul class="small text-muted">
+                    <li>Üç ya da daha çok formülasyon, seri ya da tedarikçinin sertlik, miktar tayini, friabilite ya da dağılma süresi bakımından karşılaştırılması</li>
+                    <li>Birden çok düzeyi olan bir proses faktörünün (basınç, kurutma sıcaklığı, karıştırma süresi) kalite özelliğine etkisi</li>
+                    <li>Tek bir zaman noktasında birkaç formülasyonun çözünen yüzdesi</li>
+                </ul>
+                <h6 class="text-primary mt-3">Çıktı nasıl okunur?</h6>
+                <ul class="small text-muted">
+                    <li><strong>ANOVA tablosu:</strong> F = MS<sub>gruplar arası</sub>/MS<sub>grup içi</sub>; p &lt; α ise en az bir ortalama farklıdır, hangisi olduğunu söylemez.</li>
+                    <li><strong>Tukey HSD:</strong> tüm ikili karşılaştırmalar, aile hatası α'da tutularak. Grup büyüklükleri eşit değilse Tukey-Kramer standart hatası kullanılır. Sıfırı içermeyen güven aralığı anlamlı çifti gösterir.</li>
+                    <li><strong>η² ve ω²:</strong> toplam varyansın grup üyeliğiyle açıklanan payı; ω² popülasyon için daha az yanlı tahmindir.</li>
+                    <li><strong>Levene:</strong> varyansların eşitliğini sınar (t-testi sayfasındaki gibi ortalama merkezli). Anlamlıysa F testi ve Tukey güvenilirliğini yitirir; özel yazılımda Welch ANOVA ya da Games-Howell düşünülmeli.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Ön şartlar</h6>
+                <ul class="small text-muted">
+                    <li>Bağımsız gözlemler; her grupta en az iki, tercihen beş ya da daha çok değer</li>
+                    <li>Yaklaşık normal artıklar ve benzer varyanslar; grup büyüklükleri benzerse ANOVA orta düzey sapmalara dayanıklıdır</li>
+                    <li>Sürekli yanıt. Sayımlar, 0 ya da 100'e yakın yüzdeler ve sıralı puanlar dönüşüm ya da parametrik olmayan test (Kruskal-Wallis) gerektirebilir</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    Kaynaklar: Levene H. (1960) <em>Contributions to Probability and Statistics</em> içinde, Stanford Univ. Press;
+                    Tukey J.W. (1949) <em>Biometrics</em> 5:99–114, <a href="https://doi.org/10.2307/3001913" rel="noopener" target="_blank">doi:10.2307/3001913</a>;
+                    Kramer C.Y. (1956) <em>Biometrics</em> 12:307–310, <a href="https://doi.org/10.2307/3001469" rel="noopener" target="_blank">doi:10.2307/3001469</a>.
+                    Sonuçlar birim testlerinde SciPy/statsmodels ile karşılaştırılmıştır.
+                </p>
+            }
+            </div>
+        </div>
+    </div>
+</div>

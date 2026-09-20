@@ -318,4 +318,99 @@
   <data name="Zero-order, First-order, Higuchi, Hixson-Crowell, Korsmeyer-Peppas" xml:space="preserve"><value>Zero-order, First-order, Higuchi, Hixson-Crowell, Korsmeyer-Peppas</value></data>
   <data name="Seçilmeyen modeller fit edilmez; AIC ağırlıkları yalnız seçilen modeller arasında hesaplanır." xml:space="preserve"><value>Unselected models are not fitted; Akaike weights are computed only among the selected models.</value></data>
   <data name="En az bir model seçin." xml:space="preserve"><value>Select at least one model.</value></data>
+  <!-- ANOVA, çoklu regresyon, kalibrasyon eğrisi -->
+  <data name="Tek Yönlü ANOVA" xml:space="preserve"><value>One-Way ANOVA</value></data>
+  <data name="Çoklu Regresyon" xml:space="preserve"><value>Multiple Regression</value></data>
+  <data name="Çoklu Doğrusal Regresyon" xml:space="preserve"><value>Multiple Linear Regression</value></data>
+  <data name="Kalibrasyon Eğrisi" xml:space="preserve"><value>Calibration Curve</value></data>
+  <data name="Üç ve daha çok grubun ortalamalarını F testi, Levene ve Tukey HSD ile karşılaştırır" xml:space="preserve"><value>Compares the means of three or more groups with the F test, Levene's test and Tukey HSD</value></data>
+  <data name="Birden çok değişkenle en küçük kareler modeli; katsayı testleri, VIF, tahmin ve öngörü aralığı" xml:space="preserve"><value>Least-squares model with several predictors; coefficient tests, VIF, prediction and prediction interval</value></data>
+  <data name="Standartlardan doğrusal eğri, LOD/LOQ (ICH Q2), geri hesap doğruluğu ve artık grafiği" xml:space="preserve"><value>Linear curve from standards, LOD/LOQ (ICH Q2), back-calculated accuracy and residual plot</value></data>
+  <data name="Her sütun bir gruptur; grupların gözlem sayısı farklı olabilir, boş hücreler atlanır. Boş sütunlar analize girmez." xml:space="preserve"><value>Each column is a group; group sizes may differ and empty cells are skipped. Empty columns are not analysed.</value></data>
+  <data name="Grup adı" xml:space="preserve"><value>Group name</value></data>
+  <data name="Grup adları (isteğe bağlı; tablo ve grafikte kullanılır)." xml:space="preserve"><value>Group names (optional; used in the table and chart).</value></data>
+  <data name="Post-hoc karşılaştırma: Tukey HSD (eşit olmayan n'lerde Tukey-Kramer). Varyans homojenliği: Levene (ortalama merkezli)." xml:space="preserve"><value>Post-hoc comparison: Tukey HSD (Tukey-Kramer for unequal n). Homogeneity of variance: Levene (mean-centred).</value></data>
+  <data name="ANOVA Tablosu" xml:space="preserve"><value>ANOVA Table</value></data>
+  <data name="Kaynak" xml:space="preserve"><value>Source</value></data>
+  <data name="Gruplar arası" xml:space="preserve"><value>Between groups</value></data>
+  <data name="Grup içi (hata)" xml:space="preserve"><value>Within groups (error)</value></data>
+  <data name="Toplam" xml:space="preserve"><value>Total</value></data>
+  <data name="En az bir grup ortalaması farklı (p &lt; α)" xml:space="preserve"><value>At least one group mean differs (p &lt; α)</value></data>
+  <data name="Grup ortalamaları arasında anlamlı fark yok (p ≥ α)" xml:space="preserve"><value>No significant difference between group means (p ≥ α)</value></data>
+  <data name="Etki büyüklüğü η² (eta kare)" xml:space="preserve"><value>Effect size η² (eta squared)</value></data>
+  <data name="Etki büyüklüğü ω² (omega kare)" xml:space="preserve"><value>Effect size ω² (omega squared)</value></data>
+  <data name="Levene varyans homojenliği" xml:space="preserve"><value>Levene homogeneity of variance</value></data>
+  <data name="homojen" xml:space="preserve"><value>homogeneous</value></data>
+  <data name="heterojen" xml:space="preserve"><value>heterogeneous</value></data>
+  <data name="η² örneklemde açıklanan varyans payıdır; ω² popülasyon için yansız tahmindir. Kabaca 0,01 küçük, 0,06 orta, 0,14 büyük etki." xml:space="preserve"><value>η² is the share of variance explained in the sample; ω² is the unbiased population estimate. Roughly 0.01 small, 0.06 medium, 0.14 large effect.</value></data>
+  <data name="Tukey HSD ikili karşılaştırmalar" xml:space="preserve"><value>Tukey HSD pairwise comparisons</value></data>
+  <data name="Grup içi varyans sıfır olduğundan Tukey HSD hesaplanamadı." xml:space="preserve"><value>Tukey HSD could not be computed because the within-group variance is zero.</value></data>
+  <data name="Karşılaştırma" xml:space="preserve"><value>Comparison</value></data>
+  <data name="Fark" xml:space="preserve"><value>Difference</value></data>
+  <data name="anlamlı" xml:space="preserve"><value>significant</value></data>
+  <data name="anlamlı değil" xml:space="preserve"><value>not significant</value></data>
+  <data name="q kritik" xml:space="preserve"><value>q critical</value></data>
+  <data name="Güven aralığı sıfırı içermiyorsa fark anlamlıdır; p-değerleri aile hatası için düzeltilmiştir." xml:space="preserve"><value>A confidence interval that excludes zero marks a significant difference; p-values are adjusted for the family-wise error.</value></data>
+  <data name="Grup ortalaması" xml:space="preserve"><value>Group mean</value></data>
+  <data name="Ortalama + SD" xml:space="preserve"><value>Mean + SD</value></data>
+  <data name="Ortalama − SD" xml:space="preserve"><value>Mean − SD</value></data>
+  <data name="İlk sütun yanıt (Y), sonrakiler açıklayıcı değişkenler (X). Tamamen boş X sütunları modele girmez; Y ya da kullanılan bir X hücresi boş olan satırlar atlanır ve bildirilir." xml:space="preserve"><value>The first column is the response (Y), the others are predictors (X). Completely empty X columns are excluded; rows with an empty Y or used-X cell are skipped and reported.</value></data>
+  <data name="Değişken adları (isteğe bağlı; katsayı tablosu ve denklemde kullanılır)." xml:space="preserve"><value>Variable names (optional; used in the coefficient table and equation).</value></data>
+  <data name="Model Parametreleri" xml:space="preserve"><value>Model Parameters</value></data>
+  <data name="Sabit terim (kesim) dahil" xml:space="preserve"><value>Include intercept</value></data>
+  <data name="Eksik hücresi olan satır(lar) atlandı:" xml:space="preserve"><value>Row(s) with missing cells were skipped:</value></data>
+  <data name="En az bir X sütunu doldurun." xml:space="preserve"><value>Fill in at least one X column.</value></data>
+  <data name="Terim" xml:space="preserve"><value>Term</value></data>
+  <data name="Katsayı" xml:space="preserve"><value>Coefficient</value></data>
+  <data name="Gri satırlar α düzeyinde anlamlı olmayan katsayılardır. VIF &gt; 10 çoklu doğrusallığa işaret eder." xml:space="preserve"><value>Grey rows are coefficients not significant at level α. VIF &gt; 10 indicates multicollinearity.</value></data>
+  <data name="Varyans analizi (model)" xml:space="preserve"><value>Analysis of variance (model)</value></data>
+  <data name="Regresyon" xml:space="preserve"><value>Regression</value></data>
+  <data name="Artık (hata)" xml:space="preserve"><value>Residual (error)</value></data>
+  <data name="Uyum ölçütleri" xml:space="preserve"><value>Goodness of fit</value></data>
+  <data name="Düzeltilmiş R²" xml:space="preserve"><value>Adjusted R²</value></data>
+  <data name="Model" xml:space="preserve"><value>Model</value></data>
+  <data name="anlamlı (p &lt; α)" xml:space="preserve"><value>significant (p &lt; α)</value></data>
+  <data name="anlamlı değil (p ≥ α)" xml:space="preserve"><value>not significant (p ≥ α)</value></data>
+  <data name="Gözlenen − tahmin" xml:space="preserve"><value>Observed vs. fitted</value></data>
+  <data name="Tahmin edilen (ŷ)" xml:space="preserve"><value>Fitted (ŷ)</value></data>
+  <data name="Gözlenen (y)" xml:space="preserve"><value>Observed (y)</value></data>
+  <data name="Standartlaştırılmış artık" xml:space="preserve"><value>Standardized residual</value></data>
+  <data name="Std. artık" xml:space="preserve"><value>Std. residual</value></data>
+  <data name="Tahmin" xml:space="preserve"><value>Prediction</value></data>
+  <data name="Yeni bir gözlemin X değerlerini girin: ortalama yanıt için güven aralığı ve tek gözlem için öngörü aralığı hesaplanır." xml:space="preserve"><value>Enter the X values of a new observation: a confidence interval for the mean response and a prediction interval for a single observation are computed.</value></data>
+  <data name="Tahmin et" xml:space="preserve"><value>Predict</value></data>
+  <data name="Tahmin için tüm X değerlerini sayı olarak girin." xml:space="preserve"><value>Enter all X values as numbers for the prediction.</value></data>
+  <data name="Tahmini yanıt (ŷ)" xml:space="preserve"><value>Predicted response (ŷ)</value></data>
+  <data name="Standart hata (ortalama)" xml:space="preserve"><value>Standard error (mean)</value></data>
+  <data name="Güven aralığı (ortalama yanıt)" xml:space="preserve"><value>Confidence interval (mean response)</value></data>
+  <data name="Öngörü aralığı (tek gözlem)" xml:space="preserve"><value>Prediction interval (single observation)</value></data>
+  <data name="Girilen X değerleri verinin aralığı dışında: tahmin ekstrapolasyondur." xml:space="preserve"><value>The entered X values lie outside the data range: the prediction is an extrapolation.</value></data>
+  <data name="Her satır bir standart ölçümüdür; tekrarları aynı konsantrasyonla ayrı satırlara yazın. En az üç (tercihen beş) farklı düzey gerekir." xml:space="preserve"><value>Each row is one standard measurement; enter replicates as separate rows with the same concentration. At least three (preferably five) distinct levels are required.</value></data>
+  <data name="Konsantrasyon" xml:space="preserve"><value>Concentration</value></data>
+  <data name="Konsantrasyon birimi" xml:space="preserve"><value>Concentration unit</value></data>
+  <data name="Parametreler" xml:space="preserve"><value>Parameters</value></data>
+  <data name="Doğrusal en küçük kareler; LOD = 3,3·σ/S ve LOQ = 10·σ/S (σ = artık standart sapması s_y/x, S = eğim; ICH Q2(R2))." xml:space="preserve"><value>Ordinary least squares; LOD = 3.3·σ/S and LOQ = 10·σ/S (σ = residual standard deviation s_y/x, S = slope; ICH Q2(R2)).</value></data>
+  <data name="Regresyon doğrusu" xml:space="preserve"><value>Regression line</value></data>
+  <data name="Eğim (S)" xml:space="preserve"><value>Slope (S)</value></data>
+  <data name="Eğim güven aralığı" xml:space="preserve"><value>Slope confidence interval</value></data>
+  <data name="Kesim (a)" xml:space="preserve"><value>Intercept (a)</value></data>
+  <data name="Kesim güven aralığı" xml:space="preserve"><value>Intercept confidence interval</value></data>
+  <data name="Kesim = 0 testi" xml:space="preserve"><value>Intercept = 0 test</value></data>
+  <data name="≠ 0" xml:space="preserve"><value>≠ 0</value></data>
+  <data name="≈ 0" xml:space="preserve"><value>≈ 0</value></data>
+  <data name="artık SD" xml:space="preserve"><value>residual SD</value></data>
+  <data name="düzey" xml:space="preserve"><value>levels</value></data>
+  <data name="Saptama ve nicelendirme sınırları" xml:space="preserve"><value>Detection and quantitation limits</value></data>
+  <data name="Kalibre edilen aralık" xml:space="preserve"><value>Calibrated range</value></data>
+  <data name="LOD/LOQ eğri istatistiğinden türetilmiş tahminlerdir; ICH Q2(R2) bunların LOQ düzeyinde uygun sayıda standartla deneysel olarak doğrulanmasını ister." xml:space="preserve"><value>LOD/LOQ are estimates derived from the curve statistics; ICH Q2(R2) expects them to be confirmed experimentally with a suitable number of standards at the LOQ.</value></data>
+  <data name="Düzey özeti" xml:space="preserve"><value>Level summary</value></data>
+  <data name="Ort. yanıt" xml:space="preserve"><value>Mean response</value></data>
+  <data name="Ort. doğruluk %" xml:space="preserve"><value>Mean accuracy %</value></data>
+  <data name="Standartlar ve geri hesap" xml:space="preserve"><value>Standards and back-calculation</value></data>
+  <data name="Standartlar" xml:space="preserve"><value>Standards</value></data>
+  <data name="Artık" xml:space="preserve"><value>Residual</value></data>
+  <data name="Artık %" xml:space="preserve"><value>Residual %</value></data>
+  <data name="Geri hesap" xml:space="preserve"><value>Back-calc.</value></data>
+  <data name="Doğruluk %" xml:space="preserve"><value>Accuracy %</value></data>
+  <data name="Sarı satırlar geri hesap doğruluğu ±%15 (en düşük düzeyde ±%20) sınırı dışındaki standartlardır." xml:space="preserve"><value>Yellow rows are standards whose back-calculated accuracy lies outside ±15% (±20% at the lowest level).</value></data>
 </root>

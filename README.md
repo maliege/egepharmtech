@@ -30,10 +30,14 @@ gök atlası, botanik bağlantıları) **https://maege.tr** adresindedir.
 | f1 / f2 benzerlik faktörleri ve model-bağımsız profil ölçütleri | `/f1f2` | `EgePharmTech.Core/Core/Dissolution/SimilarityFactors.cs`, `ProfileMetrics.cs` | sayfa içi |
 | LD50/LD90 doz–yanıt (probit/logit) | `/ldcalc` | `EgePharmTech.Core/Core/KinetikAnalysis` | sayfa içi |
 | t-testi ve tanımlayıcı istatistik | `/ttest` | `EgePharmTech.Core/Core/Statistics` | sayfa içi |
+| Tek yönlü ANOVA — F testi, Levene, Tukey HSD (Tukey-Kramer), η²/ω² | `/anova` | `EgePharmTech.Core/Core/Statistics/OneWayAnova.cs`, `StudentizedRange.cs` | sayfa içi |
+| Çoklu doğrusal regresyon — katsayı testleri, model ANOVA, VIF, Durbin-Watson, tahmin/öngörü aralığı | `/regression` | `EgePharmTech.Core/Core/Statistics/MultipleRegression.cs` | sayfa içi |
+| Kalibrasyon eğrisi — doğrusal fit, LOD/LOQ (ICH Q2(R2)), geri hesap doğruluğu, düzey %RSD | `/calibration` | `EgePharmTech.Core/Core/Statistics/CalibrationCurve.cs` | sayfa içi |
 
 Kinetik motorun sonuçları DDSolver 1.0 çıktılarıyla karşılaştırılmıştır (32 çalışma sayfası, 37 formülasyon):
 aynı parametrelerde SS ve uyum ölçütleri birebir yeniden üretilir; kareler toplamlarındaki küçük farklar
-çözücülerin durma kriterlerinden gelir (`EgePharmTech.Core.Tests/DdsolverReferenceTests.cs`).
+çözücülerin durma kriterlerinden gelir (`EgePharmTech.Core.Tests/DdsolverReferenceTests.cs`). ANOVA, Tukey HSD, regresyon
+ve kalibrasyon sonuçları SciPy/statsmodels çıktılarıyla karşılaştırılır (`StatisticsReferenceTests.cs`, `stats_reference.json`).
 
 ## Mimari
 

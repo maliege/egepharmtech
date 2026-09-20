@@ -1,0 +1,90 @@
+@* Çoklu regresyon sayfasının kullanım rehberi. Hesapla uyumlu tut: OLS, t-testleri, VIF, Durbin-Watson,
+   güven aralığı (ortalama yanıt) ile öngörü aralığı (tek gözlem) ayrımı. TR ve EN blok yan yana durur. *@
+<div class="accordion mb-4 h-100" id="regRehber">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#regRehberGovde"
+                    aria-expanded="true" aria-controls="regRehberGovde">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (Lang.IsEn) { <text>Use in pharmaceutical technology, prerequisites and limitations</text> }
+                else { <text>Farmasötik teknolojide kullanımı, ön şartlar ve kısıtlar</text> }
+            </button>
+        </h2>
+        <div id="regRehberGovde" class="accordion-collapse collapse show" data-bs-parent="#regRehber">
+            <div class="accordion-body">
+            @if (Lang.IsEn)
+            {
+                <h6 class="text-primary">What it does</h6>
+                <p class="small text-muted">
+                    Multiple linear regression fits <code>y = b₀ + b₁x₁ + … + b<sub>k</sub>x<sub>k</sub></code> by ordinary least
+                    squares and tests each coefficient. It quantifies how several formulation or process variables act
+                    together on a response and gives a prediction with uncertainty for new settings.
+                </p>
+                <h6 class="text-primary mt-3">Typical uses</h6>
+                <ul class="small text-muted">
+                    <li>Tablet hardness or disintegration as a function of compression force, binder level and moisture</li>
+                    <li>Drug release at a time point versus polymer ratio, plasticiser and coating level (screening designs)</li>
+                    <li>Particle size or encapsulation efficiency versus stirring speed, surfactant and lipid concentration</li>
+                    <li>Preliminary analysis before response-surface modelling; add squared or interaction columns yourself if needed</li>
+                </ul>
+                <h6 class="text-primary mt-3">How to read the output</h6>
+                <ul class="small text-muted">
+                    <li><strong>Coefficients:</strong> expected change in y per unit of that x with the others held constant; p &lt; α marks a term the data support.</li>
+                    <li><strong>Model F test:</strong> whether the predictors jointly explain anything. R² grows with every added term; adjusted R² penalises useless ones.</li>
+                    <li><strong>VIF:</strong> above 10 the predictors are strongly correlated and individual coefficients become unstable even when the model predicts well.</li>
+                    <li><strong>Residual plot:</strong> standardized residuals should scatter randomly around zero; a curve suggests a missing quadratic term, a funnel suggests non-constant variance. Durbin-Watson near 2 means no serial correlation in the entered order.</li>
+                    <li><strong>Prediction:</strong> the confidence interval covers the <em>mean</em> response at those settings; the wider prediction interval covers a <em>single</em> future observation. Both are unreliable outside the data range.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Prerequisites</h6>
+                <ul class="small text-muted">
+                    <li>Clearly more observations than parameters (a rule of thumb is at least 5–10 per predictor)</li>
+                    <li>Linear relationship, independent observations, roughly constant variance and normal residuals</li>
+                    <li>No predictor may be constant or an exact combination of the others; the tool refuses such a design</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    References: Draper N.R., Smith H. (1998) <em>Applied Regression Analysis</em>, 3rd ed., Wiley,
+                    <a href="https://doi.org/10.1002/9781118625590" rel="noopener" target="_blank">doi:10.1002/9781118625590</a>;
+                    Montgomery D.C., Peck E.A., Vining G.G. (2012) <em>Introduction to Linear Regression Analysis</em>, 5th ed., Wiley.
+                    Results are compared with statsmodels OLS in the unit tests.
+                </p>
+            }
+            else
+            {
+                <h6 class="text-primary">Ne yapar?</h6>
+                <p class="small text-muted">
+                    Çoklu doğrusal regresyon <code>y = b₀ + b₁x₁ + … + b<sub>k</sub>x<sub>k</sub></code> denklemini sıradan en küçük
+                    karelerle uydurur ve her katsayıyı sınar. Birden çok formülasyon ya da proses değişkeninin yanıta
+                    birlikte etkisini niceler; yeni ayarlar için belirsizliğiyle birlikte tahmin verir.
+                </p>
+                <h6 class="text-primary mt-3">Tipik kullanımlar</h6>
+                <ul class="small text-muted">
+                    <li>Basınç, bağlayıcı oranı ve nem değişkenlerine bağlı tablet sertliği ya da dağılma süresi</li>
+                    <li>Polimer oranı, plastikleştirici ve kaplama düzeyine karşı bir zaman noktasındaki salım (tarama tasarımları)</li>
+                    <li>Karıştırma hızı, sürfaktan ve lipit konsantrasyonuna karşı partikül boyutu ya da enkapsülasyon etkinliği</li>
+                    <li>Yanıt yüzeyi modellemesi öncesi ön analiz; gerekirse kare ve etkileşim sütunlarını kendiniz ekleyin</li>
+                </ul>
+                <h6 class="text-primary mt-3">Çıktı nasıl okunur?</h6>
+                <ul class="small text-muted">
+                    <li><strong>Katsayılar:</strong> diğerleri sabitken o x'in bir birimlik değişimine karşılık y'de beklenen değişim; p &lt; α verinin desteklediği terimi gösterir.</li>
+                    <li><strong>Model F testi:</strong> açıklayıcılar birlikte bir şey açıklıyor mu? R² her eklenen terimle büyür; düzeltilmiş R² işe yaramayanları cezalandırır.</li>
+                    <li><strong>VIF:</strong> 10'un üstünde açıklayıcılar kuvvetle ilişkilidir; model iyi tahmin etse de tekil katsayılar kararsızlaşır.</li>
+                    <li><strong>Artık grafiği:</strong> standartlaştırılmış artıklar sıfır çevresinde rastgele dağılmalı; eğrilik eksik kare terimine, huni biçimi sabit olmayan varyansa işaret eder. Durbin-Watson 2'ye yakınsa giriş sırasında seri bağımlılık yoktur.</li>
+                    <li><strong>Tahmin:</strong> güven aralığı o ayarlardaki <em>ortalama</em> yanıtı, daha geniş öngörü aralığı <em>tek</em> bir gelecek gözlemi kapsar. Veri aralığının dışında ikisi de güvenilmezdir.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Ön şartlar</h6>
+                <ul class="small text-muted">
+                    <li>Parametre sayısından belirgin biçimde çok gözlem (kaba kural: açıklayıcı başına en az 5–10)</li>
+                    <li>Doğrusal ilişki, bağımsız gözlemler, yaklaşık sabit varyans ve normal artıklar</li>
+                    <li>Hiçbir açıklayıcı sabit ya da diğerlerinin tam bileşimi olamaz; araç böyle tasarımı reddeder</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    Kaynaklar: Draper N.R., Smith H. (1998) <em>Applied Regression Analysis</em>, 3. bs., Wiley,
+                    <a href="https://doi.org/10.1002/9781118625590" rel="noopener" target="_blank">doi:10.1002/9781118625590</a>;
+                    Montgomery D.C., Peck E.A., Vining G.G. (2012) <em>Introduction to Linear Regression Analysis</em>, 5. bs., Wiley.
+                    Sonuçlar birim testlerinde statsmodels OLS ile karşılaştırılmıştır.
+                </p>
+            }
+            </div>
+        </div>
+    </div>
+</div>
