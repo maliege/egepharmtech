@@ -1,7 +1,7 @@
-"""EgePharmTech.Core.Tests/stats_reference.json fikstürünü üretir (SciPy + statsmodels gerekir).
+"""PTCalc.Core.Tests/stats_reference.json fikstürünü üretir (SciPy + statsmodels gerekir).
 
 Çalıştırma (depo kökünden):  python tools/make_stats_reference.py
-Çıktı: stats_reference.json (çalışma dizinine); dosyayı EgePharmTech.Core.Tests/ altına kopyalayın.
+Çıktı: stats_reference.json (çalışma dizinine); dosyayı PTCalc.Core.Tests/ altına kopyalayın.
 Üretildiği sürümler: Python 3.14, SciPy 1.17.1, NumPy 2.4.4, statsmodels 0.14.6.
 StatisticsReferenceTests bu değerleri ANOVA/Tukey, studentized range, OLS ve kalibrasyon için karşılaştırır.
 """

@@ -1,0 +1,12 @@
+@using PTCalc.Site
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+
+@* Sayfa başlığı: "<Metin> · <marka>". Metin Türkçe kaynak metindir; İngilizce kültürde
+   SharedResource.en.resx'ten çevrilir. Marka, gelen alan adına göre maege.tr ya da PTCalc. *@
+<PageTitle>@L[Text] · @Site.BrandName</PageTitle>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+    [CascadingParameter] public SiteProfile Site { get; set; } = SiteProfiles.Tr;
+}

@@ -1,0 +1,155 @@
+﻿@page "/"
+@using PTCalc.Site
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>PTCalc · @L["Farmasötik teknoloji için istatistik ve hesaplama araçları"]</PageTitle>
+
+<section class="dash">
+
+    @* ① Tanıtım şeridi *@
+    <div class="dash-intro">
+        <p class="dash-kicker">PTCalc · @L["Farmasötik teknoloji hesaplama araçları"]</p>
+        <h1>@L["Farmasötik teknoloji için açık hesaplama araçları"]</h1>
+        <p class="dash-intro-lead">
+            @(IsEn ? L["EPT_Lead"].Value : "Dissolüsyon kinetiği, salım profili karşılaştırması, psödo-üçlü faz diyagramları, doz–yanıt ve temel istatistik: laboratuvar verisiyle doğrudan çalışan, ücretsiz, tarayıcıda çalışan araçlar.")
+        </p>
+        <p>
+            @(IsEn ? L["EPT_Paragraf"].Value : "Araçlar, Ege Üniversitesi Eczacılık Fakültesi Farmasötik Teknoloji Anabilim Dalı'nda 1995'ten bu yana geliştirilen masaüstü uygulamalarının web sürümleridir. Kinetik motorun sonuçları DDSolver çıktılarıyla karşılaştırılmıştır; kaynak kodu açıktır. Girdiğiniz veri tarayıcı oturumunuzda kalır, sunucuda saklanmaz.")
+        </p>
+        <p class="dash-intro-note">
+            <i class="ti ti-language" aria-hidden="true"></i>
+            <span>@(IsEn ? L["EPT_DilNotu"].Value : "Türkçe sürüm ptcalc.tr, İngilizce sürüm ptcalc.net adresindedir. Sağ üstteki TR/EN anahtarıyla dil değiştirebilirsiniz.")</span>
+        </p>
+    </div>
+
+    @* ② Öne çıkan araçlar *@
+    <div class="dash-spotlight-wrap">
+        <div class="dash-section-head dash-section-head-bare">
+            <i class="ti ti-star" aria-hidden="true"></i>
+            <h2>@L["Öne çıkan araçlar"]</h2>
+        </div>
+        <div class="dash-spotlight">
+            <a href="kinetik" class="dash-spot">
+                <span class="dash-spot-figure"><img src="images/Kinetik.svg" alt="" aria-hidden="true" /></span>
+                <span class="dash-spot-body">
+                    <span class="dash-spot-title"><i class="ti ti-chart-line" aria-hidden="true"></i> @L["Kinetik Analiz"]</span>
+                    <span class="dash-spot-desc">@L["Salım verisini Higuchi, Korsmeyer-Peppas, Weibull, Hopfenberg gibi modellere fit eder."]</span>
+                    <span class="dash-spot-cta">@L["Başlat"] <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+                </span>
+            </a>
+            <a href="ternary-phase-diagram-app" class="dash-spot">
+                <span class="dash-spot-figure"><img src="images/Ucgen.svg?v=3" alt="" aria-hidden="true" /></span>
+                <span class="dash-spot-body">
+                    <span class="dash-spot-title"><i class="ti ti-triangle" aria-hidden="true"></i> @L["Ternary Phase Diagram"]</span>
+                    <span class="dash-spot-desc">@L["Üç bileşenli sistemlerin faz diyagramını çizer, karışım bölgelerini görselleştirir."]</span>
+                    <span class="dash-spot-cta">@L["Başlat"] <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+                </span>
+            </a>
+            <a href="f1f2" class="dash-spot">
+                <span class="dash-spot-figure"><img src="images/F1F2.svg" alt="" aria-hidden="true" /></span>
+                <span class="dash-spot-body">
+                    <span class="dash-spot-title"><i class="ti ti-arrows-diff" aria-hidden="true"></i> @L["F1 / F2 Testi"]</span>
+                    <span class="dash-spot-desc">@L["İki dissolüsyon profilini fark (f1) ve benzerlik (f2) faktörleriyle karşılaştırır."]</span>
+                    <span class="dash-spot-cta">@L["Başlat"] <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+                </span>
+            </a>
+        </div>
+    </div>
+
+    @* ③ Tüm araçlar *@
+    <div class="dash-section">
+        <div class="dash-section-head">
+            <i class="ti ti-flask" aria-hidden="true"></i>
+            <h2>@L["Farmasötik Teknoloji"]</h2>
+        </div>
+        <div class="dash-grid">
+            <a href="kinetik" class="dash-tile">
+                <i class="ti ti-chart-line" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Kinetik Analiz"]</span>
+                    <span class="dash-tile-desc">@L["Salım verisini Higuchi, Korsmeyer-Peppas, Weibull gibi modellere fit eder"]</span>
+                </span>
+            </a>
+            <a href="f1f2" class="dash-tile">
+                <i class="ti ti-arrows-diff" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["F1 / F2 Testi"]</span>
+                    <span class="dash-tile-desc">@L["İki dissolüsyon profilini fark (f1) ve benzerlik (f2) faktörleriyle karşılaştırır"]</span>
+                </span>
+            </a>
+            <a href="ttest" class="dash-tile">
+                <i class="ti ti-chart-dots" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["T-Test Analizi"]</span>
+                    <span class="dash-tile-desc">@L["Bağımsız ve eşleştirilmiş örneklem t-testi, Levene varyans homojenliği testiyle"]</span>
+                </span>
+            </a>
+            <a href="ldcalc" class="dash-tile">
+                <i class="ti ti-skull" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["LD Hesabı"]</span>
+                    <span class="dash-tile-desc">@L["Doz-yanıt verisinden probit, logit ve 4PL ile LD50/LD90 ve güven aralıkları"]</span>
+                </span>
+            </a>
+            <a href="ternary-phase-diagram-app" class="dash-tile">
+                <i class="ti ti-triangle" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Ternary Phase Diagram"]</span>
+                    <span class="dash-tile-desc">@L["Üç bileşenli sistemlerin faz diyagramını çizer, karışım bölgelerini gösterir"]</span>
+                </span>
+            </a>
+            <a href="anova" class="dash-tile">
+                <i class="ti ti-chart-bar" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Tek Yönlü ANOVA"]</span>
+                    <span class="dash-tile-desc">@L["Üç ve daha çok grubun ortalamalarını F testi, Levene ve Tukey HSD ile karşılaştırır"]</span>
+                </span>
+            </a>
+            <a href="regression" class="dash-tile">
+                <i class="ti ti-chart-dots-3" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Çoklu Regresyon"]</span>
+                    <span class="dash-tile-desc">@L["Birden çok değişkenle en küçük kareler modeli; katsayı testleri, VIF, tahmin ve öngörü aralığı"]</span>
+                </span>
+            </a>
+            <a href="calibration" class="dash-tile">
+                <i class="ti ti-ruler-measure" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Kalibrasyon Eğrisi"]</span>
+                    <span class="dash-tile-desc">@L["Standartlardan doğrusal eğri, LOD/LOQ (ICH Q2), geri hesap doğruluğu ve artık grafiği"]</span>
+                </span>
+            </a>
+        </div>
+    </div>
+
+    @* ④ Rehberler *@
+    <div class="dash-section">
+        <div class="dash-section-head">
+            <i class="ti ti-book-2" aria-hidden="true"></i>
+            <h2>@L["Rehberler"]</h2>
+        </div>
+        <div class="dash-grid dash-grid-2">
+            <a href="about-kinetic-analysis" class="dash-tile">
+                <i class="ti ti-chart-line" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Kinetik Analiz Rehberi"]</span>
+                    <span class="dash-tile-desc">@L["Modeller, uyum, ölçütler, işlenmiş örnek, sık hatalar ve Türkiye'deki gelenek; 48 kaynak"]</span>
+                </span>
+            </a>
+            <a href="about-ternary-phase-diagram" class="dash-tile">
+                <i class="ti ti-triangle" aria-hidden="true"></i>
+                <span class="dash-tile-body">
+                    <span class="dash-tile-title">@L["Üçgen Faz Diyagramı Rehberi"]</span>
+                    <span class="dash-tile-desc">@L["Okuma, su titrasyonu, faz bölgeleri, alan ve merkez, terminoloji; 36 kaynak"]</span>
+                </span>
+            </a>
+        </div>
+    </div>
+
+</section>
+
+@code {
+    [CascadingParameter] public SiteProfile Site { get; set; } = SiteProfiles.Tr;
+    private static bool IsEn => System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en";
+}

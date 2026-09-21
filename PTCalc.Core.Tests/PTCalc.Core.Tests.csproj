@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="10.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PTCalc.Core\PTCalc.Core.csproj" />
+    <!-- SiteProfile (alan adı → marka/dil) web projesinde; SiteProfileTests için -->
+    <ProjectReference Include="..\PTCalc\PTCalc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="kinetik_test_fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="ddsolver_reference_cases.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="stats_reference.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

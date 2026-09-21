@@ -27,8 +27,8 @@ ya da CDN üzerinden çalışma anında yüklenir), veri dosyaları hariç.
 
 ## Veri
 
-- **DDSolver karşılaştırma verileri** (`EgePharmTech.Core.Tests/ddsolver_reference_cases.json`): DDSolver 1.0
+- **DDSolver karşılaştırma verileri** (`PTCalc.Core.Tests/ddsolver_reference_cases.json`): DDSolver 1.0
   Excel eklentisiyle (Zhang ve ark., 2010, *AAPS J* 12:263–271) eklentinin örnek profilleri üzerinde
   Mehmet Ali Ege tarafından üretilen çıktılar; yalnız birim testlerinde motor karşılaştırması için kullanılır.
-- **Rehber metinleri** (`EgePharmTech/Pages/AboutApps`, `Components/Guides`): özgün içerik, MIT kapsamı
+- **Rehber metinleri** (`PTCalc/Pages/AboutApps`, `Components/Guides`): özgün içerik, MIT kapsamı
   dışında; telif hakkı Mehmet Ali Ege'ye aittir.

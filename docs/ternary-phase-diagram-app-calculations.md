@@ -1,6 +1,6 @@
 # TernaryPhaseDiagramApp hesaplama akışı
 
-Bu belge `EgePharmTech/Pages/Apps/TernaryPhaseDiagramApp.razor` dosyasında yer alan hesaplama mantığını özetler.
+Bu belge `PTCalc/Pages/Apps/TernaryPhaseDiagramApp.razor` dosyasında yer alan hesaplama mantığını özetler.
 
 ## Genel akış
 

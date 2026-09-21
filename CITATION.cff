@@ -4,7 +4,7 @@
 cff-version: 1.2.0
 message: "Bu yazılımı kullanırsanız lütfen aşağıdaki gibi atıf yapın. / If you use this software, please cite it as below."
 type: software
-title: "EgePharmTech: open computational tools for pharmaceutical technology"
+title: "PTCalc: open computational tools for pharmaceutical technology"
 abstract: >-
   Open-source web application and .NET library for pharmaceutical technology computations:
   a dissolution-kinetics engine (16 release models, nonlinear least squares in the F(%) domain,
@@ -12,15 +12,15 @@ abstract: >-
   exponents incl. Karasulu half-sphere and triangle; results compared with DDSolver 1.0 outputs),
   a pseudo-ternary phase-diagram tool with polygon area and centroid calculation (in use since
   2001), f1/f2 similarity factors, dose–response (LD50) and t-test utilities, plus detailed
-  bilingual (Turkish/English) guides with verified references. Sites: https://egepharmtech.com (English),
-  https://egepharmtech.tr (Turkish).
+  bilingual (Turkish/English) guides with verified references. Sites: https://ptcalc.net (English),
+  https://ptcalc.tr (Turkish).
 authors:
   - family-names: Ege
     given-names: Mehmet Ali
     affiliation: "Ege Üniversitesi Eczacılık Fakültesi, Farmasötik Teknoloji Anabilim Dalı, İzmir, Türkiye"
     email: mali.ege@rxmediapharma.com.tr
-repository-code: "https://github.com/maliege/egepharmtech"
-url: "https://egepharmtech.com"
+repository-code: "https://github.com/maliege/ptcalc"
+url: "https://ptcalc.net"
 license: MIT
 version: 1.0.0
 date-released: 2026-09-20

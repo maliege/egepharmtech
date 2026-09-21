@@ -1,0 +1,157 @@
+@implements IAsyncDisposable
+@using Microsoft.JSInterop
+@using PTCalc.Middleware
+@using System.Globalization
+@inject IJSRuntime JS
+
+<div class="handsontable-container" style="border: 1px solid #ddd; padding: 10px; border-radius: 4px; max-width: 100%; overflow-x: auto;">
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            <strong>Hata:</strong> @errorMessage
+        </div>
+    }
+    <div id="@ElementId" style="width: 100%; min-height: @(Height)px;"></div>
+</div>
+
+@code {
+    [Parameter] public object? Data { get; set; }
+    [Parameter] public List<ColumnConfig> Columns { get; set; } = [];
+    [Parameter] public int Height { get; set; } = 400;
+    [Parameter] public int MinRows { get; set; } = 10;
+    [Parameter] public bool ReadOnly { get; set; } = false;
+    // Handsontable stretchH: "none" -> bildirilen genisliklere dokunulmaz.
+    [Parameter] public string StretchH { get; set; } = "none";
+    [Parameter] public EventCallback<List<object[]>> OnDataChanged { get; set; }
+    
+    private string ElementId = $"hot-{Guid.NewGuid()}";
+    private DotNetObjectReference<HandsontableGrid>? _dotNetHelper;
+    private string? errorMessage;
+
+    public class ColumnConfig
+    {
+        public string? Data { get; set; }
+        public string? Title { get; set; }
+        public string? Type { get; set; } = "text";
+        public int? Width { get; set; }
+        public string? NumericFormat { get; set; }
+        public bool ReadOnly { get; set; } = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                Console.WriteLine($"HandsontableGrid: ElementId = {ElementId}");
+                Console.WriteLine($"HandsontableGrid: Columns count = {Columns.Count}");
+                Console.WriteLine($"HandsontableGrid: MinRows = {MinRows}");
+
+                if (Columns.Count == 0)
+                {
+                    errorMessage = "Kolonlar tanımlanmamış!";
+                    StateHasChanged();
+                    return;
+                }
+
+                _dotNetHelper = DotNetObjectReference.Create(this);
+                
+                await JS.InvokeVoidAsync("handsontableHelper.initialize", 
+                    ElementId, _dotNetHelper, new
+                    {
+                        data = Data,
+                        columns = Columns,
+                        height = Height,
+                        minRows = MinRows,
+                        readOnly = ReadOnly,
+                        stretchH = StretchH,
+                        // Grid'in sayı GÖRÜNTÜSÜ aktif kültürü izler; girdi
+                        // ayrıştırması ise interop'ta kültürden bağımsızdır.
+                        culture = CultureInfo.CurrentCulture.Name
+                    });
+
+                Console.WriteLine("HandsontableGrid: Initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                Console.WriteLine($"HandsontableGrid Error: {ex.Message}");
+                Console.WriteLine($"HandsontableGrid Stack: {ex.StackTrace}");
+                StateHasChanged();
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnCellChanged(List<object[]> changes)
+    {
+        await OnDataChanged.InvokeAsync(changes);
+    }
+
+    public async Task UpdateDataAsync(object newData)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("handsontableHelper.updateData", ElementId, newData);
+            Console.WriteLine($"HandsontableGrid: Data updated for {ElementId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"HandsontableGrid UpdateData Error: {ex.Message}");
+        }
+    }
+
+    public async Task<object?> GetDataAsync()
+    {
+        try
+        {
+            var data = await JS.InvokeAsync<object>("handsontableHelper.getData", ElementId);
+            Console.WriteLine($"HandsontableGrid: Data retrieved from {ElementId}");
+            return data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"HandsontableGrid GetData Error: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Belirli hücreleri günceller. changes: [[row, col, value], ...]
+    /// </summary>
+    public async Task SetCellsAsync(IEnumerable<object[]> changes)
+    {
+        try
+        {
+            var changesList = changes.ToList();
+            await JS.InvokeVoidAsync("handsontableHelper.setCells", ElementId, changesList);
+            Console.WriteLine($"HandsontableGrid: {changesList.Count} cells updated in {ElementId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"HandsontableGrid SetCells Error: {ex.Message}");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("handsontableHelper.destroy", ElementId);
+        }
+        catch { }
+        
+        _dotNetHelper?.Dispose();
+    }
+
+    public async Task AddRowAsync()
+    {
+        await JS!.InvokeVoidAsync("handsontableHelper.addRow", ElementId);
+    }
+
+    public async Task DeleteSelectedRowAsync()
+    {
+        await JS!.InvokeVoidAsync("handsontableHelper.deleteSelectedRow", ElementId);
+    }
+}

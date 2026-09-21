@@ -1,0 +1,31 @@
+@using PTCalc.Site
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+
+@* Footer, navbar ile aynı hizada dursun diye onun yapısını birebir izler:
+   dıştaki <footer> tam genişlikte (arka plan şeridi kenardan kenara uzanır),
+   içinde .container-fluid, dışta ise NavMenu'deki 20px yatay boşluk. *@
+<footer class="footer-custom">
+    <div class="container-fluid">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center py-3">
+            <p class="text-center text-md-start col-12 col-md-6 mb-3 mb-md-0 text-muted">
+                ©@DateTime.Now.Year <a class="text-decoration-none" href="https://@Site.HomeHost"><b>@Site.BrandName</b></a>. @L["Tüm hakları saklıdır."]
+                <span class="d-block d-md-inline ms-md-2 small">
+                    @L["Farmasötik teknoloji hesaplama araçları"] ·
+                    <a class="text-decoration-none" href="https://maege.tr" rel="noopener">maege.tr</a> ·
+                    <a class="text-decoration-none" href="https://github.com/maliege/ptcalc" target="_blank" rel="noopener">@L["Kaynak kodu"]</a>
+                </span>
+            </p>
+
+            <ul class="nav justify-content-center justify-content-md-end col-12 col-md-6 mb-0">
+                <li class="nav-item"><a href="/" class="nav-link px-3">@L["Anasayfa"]</a></li>
+                <li class="nav-item"><a href="/about" class="nav-link px-3">@L["Hakkında"]</a></li>
+                <li class="nav-item"><a href="/contact" class="nav-link px-3">@L["Bize Ulaşın"]</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+@code {
+    [CascadingParameter] public SiteProfile Site { get; set; } = SiteProfiles.Tr;
+}

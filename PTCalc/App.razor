@@ -1,0 +1,33 @@
+@using PTCalc.Site
+@inject NavigationManager nav
+
+@* Site profili (ptcalc.tr Türkçe / ptcalc.net İngilizce) gelen alan adından çözülür ve tüm
+   bileşenlere kaskad edilir. Alan adı _Host.cshtml'den kök bileşen parametresi olarak gelir; devre
+   kurulurken de korunur (prerender kapsamındaki servis durumu devreye taşınmaz, parametre taşınır). *@
+<CascadingValue Value="_site" IsFixed="true">
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>@(Lang.IsEn ? "Not found · PTCalc" : "Bulunamadı · PTCalc")</PageTitle>
+            <LayoutView Layout="@typeof(Shared.MainLayout)">
+                <section class="py-5 text-center">
+                    <p role="alert">@(Lang.IsEn ? "Sorry, there's nothing at this address." : "Bu adreste bir sayfa yok.")</p>
+                    <a href="/" class="btn btn-outline-primary btn-sm">@(Lang.IsEn ? "Home" : "Anasayfa")</a>
+                </section>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingValue>
+
+@code {
+    [Parameter] public string? HostName { get; set; }
+    private SiteProfile _site = SiteProfiles.Tr;
+
+    protected override void OnParametersSet()
+    {
+        _site = SiteProfiles.Resolve(HostName ?? new Uri(nav.BaseUri).Host);
+    }
+}

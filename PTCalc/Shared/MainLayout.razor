@@ -1,0 +1,19 @@
+@using PTCalc.Site
+@using Microsoft.Extensions.Localization
+@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResource> L
+
+@* Sayfa kendi PageTitle'ını verirse o kazanır (gövde düzenden sonra işlenir). Varsayılan başlık dile göre. *@
+<PageTitle>@SiteProfiles.BrandName · @L["Farmasötik teknoloji için istatistik ve hesaplama araçları"]</PageTitle>
+
+<div>
+
+    <NavMenu />
+
+    <main>
+        @Body
+    </main>
+
+    <Footer />
+
+</div>

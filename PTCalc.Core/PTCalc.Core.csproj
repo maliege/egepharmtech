@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PTCalc</RootNamespace>
+    <AssemblyName>PTCalc.Core</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Paket/atıf üst verisi: CITATION.cff ile aynı sürüm; her yayın etiketinde birlikte güncellenir -->
+    <Version>1.0.0</Version>
+    <Authors>Mehmet Ali Ege</Authors>
+    <Company>PTCalc</Company>
+    <Product>PTCalc Core</Product>
+    <Description>Farmasötik teknoloji hesaplama kütüphanesi: dissolüsyon kinetiği motoru (16 model, AIC sıralaması, DDSolver ile karşılaştırılmış), psödo-üçlü faz diyagramı alan/merkez hesabı, f1/f2, profil ölçütleri, doz–yanıt (probit/logit).</Description>
+    <Copyright>Copyright (c) 2025-2026 Mehmet Ali Ege</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://ptcalc.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/maliege/ptcalc</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WithCulture=false: ".en." eki yoksa dosya uydu derlemeye (en/…) gider ve ana derlemede bulunmaz. -->
+    <EmbeddedResource Include="Resources\CoreText.en.tsv" LogicalName="PTCalc.Resources.CoreText.en.tsv" WithCulture="false" />
+  </ItemGroup>
+
+</Project>

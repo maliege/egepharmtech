@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d9488" />
+    <title>Çevrimdışı · Offline</title>
+    <link rel="icon" href="/img/ptcalc/favicon.svg" type="image/svg+xml" />
+    <style>
+        :root { color-scheme: light dark; }
+        body {
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f8fafc; color: #0f172a;
+        }
+        @media (prefers-color-scheme: dark) { body { background: #0f172a; color: #e2e8f0; } .card { background: #1e293b; } }
+        .card { max-width: 32rem; margin: 1rem; padding: 2rem; border-radius: 1rem; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,.08); text-align: center; }
+        svg { width: 64px; height: 56px; color: #0d9488; }
+        h1 { font-size: 1.25rem; margin: 1rem 0 .5rem; }
+        p { margin: .25rem 0; line-height: 1.5; }
+        .en { opacity: .8; margin-top: 1rem; }
+        button { margin-top: 1.5rem; padding: .6rem 1.4rem; border: 0; border-radius: .5rem; background: #0d9488; color: #fff; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #0f766e; }
+        .host { font-weight: 600; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <svg viewBox="0 0 64 56" aria-hidden="true">
+            <polygon points="32,4 60,52 4,52" fill="currentColor" />
+            <polygon points="32,20 46,44 18,44" fill="#fff" />
+            <polygon points="32,30 39,42 25,42" fill="currentColor" />
+        </svg>
+        <h1><span class="host" id="host">maege.tr</span></h1>
+        <p><strong>İnternet bağlantısı yok.</strong> Hesaplama araçları sunucuyla canlı bağlantı ister;
+            bağlantı gelince sayfa kendiliğinden çalışmaya devam eder.</p>
+        <p class="en"><strong>You are offline.</strong> The calculation tools need a live connection to the server;
+            the page will work again as soon as the connection returns.</p>
+        <button type="button" onclick="location.reload()">Yeniden dene · Retry</button>
+    </main>
+    <script>
+        var host = location.hostname.replace(/^www\./, '');
+        document.getElementById('host').textContent = host;
+        if (/^(ptcalc|spps)\./.test(host)) {
+            document.querySelector('link[rel=icon]').href = '/img/ptcalc/favicon.svg';
+            var img = document.createElement('img');
+            img.src = '/img/ptcalc/favicon.svg'; img.alt = ''; img.width = 64; img.height = 64; img.style.borderRadius = '14px';
+            document.querySelector('svg').replaceWith(img);
+        }
+        window.addEventListener('online', function () { location.reload(); });
+    </script>
+</body>
+</html>

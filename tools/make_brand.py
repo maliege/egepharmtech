@@ -1,18 +1,18 @@
 """Çalıştırma: python tools/make_brand.py  (Pillow gerekir; yazı tipi Windows Segoe UI, yoksa Calibri/Arial)
-EgePharmTech marka işareti: yuvarlatılmış teal kare, beyaz salım eğrisi (kübik Bezier) ve üzerinde üç veri
-noktası. Üretilenler (EgePharmTech/wwwroot/img/egepharmtech): favicon.svg, icon-32/192/512.png, apple-touch-icon.png
+PTCalc marka işareti: yuvarlatılmış teal kare, beyaz salım eğrisi (kübik Bezier) ve üzerinde üç veri
+noktası. Üretilenler (PTCalc/wwwroot/img/ptcalc): favicon.svg, icon-32/192/512.png, apple-touch-icon.png
 (180), og-image-tr.png, og-image-en.png; ayrıca NavMenu için tek renkli SVG parçası (stdout)."""
 import os, io
 from PIL import Image, ImageDraw, ImageFont
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "EgePharmTech", "wwwroot", "img", "egepharmtech")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "PTCalc", "wwwroot", "img", "ptcalc")
 os.makedirs(OUT, exist_ok=True)
 TEAL = (13, 148, 136)      # #0d9488
 TEAL_DARK = (15, 118, 110) # #0f766e
 DARK = (30, 41, 59)        # #1e293b
 GRAY = (100, 116, 139)     # #64748b
 WHITE = (255, 255, 255)
-BRAND = "EgePharmTech"
+BRAND = "PTCalc"
 
 # --- Geometri (64 birimlik kutu) ---
 P0, P1, P2, P3 = (12, 50), (27, 50), (24, 14), (54, 14)
@@ -108,7 +108,7 @@ def og(subtitle, tagline, domain, name):
 
 og("Farmasötik teknoloji hesaplama araçları",
    "Dissolüsyon kinetiği · f1/f2 · psödo-üçlü faz diyagramı · LD50 · t-testi",
-   "egepharmtech.tr", "og-image-tr.png")
+   "ptcalc.tr", "og-image-tr.png")
 og("Pharmaceutical technology calculation tools",
    "Dissolution kinetics · f1/f2 · pseudo-ternary phase diagram · LD50 · t-test",
-   "egepharmtech.com", "og-image-en.png")
+   "ptcalc.net", "og-image-en.png")

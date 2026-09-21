@@ -361,15 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/EgePharmTech/appsettings.Production.json
-/EgePharmTech/appsettings.*.local.json
+/PTCalc/appsettings.Production.json
+/PTCalc/appsettings.*.local.json
 /Maegetr/Data/DDSolver.xla
 
 # Claude Code yerel araç yapılandırması (önizleme sunucusu vb.)
 /.claude/
 
 # Sunucuya özgü / yerel dosyalar
-/EgePharmTech/wwwroot/UserFiles/
-/EgePharmTech/App_Data/
-/EgePharmTech/logs/
+/PTCalc/wwwroot/UserFiles/
+/PTCalc/App_Data/
+/PTCalc/logs/
 publish/

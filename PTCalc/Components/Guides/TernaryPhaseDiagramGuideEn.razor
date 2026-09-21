@@ -1,0 +1,395 @@
+@* English edition of Pages/AboutApps/TernaryPhaseDiagramAbout.razor (the detailed guide to the ternary /
+   pseudo-ternary phase-diagram tool). Rendered by that page when Lang.IsEn. Same section ids, anchors,
+   internal links and reference list as the Turkish article; the two files must be updated together.
+   The "implementation on this site" section summarises the tool's actual behaviour
+   (TernaryPhaseDiagramApp.razor, TernaryCalculationService, PolygonSmoother); if the code changes,
+   both editions must change. *@
+
+<article class="rehber">
+
+    <header class="rehber-bas">
+        <p class="rehber-ustbaslik"><i class="ti ti-triangle" aria-hidden="true"></i> Ternary Phase Diagram · Detailed guide</p>
+        <h1>Pseudo-ternary phase diagrams: reading, constructing and measuring the microemulsion region</h1>
+        <p class="rehber-ozet">
+            Ternary diagrams, which show at a glance the composition range over which a system of oil, a
+            surfactant/cosurfactant mixture and water yields a clear microemulsion, are the first step in
+            developing microemulsions and self-emulsifying drug delivery systems (SEDDS). This page is both
+            the user manual and the theoretical background of the <a href="/ternary-phase-diagram-app">Ternary
+            Phase Diagram</a> tool.
+        </p>
+        <p class="rehber-surum">Version 1.2 · 17 September 2026 · <a href="/about-ternary-phase-diagram#surum">version history</a></p>
+        <nav class="rehber-icindekiler" aria-label="Sections">
+            <a href="/about-ternary-phase-diagram#giris">Introduction</a>
+            <a href="/about-ternary-phase-diagram#okuma">Reading the diagram</a>
+            <a href="/about-ternary-phase-diagram#tarihce">Brief history</a>
+            <a href="/about-ternary-phase-diagram#fazlar">Phase regions</a>
+            <a href="/about-ternary-phase-diagram#yontem">Experimental method</a>
+            <a href="/about-ternary-phase-diagram#alan">Region area and optimisation</a>
+            <a href="/about-ternary-phase-diagram#terimler">Microemulsion, nanoemulsion, SEDDS</a>
+            <a href="/about-ternary-phase-diagram#kullanim">Using the tool</a>
+            <a href="/about-ternary-phase-diagram#sinirlar">Limitations</a>
+            <a href="/about-ternary-phase-diagram#turkiye">Contributions from Türkiye</a>
+            <a href="/about-ternary-phase-diagram#uygulama">The implementation on this site</a>
+            <a href="/about-ternary-phase-diagram#kaynaklar">References</a>
+        </nav>
+    </header>
+
+    <section id="giris">
+        <h2>Introduction</h2>
+        <p>
+            The composition of a three-component mixture is fixed by two numbers; the third follows of its
+            own accord, because the percentages sum to 100. An equilateral triangle displays this constraint
+            in the most natural way: each vertex represents a pure component, each edge the two-component
+            mixtures, and each point in the interior a particular ratio of all three. In pharmaceutical
+            technology this representation is used most often for microemulsions, self-emulsifying systems
+            and topical vehicles (Lawrence &amp; Rees, 2000; Karasulu, 2008). Because the surfactant and the
+            cosurfactant are usually mixed at a fixed ratio (S<sub>mix</sub>, K<sub>m</sub>) and treated as a
+            single component, the diagram is in fact a cross-section of a four-component system; hence the
+            name <strong>pseudo-ternary</strong> (Aboofazeli &amp; Lawrence, 1993; Shafiq-un-Nabi et al., 2007).
+        </p>
+        <p>
+            The diagram conveys two kinds of information: in which part of composition space a single-phase,
+            clear, low-viscosity system forms, and how that region responds to variables such as the
+            S<sub>mix</sub> ratio, the type of oil or the cosurfactant chain. A wide region indicates high
+            formulation tolerance; the region itself is the pool from which compositions are selected
+            (Parmar et al., 2011; Berkman &amp; Güleç, 2021).
+        </p>
+    </section>
+
+    <section id="okuma">
+        <h2>Reading the diagram</h2>
+        <p>
+            In the tool's triangle the lower-left vertex is water, the lower-right vertex the surfactant
+            mixture and the apex oil; the names can be changed. The percentage of a component at a point is
+            read from the lines parallel to the opposite edge, running from that component's vertex towards
+            the opposite edge: proximity to the vertex raises the percentage, and every point on the opposite
+            edge contains zero percent of that component. The three percentages always sum to 100. The tool
+            places a point from its oil and surfactant percentages and reads water as the remainder; rows whose
+            total deviates from 100 by more than 0.5 points are shown in a yellow warning list after Calculate.
+            The point is still plotted, but the remaining water, not the water entered, is used; correct these
+            rows and recalculate.
+        </p>
+        <p>
+            A grid parallel to the edges (5, 10 or 20 units) makes reading easier. A straight line from a
+            vertex to the opposite edge is a <strong>dilution line</strong>, along which the ratio of the other
+            two components is held constant; measurement points obtained by water titration fall on such
+            lines, because in the experiment the oil:S<sub>mix</sub> ratio is kept fixed while water is added
+            (Shafiq-un-Nabi et al., 2007). The tie lines and the lever rule of liquid–liquid equilibrium
+            diagrams (the ratio of the amounts of two phases is inversely proportional to the distances from
+            the composition point to the ends of the tie line) rest on the same geometry (Williamson, 2021);
+            in microemulsion diagrams, however, the phase boundary is usually drawn and tie lines are not.
+        </p>
+    </section>
+
+    <section id="tarihce">
+        <h2>Brief history</h2>
+        <p>
+            The ternary composition triangle entered physical chemistry with Gibbs's work on the phase rule
+            (1876) and took its present form with Roozeboom's equilateral-triangle representation. The concept
+            of the microemulsion began in 1943, when Hoar and Schulman reported soap–oil–water mixtures that
+            clarified spontaneously and remained transparent on addition of an alcohol, under the name
+            "oleopathic hydro-micelle" (Hoar &amp; Schulman, 1943). The term "microemulsion" was proposed by
+            Schulman and co-workers in 1959, in the study that examined these systems by electron microscopy
+            (Schulman et al., 1959). Winsor's 1948 division of surfactant–oil–water systems into four types
+            (I: an oil-in-water micellar solution in the lower phase, II: reverse micelles in the upper phase,
+            III: a middle phase, IV: a single-phase clear system) is still the standard for naming phase
+            behaviour (Winsor, 1948; Salager et al., 2022). The definition of Danielsson and Lindman, "a single
+            optically isotropic and thermodynamically stable liquid solution of water, oil and an amphiphile",
+            became the common reference of the field (Danielsson &amp; Lindman, 1981).
+        </p>
+        <p>
+            Pharmaceutical use accelerated in the 1990s: the pseudo-ternary diagrams of lecithin/alcohol/isopropyl
+            myristate systems (Aboofazeli &amp; Lawrence, 1993), the widely cited review by Lawrence and Rees
+            (2000), Pouton's system for classifying lipid-based formulations (LFCS; Pouton, 2000, 2006) and
+            Kreilgaard's survey of topical applications (2002). In the 2010s the frequently confused definitions
+            of microemulsion and nanoemulsion were clarified (Anton &amp; Vandamme, 2011; McClements, 2012).
+            More recently, approaches that reduce the experimental workload of the phase diagram have come to
+            the fore: the microplate dilution method (Schmidts et al., 2009) and machine-learning models that
+            learn from thousands of formulations (Gao et al., 2021).
+        </p>
+    </section>
+
+    <section id="fazlar">
+        <h2>Phase regions and their recognition</h2>
+        <p>
+            During water titration the appearance of the mixture changes, and each state is marked as a
+            separate region on the diagram. Typical regions and observation criteria (Syed &amp; Peh, 2014;
+            Boonme et al., 2006; Li et al., 2024):
+        </p>
+        <ul>
+            <li><strong>Microemulsion (Winsor IV):</strong> clear or transparent, fluid, isotropic; dark under
+                polarised light (no birefringence). As the water content increases, the w/o → bicontinuous → o/w
+                transition is most often followed through the percolation jump in conductivity (Boonme et al.,
+                2006; Liu et al., 2022).</li>
+            <li><strong>Coarse emulsion (Winsor I/II):</strong> turbid, milky in appearance, may separate over time.
+                The o/w and w/o types are distinguished with a water-soluble dye such as methylene blue (Syed &amp;
+                Peh, 2014).</li>
+            <li><strong>Gel / liquid crystal:</strong> viscous, often transparent but birefringent under polarised
+                light (lamellar, hexagonal). Appears at high surfactant content and at certain S<sub>mix</sub>
+                ratios; confirmed by small-angle X-ray scattering and rheology (Sharma et al., 2025; Tartaro et
+                al., 2020).</li>
+            <li><strong>Phase separation:</strong> two or three visible layers; in Winsor III the middle phase is a
+                bicontinuous microemulsion (Salager et al., 2023).</li>
+        </ul>
+        <p>
+            Because visual assessment on its own is subjective, conductivity, viscosity, dynamic light
+            scattering, differential scanning calorimetry and polarised-light microscopy are used together; no
+            single method proves the structure by itself (Li et al., 2024; Gradzielski et al., 2021). The tool
+            does not make this distinction; the user decides from the experiment which points belong to which
+            region and enters each region as a separate "group".
+        </p>
+    </section>
+
+    <section id="yontem">
+        <h2>Experimental method: water titration</h2>
+        <p>
+            The most common route is <strong>water (aqueous-phase) titration</strong>. First the surfactant and
+            the cosurfactant are mixed at fixed mass ratios (S<sub>mix</sub> 1:1, 2:1, 3:1, 4:1 and so on; some
+            authors write K<sub>m</sub>). For each S<sub>mix</sub>, nine separate oil:S<sub>mix</sub> mixtures from
+            1:9 to 9:1 are prepared, and water is added drop by drop under stirring at constant temperature. The
+            appearance is recorded after each addition; the compositions at which the system turns from clear to
+            turbid or from turbid to clear are the phase-boundary points (Shafiq-un-Nabi et al., 2007; Syed &amp;
+            Peh, 2014). A diagram typically comprises 9 dilution lines × a few transition points; different
+            S<sub>mix</sub> ratios are drawn as separate diagrams and the region areas are compared
+            (Parmar et al., 2011).
+        </p>
+        <ul>
+            <li><strong>Temperature</strong> must be held constant; with non-ionic surfactants the region
+                boundaries are temperature-sensitive (Liu et al., 2022).</li>
+            <li><strong>Equilibration time.</strong> After each addition the system should be allowed to reach
+                equilibrium; transient turbidity is not a phase boundary. A sample that appears kinetically
+                stable may not be thermodynamically stable (Anton &amp; Vandamme, 2011).</li>
+            <li><strong>Cosurfactant effect.</strong> Short-chain alcohols and glycols make the interfacial film
+                more flexible and widen the single-phase region; the effect depends on chain length and on the
+                S<sub>mix</sub> ratio (Aboofazeli &amp; Lawrence, 1993; Golwala et al., 2020).</li>
+            <li><strong>Active ingredient.</strong> Drug loading shifts the region; drug-loaded and drug-free
+                diagrams may differ (Giang et al., 2020). The final formulation should be selected from the
+                drug-loaded diagram.</li>
+            <li><strong>Alternative:</strong> the microplate dilution method examines a large number of
+                compositions at once, saving time and material (Schmidts et al., 2009).</li>
+        </ul>
+    </section>
+
+    <section id="alan">
+        <h2>Region area, centroid and optimisation</h2>
+        <p>
+            The <strong>area</strong> of the microemulsion region is the standard measure for comparing
+            S<sub>mix</sub> ratios and excipient choices: the ratio that gives the widest region is selected, and
+            formulations are then taken from within the region at that ratio (Parmar et al., 2011; Yadav et al.,
+            2020). In most publications the area is estimated by eye or by counting squares on paper. Since 2001
+            this tool has instead computed the area and the <strong>centroid</strong> from the vertex coordinates
+            of the polygon: the area and centroid of each group are given in the table, and the centroid is marked
+            on the diagram. Berkman and Güleç (2021) published the same approach with explicit formulae and an
+            Excel macro and showed how the centroid can be used as a "candidate optimum formulation"; the two
+            approaches rest on the same geometry.
+        </p>
+        <p>
+            Is the centroid enough on its own? Generally not. Compositions within the region differ in droplet
+            size, viscosity, drug loading and robustness to dilution; the range selected from the diagram is
+            therefore screened in a second step by experimental design (Box–Behnken, central composite, simplex
+            lattice) (Zhu et al., 2008; Yadav et al., 2020). The diagram narrows the range; the experimental
+            design finds the optimum within it. Shafiq-un-Nabi and co-workers (2007) recommend selecting the
+            composition that dissolves the most oil with the least surfactant and withstands dilution, and
+            avoiding "metastable" points close to the boundary.
+        </p>
+    </section>
+
+    <section id="terimler">
+        <h2>Microemulsion, nanoemulsion, SEDDS</h2>
+        <p>
+            These terms are often confused in the literature. The distinction lies not in size but in
+            thermodynamics: a <strong>microemulsion</strong> is thermodynamically stable, forms spontaneously and
+            persists indefinitely as long as the composition is unchanged; a <strong>nanoemulsion</strong> is only
+            kinetically stable, is made with an energy input (high pressure, ultrasound) or by phase inversion,
+            and breaks down over time (McClements, 2012; Anton &amp; Vandamme, 2011; Gandhi et al., 2026). Size
+            ranges are given differently from author to author; some reviews state 100–400 nm for microemulsions
+            and 1–100 nm for nanoemulsions (Souto et al., 2022), whereas in the classical definition
+            microemulsion droplets are 10–100 nm. This contradiction shows that size is not the defining
+            criterion. Practical tests for the distinction: long-term stability, reversibility of temperature
+            changes, and insensitivity of the result to the order in which the components are mixed
+            (Gandhi et al., 2026).
+        </p>
+        <p>
+            <strong>SEDDS / SMEDDS / SNEDDS</strong> are anhydrous preconcentrates that spontaneously give an
+            emulsion, microemulsion or nanoemulsion on contact with water (Pouton, 2000, 2006). For these systems
+            the pseudo-ternary diagram maps the compositions of the anhydrous preconcentrate that form a clear
+            dispersion after dilution; the "self-emulsification region" and the classical microemulsion region
+            are not the same thing. For a comparison with Winsor terminology see Salager et al. (2022, 2023).
+        </p>
+    </section>
+
+    <section id="kullanim">
+        <h2>Using the tool</h2>
+        <p>
+            The left column has three tabs: <strong>Data Entry</strong>, <strong>Diagram</strong> (title and vertex
+            names) and <strong>Chart</strong> (grid, closing, smoothing, opacity). The diagram is on the right, with
+            the group table below it.
+        </p>
+        <ol>
+            <li><strong>Data entry.</strong> Each row is one measurement point: Group (region name, e.g. "ME 2:1"),
+                Order (the order of traversal along the polygon edge), and the Oil, Sur/CoSur and Water
+                percentages. Points in the same group are joined in Order to draw the polygon; the order must
+                run consistently clockwise or anticlockwise along the boundary, otherwise the edges intersect.
+                The grid works like a spreadsheet (copy and paste, add/delete rows); 4 sample data sets can be
+                loaded from the menu.</li>
+            <li><strong>Calculate.</strong> The points are converted to triangle coordinates, the groups are turned
+                into polygons, and the area and centroid are computed. A group with one point is drawn as a point,
+                a group with two points as a line. Rows whose total is not 100 (tolerance ±0.5) are listed in the
+                warning list with their group and order number.</li>
+            <li><strong>Closing.</strong> In a titration the boundary points often end on an edge (e.g. the
+                water-rich corner where the oil percentage drops to zero). "Close Polygon" joins the first and last
+                points directly; "Minimum-Value Closing" closes through the lowest values of the group; "Edge
+                Closing" closes along the selected edge (Oil, Surfactant or Water). The closing points that are
+                added sometimes coincide with the first or last measurement point; the tool removes these.</li>
+            <li><strong>Smoothing.</strong> When "Smooth edges" is ticked, the boundary is drawn as a Catmull-Rom
+                based Bezier curve passing through the measurement points; 60 % corresponds to the classical
+                tension, and towards 100 % the curve becomes rounder. The curve does not leave the triangle. The
+                area and centroid are computed from the smoothed outline. This is a visual interpretation: the
+                true boundary between two measurements is unknown.</li>
+            <li><strong>Style.</strong> Clicking a group on the diagram sets the fill colour, edge colour, opacity and
+                edge width for that group alone; the sliders on the Chart tab are the defaults for all groups.
+                Gradient fill is optional.</li>
+            <li><strong>Saving.</strong> The work is stored automatically in this browser; "Save to file" writes the
+                data, settings and styles to a single .json file, and "Open from file" restores them. "Download
+                SVG" exports the diagram as a vector graphic that scales to publication quality.</li>
+        </ol>
+        <p>
+            <strong>Area unit.</strong> The area is computed in a triangle with sides of 100 units. The whole
+            triangle is ≈ 4330 units²; the share of a region in the triangle is obtained as a percentage from
+            area/43.3. Within one S<sub>mix</sub> comparison the absolute value suffices; between different studies
+            the percentage is safer.
+        </p>
+    </section>
+
+    <section id="sinirlar">
+        <h2>Limitations and interpretation</h2>
+        <ul>
+            <li><strong>The boundary lies between the measurement points.</strong> The polygon passes through the
+                measurement points; the true phase boundary lies somewhere between two points. The area estimate
+                improves as the number of points increases; with sparse data, smoothing can give a misleading
+                impression of precision.</li>
+            <li><strong>The choice of closing changes the area.</strong> With the same data, "Close Polygon" and "Edge
+                Closing" give different areas. The closing used should be reported.</li>
+            <li><strong>Visual assessment is subjective.</strong> The "clear"–"turbid" threshold depends on the
+                observer; support by conductivity, light transmittance or polarised-light microscopy is
+                recommended (Li et al., 2024).</li>
+            <li><strong>The diagram is not thermodynamic proof.</strong> A region that looks clear may also be a
+                kinetically stable nanoemulsion; time, temperature and mixing-order tests are needed to tell them
+                apart (Anton &amp; Vandamme, 2011; Gandhi et al., 2026).</li>
+            <li><strong>Temperature, drug loading and the dilution medium</strong> shift the region; for oral
+                systems, what dilution does in gastrointestinal fluid and after digestion is tested separately
+                (Pouton, 2006).</li>
+            <li><strong>Region width is not the only criterion.</strong> A wide region may mean a high surfactant
+                content; toxicity and irritation limits (especially in topical and oral use) constrain the choice
+                (Kreilgaard, 2002; Karasulu, 2008).</li>
+        </ul>
+    </section>
+
+    <section id="turkiye">
+        <h2>Contributions from Türkiye</h2>
+        <p>
+            The 2008 review by Karasulu of Ege University, which brings together the formation, stability,
+            applications and toxicity of microemulsions within the framework of the pseudo-ternary diagram, is an
+            internationally cited reference text (Karasulu, 2008). The pseudo-ternary diagrams and region areas in
+            that review were prepared with the software that is the predecessor of the tool on this page.
+        </p>
+        <p>
+            <strong>The history of this tool.</strong> The first version of the software ("Micro") was written in
+            Visual Basic 6 at the Faculty of Pharmacy of Ege University in the summer of 2001. The experiments
+            were kept in an Access database (per experiment: date, formulation, surfactant:cosurfactant ratio and
+            oil/surfactant/water/alcohol columns; the first records are ethanol-containing S<sub>mix</sub> series
+            from 3:1 to 6:1). The region boundary was drawn by converting the measurement points to triangle
+            coordinates and closing through the edge parallel passing through the water value of the last point;
+            the area was computed from the polygon vertices with the shoelace formula and the centroid with the
+            classical polygon centroid formula, then converted back to percentages (<code>Geometry.bas</code> and
+            <code>Genel.bas</code>, dated June 2001). The coordinate transformation, the area and centroid
+            computation, the intersection point and the "closing through the lowest value" option of today's tool
+            come from that code; they were later moved to the web, and the Blazor version added edge closing, the
+            smoothed boundary, group styles, the total check and SVG export. The triangle favicon in use since
+            2012 also comes from this application. The diagrams and region areas in the Karasulu (2008) review
+            were prepared with this program. Berkman and Güleç (2021) of Istanbul University published the same
+            area and centroid computation with explicit formulae and an Excel macro, bringing the method into the
+            literature.
+        </p>
+    </section>
+
+    <section id="uygulama" class="rehber-uygulama">
+        <h2><i class="ti ti-tool" aria-hidden="true"></i> The implementation on this site</h2>
+        <ul>
+            <li><strong>Coordinate transformation:</strong> x = S<sub>mix</sub> + Oil·cos 60°, y = Oil·sin 60°
+                (percentages scaled to 0–1). Water lower left, surfactant lower right, oil at the apex. The forward
+                and inverse transformation formulae are the same as in the 2001 version.</li>
+            <li><strong>Area and centroid:</strong> by the shoelace formula; the area is reported on the scale of a
+                triangle with sides of 100 units. 1 point → point, 2 points → line, area 0.</li>
+            <li><strong>Closing:</strong> three options; closing points that coincide with measurement points are
+                removed.</li>
+            <li><strong>Smoothing:</strong> centripetal Catmull-Rom → cubic Bezier; tension 0–100 %; the curve is
+                clipped to the convex region of the points and so kept inside the triangle. Area/centroid from the
+                smoothed outline.</li>
+            <li><strong>Storage:</strong> automatic saving in localStorage, .json file, SVG export.</li>
+            <li><strong>Total check:</strong> if oil + surfactant + water lies outside 100 ± 0.5, the row enters the
+                warning list; the calculation is not blocked.</li>
+            <li><strong>Verification:</strong> unit tests for the document save/open round trip, the total check and
+                smoothing (the curve passes through every point, stays inside the triangle, coincident closing
+                points are removed).</li>
+        </ul>
+    </section>
+
+    <section id="kaynaklar" class="rehber-kaynaklar">
+        <h2>References</h2>
+        <ol>
+            <li>Aboofazeli, R., &amp; Lawrence, M. J. (1993). Investigations into the formation and characterization of phospholipid microemulsions. I. Pseudo-ternary phase diagrams of systems containing water-lecithin-alcohol-isopropyl myristate. <em>International Journal of Pharmaceutics, 93</em>(1-3), 161-175. <a href="https://doi.org/10.1016/0378-5173(93)90174-E" target="_blank" rel="noopener">doi:10.1016/0378-5173(93)90174-E</a></li>
+            <li>Anton, N., &amp; Vandamme, T. F. (2011). Nano-emulsions and micro-emulsions: Clarifications of the critical differences. <em>Pharmaceutical Research, 28</em>(5), 978-985. <a href="https://doi.org/10.1007/s11095-010-0309-1" target="_blank" rel="noopener">doi:10.1007/s11095-010-0309-1</a></li>
+            <li>Berkman, M. S., &amp; Güleç, K. (2021). Pseudo ternary phase diagrams: A practical approach for the area and centroid calculation of stable microemulsion regions. <em>İstanbul Journal of Pharmacy, 51</em>(1), 42-49. <a href="https://doi.org/10.26650/istanbuljpharm.2020.0090" target="_blank" rel="noopener">doi:10.26650/istanbuljpharm.2020.0090</a></li>
+            <li>Boonme, P., Krauel, K., Graf, A., Rades, T., &amp; Junyaprasert, V. B. (2006). Characterization of microemulsion structures in the pseudoternary phase diagram of isopropyl palmitate/water/Brij 97:1-butanol. <em>AAPS PharmSciTech, 7</em>(2), E99-E104. <a href="https://doi.org/10.1208/pt070245" target="_blank" rel="noopener">doi:10.1208/pt070245</a></li>
+            <li>Chen, H., Chang, X., Du, D., Li, J., Xu, H., &amp; Yang, X. (2006). Microemulsion-based hydrogel formulation of ibuprofen for topical delivery. <em>International Journal of Pharmaceutics, 315</em>(1-2), 52-58. <a href="https://doi.org/10.1016/j.ijpharm.2006.02.015" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2006.02.015</a></li>
+            <li>Chiappisi, L., Noirez, L., &amp; Gradzielski, M. (2016). A journey through the phase diagram of a pharmaceutically relevant microemulsion system. <em>Journal of Colloid and Interface Science, 473</em>, 52-59. <a href="https://doi.org/10.1016/j.jcis.2016.03.064" target="_blank" rel="noopener">doi:10.1016/j.jcis.2016.03.064</a></li>
+            <li>Danielsson, I., &amp; Lindman, B. (1981). The definition of microemulsion. <em>Colloids and Surfaces, 3</em>(4), 391-392. <a href="https://doi.org/10.1016/0166-6622(81)80064-9" target="_blank" rel="noopener">doi:10.1016/0166-6622(81)80064-9</a></li>
+            <li>Gandhi, J., Shah, P., Pandya, K., et al. (2026). Microemulsions versus nanoemulsions: A comparative overview of features, formulation, and pharmaceutical applications. <em>Advances in Colloid and Interface Science, 353</em>, 103881. <a href="https://doi.org/10.1016/j.cis.2026.103881" target="_blank" rel="noopener">doi:10.1016/j.cis.2026.103881</a></li>
+            <li>Gao, H., Jia, H., Dong, J., et al. (2021). Integrated in silico formulation design of self-emulsifying drug delivery systems. <em>Acta Pharmaceutica Sinica B, 11</em>(11), 3585-3594. <a href="https://doi.org/10.1016/j.apsb.2021.04.017" target="_blank" rel="noopener">doi:10.1016/j.apsb.2021.04.017</a></li>
+            <li>Giang, T. T. H., Nghia, T. T., &amp; Huyen, T. T. (2020). Application of the artificial neural network to optimize the formulation of self-nanoemulsifying drug delivery system containing rosuvastatin. <em>Journal of Applied Pharmaceutical Science, 10</em>(9). <a href="https://doi.org/10.7324/japs.2020.10901" target="_blank" rel="noopener">doi:10.7324/japs.2020.10901</a></li>
+            <li>Golwala, P., Rathod, S., Patil, S., Joshi, A., Ray, D., Aswal, V. K., Bahadur, P., &amp; Tiwari, S. (2020). Effect of cosurfactant addition on phase behavior and microstructure of a water dilutable microemulsion. <em>Colloids and Surfaces B: Biointerfaces, 186</em>, 110736. <a href="https://doi.org/10.1016/j.colsurfb.2019.110736" target="_blank" rel="noopener">doi:10.1016/j.colsurfb.2019.110736</a></li>
+            <li>Gradzielski, M., Duvail, M., de Molina, P. M., Simon, M., Talmon, Y., &amp; Zemb, T. (2021). Using microemulsions: Formulation based on knowledge of their mesostructure. <em>Chemical Reviews, 121</em>(10), 5671-5740. <a href="https://doi.org/10.1021/acs.chemrev.0c00812" target="_blank" rel="noopener">doi:10.1021/acs.chemrev.0c00812</a></li>
+            <li>Hoar, T. P., &amp; Schulman, J. H. (1943). Transparent water-in-oil dispersions: The oleopathic hydro-micelle. <em>Nature, 152</em>(3847), 102-103. <a href="https://doi.org/10.1038/152102a0" target="_blank" rel="noopener">doi:10.1038/152102a0</a></li>
+            <li>Karasulu, H. Y. (2008). Microemulsions as novel drug carriers: The formation, stability, applications and toxicity. <em>Expert Opinion on Drug Delivery, 5</em>(1), 119-135. <a href="https://doi.org/10.1517/17425247.5.1.119" target="_blank" rel="noopener">doi:10.1517/17425247.5.1.119</a></li>
+            <li>Kreilgaard, M. (2002). Influence of microemulsions on cutaneous drug delivery. <em>Advanced Drug Delivery Reviews, 54</em>(Suppl. 1), S77-S98. <a href="https://doi.org/10.1016/s0169-409x(02)00116-3" target="_blank" rel="noopener">doi:10.1016/S0169-409X(02)00116-3</a></li>
+            <li>Lawrence, M. J., &amp; Rees, G. D. (2000). Microemulsion-based media as novel drug delivery systems. <em>Advanced Drug Delivery Reviews, 45</em>(1), 89-121. <a href="https://doi.org/10.1016/S0169-409X(00)00103-4" target="_blank" rel="noopener">doi:10.1016/S0169-409X(00)00103-4</a></li>
+            <li>Li, L., Qu, S., Liu, S., et al. (2024). Advancements in characterization techniques for microemulsions: From molecular insights to macroscopic phenomena. <em>Molecules, 29</em>(12), 2901. <a href="https://doi.org/10.3390/molecules29122901" target="_blank" rel="noopener">doi:10.3390/molecules29122901</a></li>
+            <li>Liu, Q., Wang, X., Wu, Y., et al. (2022). Structure and pseudo-ternary phase diagram of water/Triton X-100/1-pentanol/cyclohexane microemulsion. <em>Journal of Molecular Liquids, 349</em>, 118425. <a href="https://doi.org/10.1016/j.molliq.2021.118425" target="_blank" rel="noopener">doi:10.1016/j.molliq.2021.118425</a></li>
+            <li>McClements, D. J. (2012). Nanoemulsions versus microemulsions: Terminology, differences, and similarities. <em>Soft Matter, 8</em>(6), 1719-1729. <a href="https://doi.org/10.1039/c2sm06903b" target="_blank" rel="noopener">doi:10.1039/c2sm06903b</a></li>
+            <li>Moreno, M. A., Ballesteros, M. P., &amp; Frutos, P. (2003). Lecithin-based oil-in-water microemulsions for parenteral use: Pseudoternary phase diagrams, characterization and toxicity studies. <em>Journal of Pharmaceutical Sciences, 92</em>(7), 1428-1437. <a href="https://doi.org/10.1002/jps.10412" target="_blank" rel="noopener">doi:10.1002/jps.10412</a></li>
+            <li>Parmar, N., Singla, N., Amin, S., &amp; Kohli, K. (2011). Study of cosurfactant effect on nanoemulsifying area and development of lercanidipine loaded (SNEDDS) self nanoemulsifying drug delivery system. <em>Colloids and Surfaces B: Biointerfaces, 86</em>(2), 327-338. <a href="https://doi.org/10.1016/j.colsurfb.2011.04.016" target="_blank" rel="noopener">doi:10.1016/j.colsurfb.2011.04.016</a></li>
+            <li>Pouton, C. W. (2000). Lipid formulations for oral administration of drugs: Non-emulsifying, self-emulsifying and 'self-microemulsifying' drug delivery systems. <em>European Journal of Pharmaceutical Sciences, 11</em>(Suppl. 2), S93-S98. <a href="https://doi.org/10.1016/s0928-0987(00)00167-6" target="_blank" rel="noopener">doi:10.1016/S0928-0987(00)00167-6</a></li>
+            <li>Pouton, C. W. (2006). Formulation of poorly water-soluble drugs for oral administration: Physicochemical and physiological issues and the lipid formulation classification system. <em>European Journal of Pharmaceutical Sciences, 29</em>(3-4), 278-287. <a href="https://doi.org/10.1016/j.ejps.2006.04.016" target="_blank" rel="noopener">doi:10.1016/j.ejps.2006.04.016</a></li>
+            <li>Salager, J.-L., Marquez, R., Bullon, J., &amp; Forgiarini, A. (2022). Formulation in surfactant systems: From Winsor to HLDN. <em>Encyclopedia, 2</em>(2), 778-839. <a href="https://doi.org/10.3390/encyclopedia2020054" target="_blank" rel="noopener">doi:10.3390/encyclopedia2020054</a></li>
+            <li>Salager, J.-L., Marquez, R., Rondón, M., et al. (2023). Review on some confusion produced by the bicontinuous microemulsion terminology and its domains microcurvature. <em>ACS Omega, 8</em>(10), 9040-9057. <a href="https://doi.org/10.1021/acsomega.3c00547" target="_blank" rel="noopener">doi:10.1021/acsomega.3c00547</a></li>
+            <li>Schmidts, T., Nocker, P., Lavi, G., Kuhlmann, J., Czermak, P., &amp; Runkel, F. (2009). Development of an alternative, time and cost saving method of creating pseudoternary diagrams using the example of a microemulsion. <em>Colloids and Surfaces A: Physicochemical and Engineering Aspects, 340</em>(1-3), 187-192. <a href="https://doi.org/10.1016/j.colsurfa.2009.03.029" target="_blank" rel="noopener">doi:10.1016/j.colsurfa.2009.03.029</a></li>
+            <li>Schulman, J. H., Stoeckenius, W., &amp; Prince, L. M. (1959). Mechanism of formation and structure of micro emulsions by electron microscopy. <em>The Journal of Physical Chemistry, 63</em>(10), 1677-1680. <a href="https://doi.org/10.1021/j150580a027" target="_blank" rel="noopener">doi:10.1021/j150580a027</a></li>
+            <li>Shafiq-un-Nabi, S., Shakeel, F., Talegaonkar, S., Ali, J., Baboota, S., Ahuja, A., Khar, R. K., &amp; Ali, M. (2007). Formulation development and optimization using nanoemulsion technique: A technical note. <em>AAPS PharmSciTech, 8</em>(2), E12-E17. <a href="https://doi.org/10.1208/pt0802028" target="_blank" rel="noopener">doi:10.1208/pt0802028</a></li>
+            <li>Sharma, S., Kaushik, S., Bisht, A., et al. (2025). Dependence of phase boundary and interfacial characteristics of liquid crystalline structures on surfactant-cosurfactant composition. <em>Langmuir, 41</em>(27), 18221-18228. <a href="https://doi.org/10.1021/acs.langmuir.5c02188" target="_blank" rel="noopener">doi:10.1021/acs.langmuir.5c02188</a></li>
+            <li>Souto, E. B., Cano, A., Martins-Gomes, C., Coutinho, T. E., Zielińska, A., &amp; Silva, A. M. (2022). Microemulsions and nanoemulsions in skin drug delivery. <em>Bioengineering, 9</em>(4), 158. <a href="https://doi.org/10.3390/bioengineering9040158" target="_blank" rel="noopener">doi:10.3390/bioengineering9040158</a></li>
+            <li>Syed, H. K., &amp; Peh, K. K. (2014). Identification of phases of various oil, surfactant/co-surfactants and water system by ternary phase diagram. <em>Acta Poloniae Pharmaceutica, 71</em>(2), 301-309.</li>
+            <li>Tartaro, G., Mateos, H., Schirone, D., Angelico, R., &amp; Palazzo, G. (2020). Microemulsion microstructure(s): A tutorial review. <em>Nanomaterials, 10</em>(9), 1657. <a href="https://doi.org/10.3390/nano10091657" target="_blank" rel="noopener">doi:10.3390/nano10091657</a></li>
+            <li>Williamson, J. C. (2021). Liquid–liquid demonstrations: Phase equilibria and the lever rule. <em>Journal of Chemical Education, 98</em>(7), 2356-2363. <a href="https://doi.org/10.1021/acs.jchemed.0c01517" target="_blank" rel="noopener">doi:10.1021/acs.jchemed.0c01517</a></li>
+            <li>Winsor, P. A. (1948). Hydrotropy, solubilisation and related emulsification processes. <em>Transactions of the Faraday Society, 44</em>, 376-398. <a href="https://doi.org/10.1039/tf9484400376" target="_blank" rel="noopener">doi:10.1039/tf9484400376</a></li>
+            <li>Yadav, P., Rastogi, V., &amp; Verma, A. (2020). Application of Box–Behnken design and desirability function in the development and optimization of self-nanoemulsifying drug delivery system for enhanced dissolution of ezetimibe. <em>Future Journal of Pharmaceutical Sciences, 6</em>(1), 7. <a href="https://doi.org/10.1186/s43094-020-00023-3" target="_blank" rel="noopener">doi:10.1186/s43094-020-00023-3</a></li>
+            <li>Zhu, W., Yu, A., Wang, W., Dong, R., Wu, J., &amp; Zhai, G. (2008). Formulation design of microemulsion for dermal delivery of penciclovir. <em>International Journal of Pharmaceutics, 360</em>(1-2), 184-190. <a href="https://doi.org/10.1016/j.ijpharm.2008.04.008" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2008.04.008</a></li>
+        </ol>
+    </section>
+
+    <section id="surum" class="rehber-surum-gecmisi">
+        <h2>Version history</h2>
+        <ul>
+            <li><strong>1.2 · 17 September 2026.</strong> English edition (ptcalc.net).</li>
+            <li><strong>1.1 · 14 September 2026.</strong> The tool's 2001 Visual Basic origin and its use in the
+                Karasulu (2008) review added; the total check described; table-of-contents links corrected.</li>
+            <li><strong>1.0 · 10 September 2026.</strong> First version: reading, history, phase regions, water
+                titration, area and centroid, terminology, using the tool, 36 references.</li>
+        </ul>
+    </section>
+
+    <footer class="rehber-alt">
+        <a href="/ternary-phase-diagram-app" class="rehber-cta"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to the Ternary Phase Diagram tool</a>
+    </footer>
+
+</article>

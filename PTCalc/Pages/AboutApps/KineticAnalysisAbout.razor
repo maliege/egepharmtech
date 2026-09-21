@@ -1,0 +1,817 @@
+﻿@page "/about-kinetic-analysis"
+
+@* Kinetik Analiz aracının ayrıntılı rehberi ve kuramsal arka planı. Metin özgündür; atıflar
+   sondaki kaynak listesine yapılır. Türk literatürü bölümü docs/kinetik-turk-kaynaklar.md'deki
+   taramaya dayanır (2026-09). "Bu sitedeki uygulama" ve "DDSolver ile karşılaştırma" bölümleri
+   aracın gerçek davranışını (PTCalc.Core.Dissolution) ve DdsolverReferenceTests sonuçlarını
+   özetler; motor değişirse bu bölümler de güncellenmeli. *@
+
+<SiteTitle Text="Kinetik Analiz Rehberi" />
+
+@if (Lang.IsEn)
+{
+    @* İngilizce sürüm ayrı bileşende: Components/Guides/KineticAnalysisGuideEn.razor (ikisi birlikte güncellenir) *@
+    <KineticAnalysisGuideEn />
+}
+else
+{
+<article class="rehber">
+
+    <header class="rehber-bas">
+        <p class="rehber-ustbaslik"><i class="ti ti-chart-line" aria-hidden="true"></i> Kinetik Analiz · Ayrıntılı rehber</p>
+        <h1>Dissolüsyon kinetiği: modeller, uyum, yorum ve Türkiye'deki gelenek</h1>
+        <p class="rehber-ozet">
+            Bir salım profiline hangi modeller uygulanır, katsayılar nasıl kestirilir, "en iyi model" nasıl
+            seçilir ve sonuç ne anlama gelir? Bu sayfa <a href="/kinetik">Kinetik Analiz</a> aracının hem
+            kullanım kılavuzu hem kuramsal arka planıdır. Türkiye'de yerleşmiş model adlarıyla ((Bt)^a, RRSBW,
+            modifiye Langenbucher) uluslararası adlar arasındaki karşılıklar ayrı bir bölümde verilir.
+        </p>
+        <p class="rehber-surum">Sürüm 1.3 · 18 Eylül 2026 · <a href="/about-kinetic-analysis#surum">sürüm geçmişi</a></p>
+        <nav class="rehber-icindekiler" aria-label="Bölümler">
+            <a href="/about-kinetic-analysis#giris">Giriş</a>
+            <a href="/about-kinetic-analysis#tarihce">Kısa tarihçe</a>
+            <a href="/about-kinetic-analysis#veri">Veri hazırlığı</a>
+            <a href="/about-kinetic-analysis#katalog">Model kataloğu</a>
+            <a href="/about-kinetic-analysis#varyantlar">Varyantlar</a>
+            <a href="/about-kinetic-analysis#fit">Uyum süreci</a>
+            <a href="/about-kinetic-analysis#olcutler">Uyum ölçütleri</a>
+            <a href="/about-kinetic-analysis#ikincil">İkincil parametreler</a>
+            <a href="/about-kinetic-analysis#bayraklar">Uyarı bayrakları</a>
+            <a href="/about-kinetic-analysis#model-secimi">Model seçimi</a>
+            <a href="/about-kinetic-analysis#ornek">İşlenmiş örnek</a>
+            <a href="/about-kinetic-analysis#hatalar">Sık hatalar ve karar akışı</a>
+            <a href="/about-kinetic-analysis#f2">f₂ ile karşılaştırma</a>
+            <a href="/about-kinetic-analysis#turkiye">Türkiye'deki gelenek</a>
+            <a href="/about-kinetic-analysis#ddsolver">DDSolver ile karşılaştırma</a>
+            <a href="/about-kinetic-analysis#uygulama">Bu sitedeki uygulama</a>
+            <a href="/about-kinetic-analysis#kaynaklar">Kaynaklar</a>
+        </nav>
+    </header>
+
+    <section id="giris">
+        <h2>Giriş</h2>
+        <p>
+            Dissolüsyon kinetiği çalışmalarında iki soru birlikte sorulur: <strong>eğriyi en iyi hangi denklem
+            tarif ediyor</strong> ve <strong>bu denklemin katsayıları salım mekanizması hakkında ne söylüyor</strong>?
+            Yalnız ilk soruya odaklanıp en yüksek R²'yi veren modeli seçmek yaygın ama yetersiz bir alışkanlıktır
+            (Costa &amp; Sousa Lobo, 2001; Askarizadeh et al., 2023). Bu rehber, en sık başvurulan modelleri,
+            bunların nasıl fit edildiğini ve sonuçların nasıl karşılaştırılıp yorumlanması gerektiğini ele alır.
+            Ana tez, literatürle uyumlu olarak şudur: doğrusallaştırılmış regresyon öğretici ve hızlıdır, ancak
+            parametre kestirimi için <strong>non-lineer en küçük kareler</strong> çoğu gerçek veri kümesinde daha
+            güvenilirdir (Costa et al., 2003; Dash et al., 2010; Zhang et al., 2010).
+        </p>
+        <p>
+            Aracın yaklaşımı bir cümleyle: her model önce doğrusallaştırılmış biçimiyle tohumlanır, sonra ham
+            salım yüzdesi üzerinde non-lineer olarak rafine edilir; tüm uyum ölçütleri aynı uzayda hesaplanır;
+            modeller parametre sayısını cezalandıran AIC ile sıralanır; fiziksel olmayan sonuçlar uyarı olarak
+            işaretlenir. Kullanılan tanımlar alanın yaygın yazılımı DDSolver'ınkilerle (Zhang et al., 2010) aynıdır;
+            sonuçların DDSolver çıktılarıyla karşılaştırması <a href="/about-kinetic-analysis#ddsolver">ilgili bölümdedir</a>.
+        </p>
+    </section>
+
+    <section id="tarihce">
+        <h2>Kısa tarihçe</h2>
+        <p>
+            Çözünme hızının ilk nicel tanımı Noyes ve Whitney'in 1897'deki çalışmasıdır: hız, doygunluk
+            derişimiyle anlık derişim arasındaki farkla orantılıdır (Noyes &amp; Whitney, 1897). Hixson ve Crowell
+            (1931) çözünen katının yüzeyinin küçüldüğünü hesaba katarak <strong>küp kök yasasını</strong>
+            türetti. Wagner (1969) tablet ve kapsül çözünme profillerinin çoğunun neden görünürde birinci
+            derece kinetiğe uyduğunu açıkladı: yüzey alanı üstel küçülür ve eğri bir asimptota gider. Higuchi
+            (1961, 1963) matris sistemlerden Fick difüzyonuyla salımın zamanın kareköküyle doğrusal olduğunu
+            gösterdi; bu, "karekök kinetiği" adıyla farmasötik teknolojinin en çok kullanılan denklemi oldu.
+        </p>
+        <p>
+            Langenbucher (1972) Weibull dağılımını çözünme eğrilerinin doğrusallaştırılması için önerdi; Türk
+            literatüründe bu denklem uzun süre <strong>RRSBW</strong> (Rosin–Rammler–Sperling–Bennet–Weibull)
+            adıyla anıldı. Baker ve Lonsdale (1974) küresel matrisler için, Hopfenberg (1976) yüzeyden aşınan
+            geometriler için türetimler yaptı. Korsmeyer ve arkadaşları (1983) ile Ritger ve Peppas (1987)
+            <strong>güç yasasını</strong> ve üstel n'in mekanizma yorumunu, Peppas ve Sahlin (1989) difüzyon ve
+            relaksasyon katkılarını ayıran iki terimli denklemi getirdi. Costa ve Sousa Lobo'nun 2001 derlemesi
+            bu birikimi tek çatı altında topladı ve bugün de en çok atıf alan başvuru metnidir. Zhang ve
+            arkadaşlarının DDSolver'ı (2010) aynı model setini non-lineer uyum ve AIC ile uygulayan, alanın
+            fiilî standardı hâline gelen bir Excel eklentisidir.
+        </p>
+        <p>
+            Türkiye'de kinetik değerlendirme geleneği bu zaman çizelgesinin içinde şekillenir: Ağabeyoğlu'nun
+            1978'de türettiği <strong>(Bt)^a kinetiği</strong> güç yasasının bağımsız ve daha erken bir
+            uygulamasıdır; Ege Üniversitesi ekolü (Ertan, Karasulu, Özyazıcı) model setini in vitro–in vivo
+            korelasyonda sistematik olarak kullandı ve Hopfenberg üstelini yeni geometrilere genişletti; Ankara
+            ekolü (Yüksel, Kanık, Baykara) profil karşılaştırma yöntemlerini istatistiksel olarak sınadı.
+            Ayrıntılar <a href="/about-kinetic-analysis#turkiye">Türkiye'deki gelenek</a> bölümünde.
+        </p>
+    </section>
+
+    <section id="veri">
+        <h2>Veri hazırlığı</h2>
+        <p>
+            Aracın beklediği veri, zamana karşı <strong>kümülatif salım yüzdesidir</strong> (0–100). Zaman
+            birimi serbesttir (dakika, saat) ama tüm satırlarda aynı olmalıdır; katsayıların birimi seçilen
+            zaman biriminden türer. t = 0, F = 0 noktası girilmez, varsayılır. Tekrarlar (en çok altı kap)
+            girilirse ortalama ve standart sapma hesaplanır ve analiz ortalamayla yapılır; elde yalnız
+            ortalama varsa doğrudan "Ortalama" sütununa yazılabilir. Elektronik tablodan kopyala-yapıştır
+            çalışır; ondalık ayracı virgül ya da nokta olabilir.
+        </p>
+        <ul>
+            <li><strong>Kesir mi, yüzde mi?</strong> 0–1 arasında değerler girilirse uyarı çıkar. Doyuma giden
+                modeller %100 tavanını varsaydığı için kesirle yapılan analiz anlamsız sonuç verir.</li>
+            <li><strong>Azalan profil.</strong> Değerler zamanla düşüyorsa veri "kalan ilaç" biçiminde sayılır,
+                100 − F ile salıma çevrilir ve bu uyarı olarak bildirilir.</li>
+            <li><strong>%100 üstü değerler</strong> atılmaz; olduğu gibi kullanılır ve uyarı verilir. Analitik
+                sapma ya da etiket miktarı sorunu olabilir; doyuma giden modellerde Fmax varyantını etkiler.</li>
+            <li><strong>Nokta sayısı.</strong> En az 5–6 zaman noktası önerilir; 2–3 parametreli modeller
+                daha azını "ezberler" ve serbestlik derecesi düşer. Üçten az noktayla analiz yapılmaz.</li>
+            <li><strong>Kapsam.</strong> Noktalar salımın yükselen bölümünü ve platoyu birlikte içermeli; yalnız
+                plato noktaları hız sabitini belirleyemez, yalnız erken noktalar Fmax'ı belirleyemez.</li>
+            <li><strong>Tekrarların niteliği.</strong> Aynı zaman noktasındaki tekrarlar bağımsız kaplardan
+                gelmeli; aynı kabın yeniden okunması tekrar değildir.</li>
+            <li><strong>Korsmeyer–Peppas için F ≤ %60.</strong> Güç yasasının türetimi salımın erken evresi için
+                geçerlidir; n yalnız bu bölgeden belirlenmelidir (Ritger &amp; Peppas, 1987; Costa &amp; Sousa
+                Lobo, 2001). Araç bunu varsayılan olarak uygular; "tüm noktalar" seçeneği DDSolver ile
+                karşılaştırma gibi özel durumlar içindir.</li>
+        </ul>
+    </section>
+
+    <section id="katalog">
+        <h2>Model kataloğu</h2>
+        <p>
+            Araç 16 taban modeli fit eder. Bir kısmının fiziksel türetimi vardır, bir kısmı eğri biçimini
+            yakalamak için önerilmiş ampirik ifadelerdir. Tablet ve matris sistemlerinde çözünme, ıslanma,
+            şişme, erozyon ve difüzyon aynı anda işlediğinden tek bir denklemin bütün süreci temsil etmesi
+            beklenmemelidir (Siepmann &amp; Siepmann, 2008; Ojsteršek et al., 2024). Tabloda F salım yüzdesi,
+            t zaman; "Varyant" sütunu modele hangi eklentilerin (<a href="/about-kinetic-analysis#varyantlar">Tlag, F0, Fmax</a>)
+            uygulanabildiğini gösterir.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 1. Araçtaki modeller: denklem, katsayılar, izinli varyantlar, yorum ve kaynak.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Model</th>
+                        <th scope="col">Denklem</th>
+                        <th scope="col">Varyant</th>
+                        <th scope="col">Ne zaman ve nasıl yorumlanır</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Zero-order</th>
+                        <td>F = k₀·t</td>
+                        <td>Tlag, F0</td>
+                        <td>Birim zamanda sabit salım; ozmotik ve membran kontrollü sistemlerin ideali. Matrislerde
+                            çoğu kez yalnız erken bölge uyar (Costa &amp; Sousa Lobo, 2001).</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">First-order</th>
+                        <td>F = 100·(1 − e<sup>−k₁t</sup>)</td>
+                        <td>Tlag, Fmax</td>
+                        <td>Hız kalan miktarla orantılı; hızlı salınan formlar, çözünme hızıyla sınırlı emilim
+                            (Wagner, 1969). Türk literatüründe "birinci derece".</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Higuchi</th>
+                        <td>F = k<sub>H</sub>·√t</td>
+                        <td>Tlag, F0</td>
+                        <td>Homojen matristen Fick difüzyonu; sözde-kararlı durum ve sabit geometri varsayar,
+                            şişen matrislerde sapar (Higuchi, 1963; Siepmann &amp; Siepmann, 2008). Kesişimli
+                            biçimi Türk literatüründe "Q√t".</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Hixson–Crowell</th>
+                        <td>F = 100·(1 − (1 − k<sub>HC</sub>·t)³)</td>
+                        <td>Tlag</td>
+                        <td>Küp kök yasası: yüzey alanı zamanla küçülür; partikül boyutunun sınırladığı
+                            sistemler (Hixson &amp; Crowell, 1931). Hopfenberg n = 3 ile aynı eğri.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Korsmeyer–Peppas</th>
+                        <td>F = k<sub>KP</sub>·t<sup>n</sup></td>
+                        <td>Tlag, F0 (F0 ≥ 0)</td>
+                        <td>Güç yasası; n mekanizma göstergesi. Eşikler geometriye bağlıdır: slab 0,50/1,00,
+                            silindir 0,45/0,89, küre 0,43/0,85 (Ritger &amp; Peppas, 1987). Yalnız F ≤ %60
+                            bölgesine fit edilir. Türk literatüründe "(Bt)^a" (Ağabeyoğlu, 1978).</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Weibull</th>
+                        <td>F = 100·(1 − e<sup>−t<sup>b</sup>/a</sup>)</td>
+                        <td>Tlag, Fmax</td>
+                        <td>Ampirik; b (şekil, β) &lt; 1 parabolik, ≈ 1 üstel, &gt; 1 sigmoid. Td = a<sup>1/b</sup>
+                            %63,2 salım süresi (Langenbucher, 1972; Papadopoulou et al., 2006). Türk literatüründe
+                            "RRSBW"; Tlag'lı biçimi "modifiye Langenbucher".</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Hopfenberg</th>
+                        <td>F = 100·(1 − (1 − k<sub>HB</sub>·t)<sup>n</sup>)</td>
+                        <td>Tlag</td>
+                        <td>Yüzeyden aşınan sistemler; n geometri sabiti: slab 1, silindir 2, küre 3 (Hopfenberg,
+                            1976). Yarım küre 1,5 ve üçgen 4 Karasulu, Ertan &amp; Köse (2000) önerisidir.
+                            Slab Zero-order'a, küre Hixson–Crowell'e eşdeğer olduğu için bu ikisi sıralamaya girmez.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Baker–Lonsdale</th>
+                        <td>3/2·[1 − (1 − F/100)<sup>2/3</sup>] − F/100 = k<sub>BL</sub>·t</td>
+                        <td>Tlag</td>
+                        <td>Küresel matristen difüzyon; kapalı denklem, F sayısal olarak çözülür (Baker &amp;
+                            Lonsdale, 1974). Mikrokapsül ve mikrosferlerde.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Makoid–Banakar</th>
+                        <td>F = k<sub>MB</sub>·t<sup>n</sup>·e<sup>−k·t</sup></td>
+                        <td>Tlag</td>
+                        <td>Ampirik; tepe yapıp düşebilen eğri (Makoid et al., 1993). k ≈ 0 ise Korsmeyer–Peppas'a
+                            indirgenir ve fazladan parametre yalnız AIC'i kötüleştirir; T25–T90 yükselen dalda
+                            sayısal çözülür.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Peppas–Sahlin</th>
+                        <td>F = k₁·t<sup>m</sup> + k₂·t<sup>2m</sup></td>
+                        <td>Tlag</td>
+                        <td>Fick difüzyonu (k₁) ve Case-II relaksasyon (k₂) katkıları (Peppas &amp; Sahlin, 1989).
+                            Üç parametre; m ≈ 0 çıkarsa terimler ayrışmaz, uyarı verilir.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Peppas–Sahlin-2</th>
+                        <td>F = k₁·√t + k₂·t</td>
+                        <td>Tlag</td>
+                        <td>m = 0,5 sabitlenmiş hâli; katsayılarda doğrusal olduğu için kararlıdır. k₂/k₁
+                            oranı relaksasyonun difüzyona göre payını verir.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Logistic</th>
+                        <td>F = 100·e<sup>a+b·ln t</sup> / (1 + e<sup>a+b·ln t</sup>)</td>
+                        <td>Tlag</td>
+                        <td>log t tabanlı sigmoid; gecikmeli ve S-biçimli profiller (Costa &amp; Sousa Lobo, 2001).</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Gompertz</th>
+                        <td>F = 100·e<sup>−a·e<sup>−b·ln t</sup></sup></td>
+                        <td>Tlag</td>
+                        <td>Asimetrik sigmoid; iyi çözünen ilaçların hızlı başlangıçlı profilleri (Costa &amp; Sousa
+                            Lobo, 2001).</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Probit</th>
+                        <td>F = 100·Φ(a + b·ln t)</td>
+                        <td>Tlag</td>
+                        <td>Log-normal dağılım varsayımı; Φ standart normal birikimli dağılım.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Logistic (Fmax)</th>
+                        <td>F = Fmax / (1 + e<sup>−k(t−g)</sup>)</td>
+                        <td>Tlag</td>
+                        <td>t tabanlı sigmoid; g bükülme (yarı-Fmax) zamanı, Fmax denklemin kendi parametresi
+                            (DDSolver "Logistic 3").</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Gompertz (Fmax)</th>
+                        <td>F = Fmax·e<sup>−e<sup>−k(t−g)</sup></sup></td>
+                        <td>Tlag</td>
+                        <td>t tabanlı asimetrik sigmoid (DDSolver "Gompertz 3").</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Katalogda bilinçli olarak yer almayanlar: <strong>Quadratic</strong> (mekanizmasız, azalabilen
+            polinom; DDSolver'da vardır, Costa &amp; Sousa Lobo'da yoktur; deneme setlerinin hepsinde sıralamanın
+            sonunda çıktığı için kaldırıldı) ve doğrusallaştırma tabanlı eski modellerin tekrarları
+            (RRSBW, Langenbucher, modifiye Langenbucher, (Bt)^a; bkz. <a href="/about-kinetic-analysis#turkiye">eşdeğerlik tablosu</a>).
+        </p>
+    </section>
+
+    <section id="varyantlar">
+        <h2>Varyantlar: Tlag, F0, Fmax</h2>
+        <p>
+            Üç eklenti taban denklemi değiştirmeden gerçek veride sık görülen üç sapmayı modeller. Hangi
+            modelin hangisini alabildiği fiziksel anlama göre kısıtlanmıştır; izinsiz kombinasyon arayüzde
+            sunulmaz.
+        </p>
+        <ul>
+            <li><strong>Tlag (gecikme süresi).</strong> t → (t − Tlag); t &lt; Tlag için F = 0. Kaplama
+                çözünmesi, ıslanma ya da kapsül açılması gibi bir bekleme evresini temsil eder ve tüm
+                modellere eklenebilir. Negatif çıkması serbesttir ve çoğu kez "kesişim" anlamına gelir: ilk
+                ölçüm noktasından önce zaten bir miktar salım olmuştur. Türk literatüründe Weibull + Tlag,
+                "modifiye Langenbucher" adıyla anılır (Ertan et al., 2000).</li>
+            <li><strong>F0 (başlangıç patlaması, burst).</strong> F → F0 + taban. Yalnız tavansız modellerde
+                (Zero-order, Higuchi, Korsmeyer–Peppas) anlamlıdır; doyuma giden bir modele F0 eklemek
+                asimptotu %100'ün üstüne çıkarır, o yüzden orada Fmax kullanılır. Zero-order ve Higuchi'de küçük
+                negatif F0 gecikmeyi taklit eden meşru bir fittir. Korsmeyer–Peppas'ta ise F0 sınırsız
+                bırakılırsa çözücü F0 → −∞, k<sub>KP</sub> → +∞, n → 0 üçlüsüyle logaritmik bir eğri bulur:
+                kareler toplamı düşer ama katsayıların hiçbiri anlamlı değildir. Bu yüzden KP'de F0 ≥ 0
+                sınırlıdır.</li>
+            <li><strong>Fmax (eksik salım platosu).</strong> Denklemdeki 100 → Fmax. Yalnız doyuma giden
+                modellerde (First-order, Weibull) seçilir; Logistic (Fmax) ve Gompertz (Fmax) zaten
+                Fmax'ı denkleminde taşır. Fmax &gt; %100 fiziksel değildir ve uyarılır. Veri platoya
+                ulaşmamışsa Fmax ile hız sabiti birbirini telafi eder (küçük k, büyük Fmax ≈ doğru); Fmax
+                gözlenen en yüksek salımın %25 üstüne çıkarsa "plato gözlenmemiş" uyarısı verilir ve bu
+                fitten türeyen T25–T90 ekstrapolasyon sayılmalıdır.</li>
+        </ul>
+    </section>
+
+    <section id="fit">
+        <h2>Uyum süreci: tohum, Levenberg–Marquardt, Nelder–Mead</h2>
+        <p>
+            Geleneksel yol, denklemi cebirsel bir dönüşümle doğru biçimine getirip eğim ve kesişimden
+            katsayıları okumaktır: birinci derece için kalan miktarın logaritması zamana karşı, Higuchi için
+            salım √t'ye karşı, Korsmeyer–Peppas için log F log t'ye karşı çizilir. Yöntem bir hesap tablosuyla
+            uygulanabilir ve öğretimde değerlidir; Türk literatürünün büyük bölümü katsayıları bu yolla
+            raporlamıştır. Ancak dönüşüm <strong>hata yapısını değiştirir</strong>: ölçüm hatası salım yüzdesi
+            ölçeğinde yaklaşık sabitken logaritmik ölçekte küçük değerler büyütülür; en küçük kareler yanlış
+            noktalara ağırlık verir (Costa et al., 2003). Ayrıca doğrusallaştırılmış uzaylardaki R² değerleri
+            modeller arasında karşılaştırılamaz, çünkü her modelin bağımlı değişkeni farklıdır.
+        </p>
+        <p>
+            Araç bu yüzden doğrusallaştırmayı yalnız <strong>başlangıç tahmini</strong> (tohum) için kullanır.
+            Katsayılar daha sonra ham salım yüzdesi üzerinde, gözlenen ve hesaplanan F arasındaki kareler
+            toplamını en küçük yapacak biçimde iteratif olarak aranır. Çözücü <strong>Levenberg–Marquardt</strong>
+            algoritmasıdır (Marquardt, 1963): Gauss–Newton adımıyla gradyan iniş adımı arasında bir sönümleme
+            parametresiyle geçiş yapar, çözüme uzakken güvenli, yakınken hızlı davranır. Başarısız olursa ya
+            da tohumu iyileştiremezse türev gerektirmeyen <strong>Nelder–Mead simplex</strong> (Nelder &amp; Mead,
+            1965) devreye girer; parçalı tanımlı modellerde (Tlag öncesi F = 0) ve Baker–Lonsdale'in sayısal
+            kök çözümünde daha dayanıklıdır. Her iki çözücü de tohumdan kötü bir sonucu asla geri
+            döndürmez. Katsayılarda doğrusal modellerde (Zero-order, Higuchi, Peppas–Sahlin-2) tohum zaten
+            global optimumdur; çözücü onu doğrular.
+        </p>
+        <p>
+            Parametre sınırları fiziksel anlamdan gelir: hız sabitleri ve üsteller negatif olamaz, Fmax ≥ 0,
+            KP'de F0 ≥ 0; Tlag ve Peppas–Sahlin katsayıları serbesttir. Ağırlıklandırma (1, 1/F, 1/F²)
+            motorda vardır ama arayüzde açık değildir; zaman noktaları arasında varyansın belirgin
+            farklılaştığı durumlarda ağırlıklı en küçük karelerin kestirimi iyileştirdiği gösterilmiştir
+            (Costa et al., 2003).
+        </p>
+    </section>
+
+    <section id="olcutler">
+        <h2>Uyum ölçütleri ve sıralama</h2>
+        <p>
+            Tüm ölçütler F(%) uzayında, aynı N gözlem üzerinden hesaplanır; böylece modeller birbiriyle
+            karşılaştırılabilir. Tanımlar DDSolver ile aynıdır (Zhang et al., 2010); sonuçlar DDSolver
+            çıktılarıyla karşılaştırılmıştır (<a href="/about-kinetic-analysis#ddsolver">aşağıda</a>).
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 2. Uyum ölçütleri. N gözlem sayısı, p parametre sayısı, SS artık kareler toplamı, SS<sub>tot</sub> ortalamaya göre toplam kareler.</caption>
+                <thead>
+                    <tr><th scope="col">Ölçüt</th><th scope="col">Tanım</th><th scope="col">Nasıl okunur</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">SS</th><td>Σ(F<sub>gözlenen</sub> − F<sub>hesaplanan</sub>)²</td><td>Küçük iyi; parametre sayısını cezalandırmaz, tek başına sıralama için kullanılmaz.</td></tr>
+                    <tr><th scope="row">R²</th><td>1 − SS / SS<sub>tot</sub></td><td>Kötü fitte negatif olabilir. Aynı p'de modeller arasında karşılaştırılabilir, farklı p'de kayırır.</td></tr>
+                    <tr><th scope="row">R²<sub>adj</sub></th><td>1 − (1 − R²)·(N − 1)/(N − p)</td><td>Parametre sayısını kısmen düzeltir; DF = N − p.</td></tr>
+                    <tr><th scope="row">MSE</th><td>SS / (N − p)</td><td>Artık varyansı; karekökü tipik artık büyüklüğüdür (salım yüzdesi biriminde).</td></tr>
+                    <tr><th scope="row">AIC</th><td>N·ln(SS) + 2p</td><td>Küçük iyi. Sıralama ölçütü. Mutlak değeri anlamsızdır; yalnız aynı veriye fit edilmiş modeller arasında farkı (Δ) anlamlıdır (Akaike, 1974).</td></tr>
+                    <tr><th scope="row">AICc</th><td>AIC + 2p(p+1)/(N − p − 1)</td><td>Az gözlem, çok parametre için düzeltilmiş AIC (Burnham &amp; Anderson, 2002).</td></tr>
+                    <tr><th scope="row">MSC</th><td>ln(SS<sub>tot</sub>/SS) − 2p/N</td><td>Büyük iyi; ölçekten bağımsız "model seçim ölçütü". Kabaca 2–3 üstü iyi fit sayılır (Zhang et al., 2010).</td></tr>
+                    <tr><th scope="row">Akaike ağırlığı</th><td>w<sub>i</sub> = e<sup>−Δ<sub>i</sub>/2</sup> / Σ e<sup>−Δ<sub>j</sub>/2</sup>, Δ<sub>i</sub> = AIC<sub>i</sub> − AIC<sub>min</sub></td><td>Modelin en iyi olma göreli olasılığı. Birbirine yakın ağırlıklar "veri bu modelleri ayırt edemiyor" demektir (Burnham &amp; Anderson, 2002).</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            İki kural sıralamanın dürüst kalmasını sağlar. Birincisi, Korsmeyer–Peppas farklı bir veri kümesine
+            (F ≤ %60) fit edildiği için AIC'si diğerleriyle kıyaslanamaz; "Mekanizma analizi" tablosunda ayrı
+            sunulur ve Akaike ağırlığı almaz. İkincisi, aynı eğriyi iki ad altında sıralamak ağırlıkları
+            çarpıtır (payda şişer, diğer modeller haksız küçülür); bu yüzden Hopfenberg slab (= Zero-order) ve
+            küre (= Hixson–Crowell) geometrilerinde sıralamaya alınmaz.
+        </p>
+    </section>
+
+    <section id="ikincil">
+        <h2>İkincil parametreler ve profil ölçütleri</h2>
+        <p>
+            Seçilen model için <strong>T25, T50, T75, T80, T90</strong> (ilgili yüzdeye ulaşma süreleri) fit
+            edilmiş denklemin tersinden hesaplanır; kapalı ters yoksa (Baker–Lonsdale, Makoid–Banakar) sayısal
+            çözülür. Hedef eğri tarafından ulaşılamıyorsa <em>Non Calc</em> yazılır: Fmax &lt; hedef, ya da
+            Makoid–Banakar tepesinin hedefin altında kalması gibi. Tlag varyantında süreler Tlag kadar kayar;
+            F0 varyantında hedef F0 kadar aşağı çekilir. Son ölçüm zamanının ötesindeki süreler eğrinin
+            uzatılmasıdır ve ölçülmemiş bölge hakkında iddia içerir. Weibull için ayrıca Td (%63,2 salım süresi)
+            raporlanır.
+        </p>
+        <p>
+            Profil özeti hiçbir modele bağlı değildir ve iki formülasyonu tek sayıyla karşılaştırmaya yarar
+            (Costa &amp; Sousa Lobo, 2001): <strong>AUC</strong> eğri altı alan (trapez kuralı, t = 0'dan);
+            <strong>DE</strong> dissolüsyon etkinliği, eğri altı alanın aynı sürede %100 salımı temsil eden
+            dikdörtgene oranı (Khan, 1975); <strong>MDT</strong> ortalama dissolüsyon süresi, aralık orta
+            noktalarının salınan miktarla ağırlıklı ortalaması. İki profilin <em>benzerliği</em> için doğru araç
+            bunlar da değil, model-bağımsız f<sub>1</sub>/f<sub>2</sub> faktörleridir (Moore &amp; Flanner, 1996);
+            sitedeki <a href="/f1f2">F1/F2 aracı</a> bunun içindir.
+        </p>
+    </section>
+
+    <section id="bayraklar">
+        <h2>Uyarı bayrakları sözlüğü</h2>
+        <p>Sonuç panelinde bir modelin yanında görünen uyarılar, düşük kareler toplamına rağmen o fitin
+            güvenilmez olduğunu söyler. Anlamları ve yapılacaklar:</p>
+        <ul>
+            <li><strong>Fmax &gt; %100.</strong> Plato fiziksel sınırı aşıyor; parametreler birbirini telafi ediyor
+                olabilir (ör. Weibull b &lt; 1 ile Fmax = 125). Fmax'sız hâli ya da başka bir model tercih edin.</li>
+            <li><strong>Plato gözlenmemiş.</strong> Fmax, gözlenen en yüksek salımın çok üstünde; veri doyuma
+                ulaşmamış. Fmax ve T25–T90 ekstrapolasyondur; daha uzun süre ölçüm gerekir.</li>
+            <li><strong>F0 aralık dışı.</strong> F0 &lt; −20 ya da &gt; 100: model bu veride dejenere olmuş,
+                katsayılar yorumlanamaz.</li>
+            <li><strong>n ≈ 0 (Korsmeyer–Peppas) / m ≈ 0 (Peppas–Sahlin).</strong> Güç yasası dejenere: eğri
+                neredeyse sabit ya da logaritmik; mekanizma yorumu geçersiz.</li>
+            <li><strong>k ≈ 0 (Makoid–Banakar).</strong> Sönüm terimi etkisiz; model Korsmeyer–Peppas'a indirgendi,
+                fazladan parametre yalnız AIC'i kötüleştirir.</li>
+            <li><strong>Serbestlik derecesi ≤ 1.</strong> Parametre sayısı nokta sayısına çok yakın; katsayılar
+                veriyi "ezberler". Daha az varyant seçin ya da daha çok nokta girin.</li>
+            <li><strong>Tüm noktalarla fit edildi (KP).</strong> F ≤ %60 filtresi kapatılmış; n yorumu güvenilmez
+                olabilir.</li>
+            <li><strong>Geometri notları.</strong> Hopfenberg slab = Zero-order, küre = Hixson–Crowell; yarım küre ve
+                üçgen Karasulu ve ark. (2000) önerisi, Costa &amp; Sousa Lobo'nun klasik setinde yok.</li>
+            <li><strong>Yakınsama başarısız.</strong> Hiçbir çözücü geçerli aday üretemedi; sonuç tohumdur. Veri
+                kapsamını ve model uygunluğunu gözden geçirin.</li>
+        </ul>
+    </section>
+
+    <section id="model-secimi">
+        <h2>Model seçimi ve yorum</h2>
+        <p>
+            Her veri kümesi için en iyi tek bir model ya da tek bir ölçüt yoktur (Dash et al., 2010). Sağlam bir
+            seçim birbirini tamamlayan göstergelere birlikte bakar: AIC ve Akaike ağırlığı, R²<sub>adj</sub>,
+            artıkların zaman ekseninde rastgele dağılması, katsayıların fiziksel makullüğü ve eğrinin görsel
+            uyumu (Yuksel et al., 2000; Ojsteršek et al., 2024). AIC'nin rolü şudur: ham kareler toplamı her zaman
+            daha çok parametreli modeli kayırır; AIC bu kayırmayı düzeltir ve "daha karmaşık model gerçekten
+            daha iyi mi, yoksa yalnız daha esnek mi?" sorusuna yanıt verir.
+        </p>
+        <p>
+            <strong>En iyi uyan model mekanizmanın kanıtı değildir.</strong> Ampirik modeller (Weibull,
+            Makoid–Banakar, Peppas–Sahlin) neredeyse her eğriye uyar; düşük AIC "veriyi iyi tarif eder" der,
+            "salım böyle olur" demez. Mekanizma iddiası için Korsmeyer–Peppas n'i, Peppas–Sahlin k₂/k₁ oranı ve
+            Weibull şekil parametresi gibi tanı göstergeleri formülasyon bilgisiyle birlikte okunmalıdır
+            (Papadopoulou et al., 2006; Siepmann &amp; Siepmann, 2008). Hangi modelin öne çıkacağı formülasyona
+            bağlıdır: aynı yöntemle incelenen farklı sistemlerde bir çalışmada sigmoid modeller Higuchi'yi
+            geride bırakmış, bir başkasında Higuchi en uygun çıkmıştır (Yuksel et al., 2000; Baishya, 2017).
+            Bir ürün ailesine sabit bir model dayatmak yerine seçim her profilde yeniden yapılmalıdır.
+        </p>
+        <p>
+            Toparlarsak: doğrusallaştırma bir modeli anlamak için iyi bir başlangıçtır, katsayı raporlamak için
+            değil. Katsayılar ham veriye non-lineer uyumla kestirilmeli, modeller AIC ile karşılaştırılmalı,
+            uyarı bayrakları ciddiye alınmalı ve sonuç artıklar ve formülasyon bilgisiyle birlikte
+            yorumlanmalıdır.
+        </p>
+    </section>
+
+    <section id="ornek">
+        <h2>İşlenmiş örnek: 12 noktalı bir profil</h2>
+        <p>
+            Aşağıdaki veri, DDSolver eklentisiyle birlikte dağıtılan örnek profillerden biridir (Zhang et al.,
+            2010); 20 saatlik bir uzatılmış salım profili, 12 ölçüm noktası. Aynı veriyi
+            <a href="/kinetik">Kinetik Analiz</a> aracına yapıştırıp varsayılan seçeneklerle (varyantsız,
+            ağırlıksız, Korsmeyer–Peppas için F ≤ %60 filtresi açık) "Hesapla" dediğinizde aşağıdaki
+            sonuçları alırsınız. Bu bölümde amaç sayıları okumayı göstermektir, yeni bir sonuç kanıtlamak değil.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 3. Örnek profil (t saat, F kümülatif salım %).</caption>
+                <thead><tr><th scope="row">t (h)</th><td>1</td><td>2</td><td>3</td><td>4</td><td>6</td><td>8</td><td>10</td><td>12</td><td>14</td><td>16</td><td>18</td><td>20</td></tr></thead>
+                <tbody><tr><th scope="row">F (%)</th><td>8</td><td>24</td><td>38</td><td>48</td><td>58</td><td>66</td><td>73</td><td>78</td><td>84</td><td>88</td><td>92</td><td>95</td></tr></tbody>
+            </table>
+        </div>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 4. Tam profile fit edilen modellerin sıralaması (AIC artan). w Akaike ağırlığı; T50/T80 saat. Sıralamanın alt yarısı (Hixson–Crowell, Higuchi, Peppas–Sahlin-2, Logistic (Fmax), Baker–Lonsdale, Zero-order) w &lt; 0,001 ile atlanmıştır.</caption>
+                <thead>
+                    <tr><th scope="col">Model</th><th scope="col">Katsayılar</th><th scope="col">R²<sub>adj</sub></th><th scope="col">AIC</th><th scope="col">w</th><th scope="col">T50</th><th scope="col">T80</th><th scope="col">Not</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Probit</th><td>a = −1,33 · b = 2,03</td><td>0,991</td><td>55,2</td><td>0,46</td><td>4,5</td><td>11,8</td><td>Son üç noktada artıklar +1,4 / +3,2 / +4,6: kuyruğu düşük kestiriyor.</td></tr>
+                    <tr><th scope="row">First-order</th><td>k₁ = 0,139 h⁻¹</td><td>0,989</td><td>56,3</td><td>0,27</td><td>5,0</td><td>11,6</td><td>Tek parametre. 1. saatte −5,0, 3–4. saatte +3,9 / +5,4: başlangıçta hafif sigmoid sapma.</td></tr>
+                    <tr><th scope="row">Weibull</th><td>a = 6,61 · β = 0,958 · Td = 7,18 h</td><td>0,989</td><td>57,2</td><td>0,17</td><td>4,9</td><td>11,8</td><td>Bayrak: β ≈ 1, birinci derece benzeri. First-order ile aynı eğri, bir parametre fazla.</td></tr>
+                    <tr><th scope="row">Logistic</th><td>a = −2,20 · b = 3,35</td><td>0,988</td><td>58,8</td><td>0,08</td><td>4,5</td><td>11,7</td><td>Probit ile aynı artık deseni.</td></tr>
+                    <tr><th scope="row">Makoid–Banakar</th><td>k<sub>MB</sub> = 15,6 · n = 0,834 · k = 0,036</td><td>0,985</td><td>62,3</td><td>0,01</td><td>5,0</td><td>11,8</td><td>Bayrak: tepe t* = 23,4 h, F* = %93,7; sonrasında eğri düşer, salım verisinde fiziksel değil.</td></tr>
+                    <tr><th scope="row">Peppas–Sahlin</th><td>k₁ = 16,6 · k₂ = −0,74 · m = 0,786</td><td>0,983</td><td>63,6</td><td>0,01</td><td>5,1</td><td>11,9</td><td>k₂ &lt; 0: gevşeme terimi negatif, mekanizma yorumu yapılamaz.</td></tr>
+                    <tr><th scope="row">Gompertz</th><td>a = 3,14 · b = 2,44</td><td>0,978</td><td>65,7</td><td>0,002</td><td>4,2</td><td>12,2</td><td>Kuyrukta +5,7 / +7,3 artık.</td></tr>
+                    <tr><th scope="row">Gompertz (Fmax)</th><td>k = 0,249 · g = 3,08 · Fmax = 91,8</td><td>0,969</td><td>70,9</td><td>&lt; 0,001</td><td>5,1</td><td>11,1</td><td>Fmax gözlenen %95'in altında: plato kestirimi veriyle çelişiyor.</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <strong>Ağırlıklar ne diyor?</strong> İlk üç model ağırlığın %90'ını paylaşıyor; hiçbiri tek başına
+            baskın değil. Bu, "veri bu üç eğriyi ayırt edemiyor" demektir: Probit ve Logistic hafif sigmoid bir
+            başlangıcı yakalıyor, First-order ve Weibull (β ≈ 1) üstel yaklaşımı. Ayırt edilemeyen adaylar
+            arasında en az parametreli olan raporlama modeli olarak makul seçimdir: <strong>First-order,
+            k₁ = 0,139 h⁻¹</strong>. Sigmoid başlangıcın formülasyon açısından anlamı varsa (kaplama, ıslanma
+            gecikmesi) Probit ya da Weibull tercih edilir ve bu gerekçe yazılır. DDSolver aynı veride
+            First-order için k₁ = 0,1385 h⁻¹ ve AIC 56,28 verir; bu araç 0,139 ve 56,26 bulur. İki sonuç
+            pratikte aynıdır; küçük fark çözücülerin durma kriterinden gelir (<a href="/about-kinetic-analysis#ddsolver">aşağıda</a>).
+        </p>
+        <p>
+            <strong>Artıklar ne diyor?</strong> R²<sub>adj</sub> değerleri 0,99 civarında birbirine yakın olsa da
+            artık dizileri farklı hikâyeler anlatıyor. First-order'ın artıkları 1. saatte eksi, 3–4. saatte artı,
+            8–12. saatte eksi, sonda artı: klasik "S" deseni, gerçek eğri modelden biraz daha sigmoid. Probit tam
+            tersine ortayı iyi, kuyruğu kötü tutuyor (18–20. saatte +3,2 ve +4,6). Hiçbir model artıkları rastgele
+            bırakmıyor; bu, tek bir "doğru model" beklentisinin bu veri için gerçekçi olmadığını gösterir.
+            Sonuç panelindeki artık grafiğine her zaman bakılmalıdır.
+        </p>
+        <p>
+            <strong>Korsmeyer–Peppas ve F ≤ %60 kuralı.</strong> Filtre açıkken KP yalnız ilk beş noktaya (F ≤ 58)
+            fit edilir ve <strong>n = 0,83</strong> verir: anormal (anomalous) taşınım. Filtre kapatılıp on iki
+            noktanın tümü kullanılırsa n = 0,52'ye düşer ve yorum "Fick tipi difüzyona yakın" olur. Aradaki fark
+            mekanizma yorumunu tersine çevirecek büyüklüktedir; kuralın gerekçesi budur (Ritger &amp; Peppas,
+            1987; Costa &amp; Sousa Lobo, 2001). KP bu yüzden Tablo 4'e girmez, "Mekanizma analizi" tablosunda
+            ayrı sunulur (k<sub>KP</sub> = 13,8, n = 0,834, R²<sub>adj</sub> = 0,935).
+        </p>
+        <p>
+            <strong>İkincil parametreler.</strong> İlk dört model için T50 4,5–5,0 h ve T80 11,6–11,8 h aralığında
+            çıkıyor; bu değerler modelden neredeyse bağımsız ve güvenle raporlanabilir. T90 ise 16,6 (First-order)
+            ile 20,5 h (Logistic) arasında değişiyor: eğrinin kuyruğunun biçimine bağlı, dolayısıyla model adıyla
+            birlikte verilmeli. Model-bağımsız profil özeti: AUC 1315 %·h, DE %65,8, MDT 6,16 h.
+        </p>
+        <p>
+            <strong>Sağlama.</strong> Zero-order R²<sub>adj</sub> = 0,65 ve AIC 98 ile listenin sonunda; artıkları
+            +25'ten −22'ye kadar sistematik. Bu, sıralamanın belirgin biçimde yanlış modelleri gerçekten dışladığını
+            gösterir. Higuchi'nin (R²<sub>adj</sub> = 0,963) ortalarda kalması da beklenir: kare kök yasası F &gt; %60
+            bölgesinde geçerliliğini yitirir, oysa burada on iki noktanın yedisi bu bölgededir.
+        </p>
+    </section>
+
+    <section id="hatalar">
+        <h2>Sık yapılan hatalar ve karar akışı</h2>
+        <p>Aşağıdakiler yayınlarda ve tez çalışmalarında en sık karşılaşılan sorunlardır; çoğu araçta bir bayrakla
+            ya da tasarım kararıyla önlenir, ama son karar kullanıcıya kalır.</p>
+        <ul>
+            <li><strong>Doğrusallaştırılmış R² ile model seçmek.</strong> ln F, √t ya da log–log uzayında hesaplanan
+                R²'ler birbirleriyle karşılaştırılamaz; her dönüşüm artıkları farklı ağırlıklandırır. Karşılaştırma
+                F(%) uzayında, non-lineer uyumdan sonra yapılmalıdır (Zhang et al., 2010).</li>
+            <li><strong>Parametre sayısı farklı modelleri R² ile karşılaştırmak.</strong> Üç parametreli Weibull iki
+                parametreli First-order'dan asla daha düşük R² vermez. Karşılaştırma ölçütü AIC (ya da AICc, MSC)
+                olmalıdır; R²<sub>adj</sub> yalnız kısmi düzeltmedir.</li>
+            <li><strong>Korsmeyer–Peppas'ı tüm noktalara fit edip n'i yorumlamak.</strong> Güç yasası F ≤ %60 için
+                türetilmiştir; yukarıdaki örnekte n 0,83'ten 0,52'ye kayıyor. Filtre kapalıysa araç uyarır.</li>
+            <li><strong>(0, 0) noktasını veri gibi eklemek.</strong> Başlangıç noktası ölçülmüş değildir; eklenmesi N'i
+                şişirir, AIC'i ve serbestlik derecesini yanıltır. Modellerin çoğu zaten F(0) = 0'dan geçer; geçmeyenler
+                (F0 varyantı) tam da bu noktayı kestirmek için vardır.</li>
+            <li><strong>Plato noktalarını sınırsız dahil etmek.</strong> Salım %100'e ulaştıktan sonra alınan noktalar
+                kinetik bilgi taşımaz ama artık toplamını ve hız sabitini etkiler. Higuchi ve KP için geçerlilik
+                sınırı %60'tır; diğer modellerde platoya ulaşan ilk noktadan sonrası genellikle atılır ve bu karar
+                raporlanır.</li>
+            <li><strong>Ortalama profile fit edip değişkenliği yok saymak.</strong> Altı birimin ortalaması tek eğri
+                verir; birimler arası farklılık kaybolur. Ya her birim ayrı fit edilip parametrelerin ortalaması ve
+                standart sapması verilir, ya da ortalama profil kullanılırken noktaların standart sapması birlikte
+                raporlanır (Costa &amp; Sousa Lobo, 2001).</li>
+            <li><strong>Az noktaya çok parametre.</strong> Beş noktalı profile üç parametreli model artı Tlag ve Fmax
+                sığdırmak serbestlik derecesini 0–1'e düşürür; katsayılar veriyi ezberler. Araç "DF ≤ 1" bayrağı
+                verir. Kural olarak N − p ≥ 3 aranmalıdır.</li>
+            <li><strong>Varyantları gerekçesiz açmak.</strong> Tlag, F0 ve Fmax birer fiziksel iddiadır: gecikmeli
+                ıslanma, hızlı başlangıç salımı, eksik salım. AIC'i düşürdüğü için değil, formülasyonda karşılığı
+                olduğu için seçilmelidir.</li>
+            <li><strong>Zaman birimini karıştırmak.</strong> k₁ = 0,139 h⁻¹ ile 0,0023 min⁻¹ aynı hızdır. Katsayılar
+                her zaman birimle raporlanmalı; iki çalışma karşılaştırılırken birim eşitlenmelidir.</li>
+            <li><strong>Ekstrapolasyonu ölçüm gibi sunmak.</strong> Son ölçüm 12. saatteyse T90 = 19 h eğrinin
+                uzatılmasıdır. Araç bunu işaretler; raporda da işaretlenmelidir.</li>
+            <li><strong>En iyi modeli mekanizmanın kanıtı saymak.</strong> Düşük AIC eğriyi iyi tarif eder; salımın
+                neden böyle olduğunu söylemez (<a href="/about-kinetic-analysis#model-secimi">yukarıda</a>).</li>
+        </ul>
+        <p><strong>Önerilen karar akışı</strong></p>
+        <ol>
+            <li>Veriyi denetleyin: zaman sırası, tekrarlanan noktalar, birim, plato sonrası noktalar, %100 üstü değerler.</li>
+            <li>Tüm modelleri varyantsız çalıştırın. Bayraklı modelleri (Fmax &gt; 100, F0 aralık dışı, dejenere
+                üstel, yakınsamadı) sıralamada ne kadar yukarıda olsalar da yorumlamayın.</li>
+            <li>Akaike ağırlığına bakın. Tek model w ≥ 0,5 ise o modeldir. Değilse ağırlığı paylaşan modelleri
+                "eşdeğer" diye not edin ve içlerinden en az parametreli olanı raporlama modeli yapın.</li>
+            <li>Artık grafiğini inceleyin. Sistematik desen varsa (S biçimi, tek yönlü kuyruk) ve formülasyonda
+                karşılığı varsa ilgili varyantı deneyin; AIC'in düştüğünü ve desenin dağıldığını doğrulayın.</li>
+            <li>Mekanizma sorusu için Korsmeyer–Peppas n'ini (F ≤ %60) ve gerekiyorsa Peppas–Sahlin k₂/k₁ oranını
+                okuyun; geometri eşiklerini seçin (slab, silindir, küre).</li>
+            <li>T50/T80/T90'ı model adıyla ve birimle raporlayın; ekstrapole değerleri işaretleyin. Model-bağımsız
+                özet için AUC, DE, MDT ekleyin.</li>
+            <li>İki formülasyonun benzerliği soruluyorsa kinetik parametreleri karşılaştırmak yerine f<sub>2</sub>
+                kullanın (<a href="/about-kinetic-analysis#f2">aşağıda</a>).</li>
+        </ol>
+    </section>
+
+    <section id="f2">
+        <h2>f₂ ile kinetik modelleme: nerede ayrışır</h2>
+        <p>
+            İki profilin <em>benzer</em> olup olmadığı sorusuyla bir profilin <em>nasıl</em> salındığı sorusu farklı
+            araçlar ister. Benzerlik için düzenleyici standart, Moore ve Flanner'ın (1996) model-bağımsız fark
+            faktörü f<sub>1</sub> ve benzerlik faktörü f<sub>2</sub>'sidir:
+        </p>
+        <p class="rehber-formul">
+            f<sub>1</sub> = Σ|R<sub>t</sub> − T<sub>t</sub>| / Σ R<sub>t</sub> × 100 &nbsp;&nbsp;&nbsp;
+            f<sub>2</sub> = 50 · log<sub>10</sub>{ [1 + (1/n) Σ (R<sub>t</sub> − T<sub>t</sub>)²]<sup>−1/2</sup> × 100 }
+        </p>
+        <p>
+            R ve T referans ve test profilinin aynı n zaman noktasındaki ortalama salımlarıdır. FDA kılavuzuna göre
+            f<sub>2</sub> 50–100 arası (ortalama fark ≤ %10) benzerlik demektir; en az üç nokta, %85 salımın
+            üstünde en fazla bir nokta ve erken noktalarda %20, sonrakilerde %10'u aşmayan değişim katsayısı
+            aranır (FDA, 1997). Shah ve arkadaşları (1998) f<sub>2</sub>'nin istatistiksel özelliklerini inceleyip
+            değişkenlik yüksekken bootstrap güven aralığını önermiştir; Polli ve arkadaşları (1997) ile Anderson ve
+            arkadaşları (1998) model-bağımsız, model-bağımlı ve ANOVA tabanlı yaklaşımları karşılaştırmıştır.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 5. İki yaklaşımın karşılaştırması.</caption>
+                <thead><tr><th scope="col"></th><th scope="col">f<sub>1</sub>/f<sub>2</sub></th><th scope="col">Kinetik modelleme</th></tr></thead>
+                <tbody>
+                    <tr><th scope="row">Soru</th><td>İki profil eşdeğer mi?</td><td>Profil hangi eğriyle, hangi hızla ilerliyor; mekanizma ne?</td></tr>
+                    <tr><th scope="row">Girdi</th><td>Aynı zaman noktalarında iki ortalama profil</td><td>Tek profil (birim ya da ortalama)</td></tr>
+                    <tr><th scope="row">Çıktı</th><td>Tek sayı ve eşik (f<sub>2</sub> ≥ 50)</td><td>Katsayılar, AIC sıralaması, T50/T80, mekanizma göstergeleri</td></tr>
+                    <tr><th scope="row">Zayıf yanı</th><td>Örnekleme noktalarına duyarlı; %85 sonrası farklara kör; eğri biçimini görmez</td><td>Model belirsizliği; ekstrapolasyon; parametre farkının anlamlılığı için istatistik yok</td></tr>
+                    <tr><th scope="row">Nerede kullanılır</th><td>Biyoeşdeğerlik muafiyeti, formülasyon ve üretim yeri değişikliği, seri karşılaştırması</td><td>Formülasyon geliştirme, salım mekanizması, IVIVC'ye girdi, spesifikasyon tasarımı</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            İki yaklaşım birbirini dışlamaz, ama yerleri karıştırılmamalıdır. "İki formülasyonun k₁ değerleri farklı,
+            demek ki profiller farklı" çıkarımı geçersizdir: yukarıdaki örnekte aynı profil için üç model üç farklı
+            hız sabiti verir. Tersine, f<sub>2</sub> ≥ 50 olan iki profil farklı mekanizmayla salınabilir; f<sub>2</sub>
+            biçim körüdür. Yuksel ve arkadaşları (2000) üç yaklaşımı aynı veride karşılaştırdıklarında, model-bağımlı
+            yöntemin formülasyonlar arası farkı göstermede daha duyarlı, f<sub>2</sub>'nin ise karar için daha
+            kararlı olduğunu bulmuşlardır. Pratik kural: <strong>eşdeğerlik kararı f<sub>2</sub> ile, karakterizasyon
+            kinetik modelle</strong>; ikisini birlikte raporlamak en bilgilendirici yoldur. Sitedeki
+            <a href="/f1f2">F1/F2 aracı</a> f<sub>1</sub>, f<sub>2</sub> ve model-bağımsız özetleri aynı veriden hesaplar.
+        </p>
+    </section>
+
+    <section id="turkiye">
+        <h2>Türkiye'deki gelenek ve ad karşılıkları</h2>
+        <p>
+            Türkiye'de dissolüsyon verisinin kinetik değerlendirmesi üç merkezde şekillenmiş ve üçü de aynı
+            model setini kullanmıştır: sıfır derece, birinci derece, Hixson–Crowell, RRSBW, Higuchi (Q√t),
+            Hopfenberg, Langenbucher, modifiye Langenbucher ve (Bt)^a. Bu set, sitenin 1995'ten kalan masaüstü
+            motorunun da listesiydi.
+        </p>
+        <p>
+            <strong>Ankara ekolü.</strong> İzgü ve Ağabeyoğlu'nun 1974'te merhem bazlarından difüzyon hızının
+            matematiksel incelemesiyle başlayan çizgi, Ağabeyoğlu'nun 1978 doçentlik tezinde kinetiğe doğrudan
+            bir katkıya dönüştü: sürekli akış hücresiyle elde edilen sülfametizol verisi Langenbucher
+            doğrusallaştırmasına uymayınca zamanın üssü serbest bırakıldı ve <strong>(Bt)^a kinetiği</strong>
+            türetildi (Ağabeyoğlu, 1978). Bu, güç yasasının Korsmeyer ve arkadaşlarından (1983) önce ve
+            bağımsız bir uygulamasıdır; k<sub>KP</sub> = B<sup>a</sup>, n = a dönüşümüyle Korsmeyer–Peppas ile
+            aynı eğridir. Ağabeyoğlu'nun Modern Farmasötik Teknoloji'deki "Biyofarmasötik" bölümü (2007)
+            Noyes–Whitney'den Wagner kuramına, Kitazawa ve Higuchi denklemlerinden f<sub>2</sub> hesabına kadar
+            konunun en kapsamlı Türkçe anlatımıdır. Yüksel, Kanık ve Baykara (2000) ise ANOVA tabanlı,
+            model-bağımlı ve model-bağımsız profil karşılaştırma yöntemlerini sistematik olarak sınamış, f<sub>2</sub>'nin
+            ayırt ediciliğinin sınırlarını göstermiştir. Piyasa preparatları üzerine yapılan çalışmalar (Kaynar
+            Özdemir et al., 1989; Baloğlu &amp; Hızarcıoğlu, 2001) aynı model setini kullanır; en iyi uyum çoğu
+            kez modifiye Hixson–Crowell ve RRSBW'de bulunmuştur.
+        </p>
+        <p>
+            <strong>Ege ekolü.</strong> Ertan, Karasulu ve Güneri'nin nitrofurantoin ve teofilin çalışmaları,
+            model setinin in vitro–in vivo korelasyonda sistematik kullanımını kurdu: modifiye Langenbucher ile
+            "ters kinetik" yöntemi (Ertan et al., 2000), dokuz modelin determinasyon katsayısıyla
+            karşılaştırılması ve ultra uzatılmış salımlı teofilinde korelasyon doğruluğunun iyileştirilmesi
+            (Karasulu et al., 2003), hızlandırılmış dissolüsyon deneyleri (Ertan et al., 2011). Karasulu, Ertan
+            ve Köse (2000) Katzhendler ve arkadaşlarının (1997) denklemini farklı geometrili HPMC tabletlerine
+            uyarlayarak Hopfenberg üsteli için yarım küre 1,5 ve üçgen 4 değerlerini önerdi; bu değerler
+            araçtaki geometri listesinde yer alır. Özyazıcı, Gökçe ve Ertan (2006) lipit matrislerde güç yasası
+            ile Fick/relaksasyon ayrımını uyguladı.
+        </p>
+        <p>
+            <strong>İstanbul ekolü.</strong> Araman, Özsoy, Cevher ve Güngör'ün formülasyon çalışmaları salım
+            verisini "kinetik olarak değerlendirir" (Güngör et al., 2003; Orlu et al., 2006); metodoloji
+            kaynağından çok uygulama örneğidir. <strong>Hacettepe</strong>'de RRSBW kinetiği faktöriyel
+            tasarımla birlikte kullanılmış, Hıncal ve Kaş'ın Farmakokinetik kitabı (1986) kuramsal zemini
+            sağlamıştır.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 6. Türk literatüründeki adlar ve araçtaki karşılıkları. Aynı eğri iki ad altında sıralanmaz; karşılık, parametre dönüşümüyle okunur.</caption>
+                <thead>
+                    <tr><th scope="col">Türk literatüründe</th><th scope="col">Denklem</th><th scope="col">Araçta</th><th scope="col">Parametre karşılığı</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">(Bt)^a</th><td>F = (B·t)<sup>a</sup></td><td>Korsmeyer–Peppas</td><td>k<sub>KP</sub> = B<sup>a</sup>, n = a</td></tr>
+                    <tr><th scope="row">RRSBW / Langenbucher</th><td>F = 1 − e<sup>−((t−Ti)/τ)<sup>β</sup></sup></td><td>Weibull (+ Tlag)</td><td>β = b (şekil), τ = Td = a<sup>1/b</sup> (ölçek), Ti = Tlag (konum)</td></tr>
+                    <tr><th scope="row">Modifiye Langenbucher</th><td>gecikmeli RRSBW</td><td>Weibull + Tlag</td><td>aynı</td></tr>
+                    <tr><th scope="row">Q√t (kesişimli Higuchi)</th><td>F = F0 + k<sub>H</sub>·√t</td><td>Higuchi + F0</td><td>aynı</td></tr>
+                    <tr><th scope="row">Modifiye Hixson–Crowell</th><td>kesişimli / gecikmeli küp kök</td><td>Hixson–Crowell + Tlag</td><td>doğrulanmalı: kaynak metinlerde "modifiye"nin tanımı açık yazılmamıştır</td></tr>
+                    <tr><th scope="row">Hopfenberg (n = 1,5; 4)</th><td>F = 100·(1 − (1 − k·t)<sup>n</sup>)</td><td>Hopfenberg, yarım küre / üçgen</td><td>Karasulu et al. (2000)</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Türk literatüründe model seçimi neredeyse yalnız determinasyon katsayısıyla yapılmıştır. Bu
+            rehberin AIC'i öne alması o çalışmaların değerini azaltmaz; aynı veri üzerinde r² ve AIC çoğu kez
+            aynı modeli seçer. Fark, parametre sayıları eşit olmayan modeller (ör. Weibull'a karşı birinci
+            derece) karşılaştırıldığında ortaya çıkar; orada r² her zaman çok parametreli olanı kayırır.
+        </p>
+    </section>
+
+    <section id="ddsolver">
+        <h2>DDSolver ile karşılaştırma</h2>
+        <p>
+            DDSolver (Zhang et al., 2010) alanın en yaygın ve en çok atıf alan yazılımıdır; aynı modelleri
+            non-lineer uyum ve AIC/MSC ile uygular. Bu araç DDSolver'ın yerine geçme iddiasında değildir; amaç,
+            tanımların ve çözücünün doğru çalıştığını bağımsız bir referansla denetlemekti. Bunun için DDSolver
+            ile üretilmiş 32 sonuç sayfası (37 formülasyon; Zero-order, First-order, Higuchi, Korsmeyer–Peppas
+            ve F0/Tlag/Fmax varyantları) kalıcı test verisi olarak depoya alındı ve her sürümde yeniden
+            karşılaştırılır. Gözlemler:
+        </p>
+        <ul>
+            <li><strong>Tanımlar aynı.</strong> DDSolver'ın bulduğu parametreler bu aracın denklemlerine konduğunda
+                SS, R, R², R²<sub>adj</sub>, MSE, AIC ve MSC 37 setin hepsinde aynı çıkar; yani denklemler, nokta
+                kuralları ve uyum ölçütleri ortaktır.</li>
+            <li><strong>Çözücü farkı.</strong> DDSolver Nelder–Mead kullanır; bu araç doğrusal tohumlamanın ardından
+                Levenberg–Marquardt ile, gerekirse Nelder–Mead ile rafine eder. Katsayılarda doğrusal 9 sette sonuçlar aynıdır; kalan 28 sette
+                kareler toplamları küçük farklarla ayrılır ve bu farklar çözücülerin durma kriterlerinden gelir.
+                İşlenmiş örnekteki k₁ = 0,1385 ve 0,139 h⁻¹ farkı tipiktir.</li>
+            <li><strong>Korsmeyer–Peppas.</strong> DDSolver KP'yi tüm noktalara fit eder; bu araç varsayılan olarak
+                F ≤ %60 kuralını uygular. Karşılaştırma "tüm noktalar" seçeneğiyle yapılır.</li>
+            <li><strong>MSC ayrıntısı.</strong> DDSolver, MSC hesabında F = 0 olan noktaları toplam kareler
+                toplamından düşürür, R² hesabında düşürmez; bu araç iki ölçütte de tüm noktaları kullanır. Fark
+                yalnız t = 0, F = 0 satırı girilmiş veride görülür.</li>
+        </ul>
+        <p>
+            Pratik sonuç: iki yazılım aynı tanımları kullanır; DDSolver ile bu araç arasında küçük bir katsayı
+            farkı görürseniz kaynağı çözücü farkıdır. Yayınlarda kullandığınız yazılıma atıf yapın; DDSolver ile
+            çalışıyorsanız bu araç sonuçları hızlıca çapraz kontrol etmek için kullanılabilir.
+        </p>
+    </section>
+
+    <section id="uygulama" class="rehber-uygulama">
+        <h2><i class="ti ti-tool" aria-hidden="true"></i> Bu sitedeki uygulama</h2>
+        <p>Yukarıdaki ilkelerin <a href="/kinetik">Kinetik Analiz</a> aracındaki karşılığı:</p>
+        <ul>
+            <li><strong>Non-lineer uyum, F(%) uzayında.</strong> Doğrusallaştırılmış tohum → Levenberg–Marquardt →
+                gerekirse Nelder–Mead; tohumdan kötü sonuç döndürülmez.</li>
+            <li><strong>Tüm ölçütler aynı uzayda</strong> (SS, R², R²<sub>adj</sub>, MSE, AIC, AICc, MSC); sıralama AIC,
+                ikincil ölçüt MSC; Akaike ağırlıkları raporlanır.</li>
+            <li><strong>Korsmeyer–Peppas yalnız F ≤ %60 bölgesine</strong> fit edilir ve ayrı tabloda sunulur.</li>
+            <li><strong>Model seçimi.</strong> Varsayılan 16 modelin hepsidir; kullanıcı karşılaştıracağı modelleri
+                seçebilir ("Klasik beşli" kısayolu dahil). Seçilmeyen model hiç fit edilmez, Akaike ağırlıkları yalnız
+                seçilenler arasında dağılır; böylece az sayıda aday arasındaki karşılaştırma seyreltilmez.</li>
+            <li><strong>Hopfenberg'de n geometri sabitidir</strong> (slab 1, yarım küre 1,5, silindir 2, küre 3,
+                üçgen 4); slab ve küre sıralamaya girmez.</li>
+            <li><strong>Korsmeyer–Peppas'ta F0 ≥ 0</strong>; Makoid–Banakar T25–T90 sayısal; Peppas–Sahlin m ≈ 0 ve
+                plato gözlenmemiş Fmax uyarıları.</li>
+            <li><strong>Denetim.</strong> 704 birim testi; 37 DDSolver formülasyonuyla tanım ve çözücü
+                karşılaştırması; sentetik veriden parametre geri kazanımı; ölçek ve sıra değişmezliği.</li>
+        </ul>
+    </section>
+
+    <section id="kaynaklar" class="rehber-kaynaklar">
+        <h2>Kaynaklar</h2>
+        <ol>
+            <li>Ağabeyoğlu, İ. (1978). <em>Sürekli etkili sülfametizol preparatının biyofarmasötik açıdan tasarımı ve gerçekleştirilmesi</em>. Doçentlik tezi, Farmasötik Teknoloji Kürsüsü, Ankara Üniversitesi Eczacılık Fakültesi.</li>
+            <li>Ağabeyoğlu, İ. T. (1985). Studies on sustained release I: The biopharmaceutical design and production of an inert matrix type sulfamethizole tablet, employing polymethylmethacrylate. <em>Drug Development and Industrial Pharmacy, 11</em>, 2021-2041. <a href="https://doi.org/10.3109/03639048509087766" target="_blank" rel="noopener">doi:10.3109/03639048509087766</a></li>
+            <li>Ağabeyoğlu, İ. (2007). Biyofarmasötik. İçinde F. Acartürk ve ark. (Ed.), <em>Modern Farmasötik Teknoloji</em> (Bölüm 22). Ankara: Türk Eczacıları Birliği Eczacılık Akademisi. <a href="https://e-kutuphane.teb.org.tr/pdf/tebakademi/modern_farmasotk/24.pdf" target="_blank" rel="noopener">e-kutuphane.teb.org.tr</a></li>
+            <li>Anderson, N. H., Bauer, M., Boussac, N., Khan-Malek, R., Munden, P., &amp; Sardaro, M. (1998). An evaluation of fit factors and dissolution efficiency for the comparison of in vitro dissolution profiles. <em>Journal of Pharmaceutical and Biomedical Analysis, 17</em>(4-5), 811-822. <a href="https://doi.org/10.1016/S0731-7085(98)00011-9" target="_blank" rel="noopener">doi:10.1016/S0731-7085(98)00011-9</a></li>
+            <li>Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE Transactions on Automatic Control, 19</em>(6), 716-723. <a href="https://doi.org/10.1109/TAC.1974.1100705" target="_blank" rel="noopener">doi:10.1109/TAC.1974.1100705</a></li>
+            <li>Askarizadeh, M., Esfandiari, N., Honarvar, B., Sajadian, S. A., &amp; Azdarpour, A. (2023). Kinetic modeling to explain the release of medicine from drug delivery systems. <em>ChemBioEng Reviews</em>. <a href="https://doi.org/10.1002/cben.202300027" target="_blank" rel="noopener">doi:10.1002/cben.202300027</a></li>
+            <li>Baishya, H. (2017). Application of mathematical models in drug release kinetics of carbidopa and levodopa ER tablets. <em>Journal of Developing Drugs, 6</em>, 1-8. <a href="https://doi.org/10.4172/2329-6631.1000171" target="_blank" rel="noopener">doi:10.4172/2329-6631.1000171</a></li>
+            <li>Baker, R. W., &amp; Lonsdale, H. K. (1974). Controlled release: mechanisms and rates. İçinde A. C. Tanquary &amp; R. E. Lacey (Ed.), <em>Controlled Release of Biologically Active Agents</em> (s. 15-71). New York: Plenum Press.</li>
+            <li>Baloğlu, E., &amp; Hızarcıoğlu, Y. (2001). Quality control studies on enalapril maleate tablets available on the Turkish drug market. <em>Ankara Üniversitesi Eczacılık Fakültesi Dergisi</em>. <a href="https://dergipark.org.tr/en/pub/jfpanu/article/394494" target="_blank" rel="noopener">dergipark.org.tr</a></li>
+            <li>Burnham, K. P., &amp; Anderson, D. R. (2002). <em>Model Selection and Multimodel Inference: A Practical Information-Theoretic Approach</em> (2. baskı). New York: Springer.</li>
+            <li>Costa, P., &amp; Sousa Lobo, J. M. (2001). Modeling and comparison of dissolution profiles. <em>European Journal of Pharmaceutical Sciences, 13</em>(2), 123-133. <a href="https://doi.org/10.1016/S0928-0987(01)00095-1" target="_blank" rel="noopener">doi:10.1016/S0928-0987(01)00095-1</a></li>
+            <li>Costa, F. O., Sousa, J. J. S., Pais, A. A. C. C., &amp; Formosinho, S. J. (2003). Comparison of dissolution profiles of ibuprofen pellets. <em>Journal of Controlled Release, 89</em>(2), 199-212. <a href="https://doi.org/10.1016/S0168-3659(03)00033-6" target="_blank" rel="noopener">doi:10.1016/S0168-3659(03)00033-6</a></li>
+            <li>Dash, S., Murthy, P. N., Nath, L., &amp; Chowdhury, P. (2010). Kinetic modeling on drug release from controlled drug delivery systems. <em>Acta Poloniae Pharmaceutica, 67</em>(3), 217-223.</li>
+            <li>Ertan, G., Karasulu, H. Y., Karasulu, E., Ege, M. A., Köse, T., &amp; Güneri, T. (2000). A new in vitro/in vivo kinetic correlation method for nitrofurantoin matrix tablet formulations. <em>Drug Development and Industrial Pharmacy, 26</em>(7), 737-743. <a href="https://doi.org/10.1081/DDC-100101292" target="_blank" rel="noopener">doi:10.1081/DDC-100101292</a></li>
+            <li>Ertan, G., Karasulu, E., Özgüney, I., Karasulu, Y., Apaydın, Ş., Kantarcı, G., Yurdasiper, A., &amp; Ege, M. A. (2011). Acceleration of in vitro dissolution studies of sustained release dosage form of theophylline and in vitro–in vivo evaluations in terms of correlations. <em>European Journal of Drug Metabolism and Pharmacokinetics, 36</em>(4), 243-248. <a href="https://doi.org/10.1007/s13318-011-0049-6" target="_blank" rel="noopener">doi:10.1007/s13318-011-0049-6</a></li>
+            <li>Güngör, S., Yıldız, A., Özsoy, Y., Cevher, E., &amp; Araman, A. (2003). Investigations on mefenamic acid sustained release tablets with water-insoluble gel. <em>Il Farmaco, 58</em>(5), 397-401. <a href="https://doi.org/10.1016/S0014-827X(03)00040-5" target="_blank" rel="noopener">doi:10.1016/S0014-827X(03)00040-5</a></li>
+            <li>Higuchi, T. (1961). Rate of release of medicaments from ointment bases containing drugs in suspension. <em>Journal of Pharmaceutical Sciences, 50</em>(10), 874-875. <a href="https://doi.org/10.1002/jps.2600501018" target="_blank" rel="noopener">doi:10.1002/jps.2600501018</a></li>
+            <li>Higuchi, T. (1963). Mechanism of sustained-action medication: Theoretical analysis of rate of release of solid drugs dispersed in solid matrices. <em>Journal of Pharmaceutical Sciences, 52</em>(12), 1145-1149. <a href="https://doi.org/10.1002/jps.2600521210" target="_blank" rel="noopener">doi:10.1002/jps.2600521210</a></li>
+            <li>Hıncal, A. A., Kaş, H. S., &amp; Hıncal, F. (1986). <em>Farmakokinetik</em> (1. baskı). Ankara: Emekli Ofset.</li>
+            <li>Hixson, A. W., &amp; Crowell, J. H. (1931). Dependence of reaction velocity upon surface and agitation. I. Theoretical consideration. <em>Industrial &amp; Engineering Chemistry, 23</em>(8), 923-931. <a href="https://doi.org/10.1021/ie50260a018" target="_blank" rel="noopener">doi:10.1021/ie50260a018</a></li>
+            <li>Hopfenberg, H. B. (1976). Controlled release from erodible slabs, cylinders, and spheres. İçinde D. R. Paul &amp; F. W. Harris (Ed.), <em>Controlled Release Polymeric Formulations</em> (ACS Symposium Series 33, s. 26-32). Washington, DC: American Chemical Society. <a href="https://doi.org/10.1021/bk-1976-0033.ch003" target="_blank" rel="noopener">doi:10.1021/bk-1976-0033.ch003</a></li>
+            <li>İzgü, E., &amp; Ağabeyoğlu, İ. (1974). Mathematical investigation of in vitro diffusion rate of a drug from ointment bases. <em>Ankara Üniversitesi Eczacılık Fakültesi Dergisi, 4</em>(1). <a href="https://dergipark.org.tr/en/pub/jfpanu/issue/35582" target="_blank" rel="noopener">dergipark.org.tr</a></li>
+            <li>Karasulu, E., Aktoğu, S., Karasulu, H. Y., Aydoğdu, A., Tuğlular, I., &amp; Ertan, G. (2003). Improving of the accuracy of in vitro–in vivo linear correlation using kinetic models for ultra sustained release theophylline tablets. <em>European Journal of Drug Metabolism and Pharmacokinetics, 28</em>(4), 301-307. <a href="https://doi.org/10.1007/BF03220183" target="_blank" rel="noopener">doi:10.1007/BF03220183</a></li>
+            <li>Karasulu, H. Y., Ertan, G., &amp; Köse, T. (2000). Modeling of theophylline release from different geometrical erodible tablets. <em>European Journal of Pharmaceutics and Biopharmaceutics, 49</em>(2), 177-182. <a href="https://doi.org/10.1016/S0939-6411(99)00082-X" target="_blank" rel="noopener">doi:10.1016/S0939-6411(99)00082-X</a></li>
+            <li>Katzhendler, I., Hoffman, A., Goldberger, A., &amp; Friedman, M. (1997). Modeling of drug release from erodible tablets. <em>Journal of Pharmaceutical Sciences, 86</em>(1), 110-115. <a href="https://doi.org/10.1021/js9600538" target="_blank" rel="noopener">doi:10.1021/js9600538</a></li>
+            <li>Kaynar Özdemir, N., Duman, G., Özateş, B., Betendeniz, B., Karataş, A., Ermiş, D., &amp; Yüksel, A. (1989). Türkiye ilaç piyasasında bulunan değişik aspirin tablet formülasyonları üzerinde araştırmalar. <em>Ankara Üniversitesi Eczacılık Fakültesi Dergisi, 19</em>(1). <a href="https://dergipark.org.tr/tr/pub/jfpanu/article/394742" target="_blank" rel="noopener">dergipark.org.tr</a></li>
+            <li>Khan, K. A. (1975). The concept of dissolution efficiency. <em>Journal of Pharmacy and Pharmacology, 27</em>(1), 48-49. <a href="https://doi.org/10.1111/j.2042-7158.1975.tb09378.x" target="_blank" rel="noopener">doi:10.1111/j.2042-7158.1975.tb09378.x</a></li>
+            <li>Korsmeyer, R. W., Gurny, R., Doelker, E., Buri, P., &amp; Peppas, N. A. (1983). Mechanisms of solute release from porous hydrophilic polymers. <em>International Journal of Pharmaceutics, 15</em>(1), 25-35. <a href="https://doi.org/10.1016/0378-5173(83)90064-9" target="_blank" rel="noopener">doi:10.1016/0378-5173(83)90064-9</a></li>
+            <li>Langenbucher, F. (1972). Linearization of dissolution rate curves by the Weibull distribution. <em>Journal of Pharmacy and Pharmacology, 24</em>(12), 979-981. <a href="https://doi.org/10.1111/j.2042-7158.1972.tb08930.x" target="_blank" rel="noopener">doi:10.1111/j.2042-7158.1972.tb08930.x</a></li>
+            <li>Makoid, M. C., Dufour, A., &amp; Banakar, U. V. (1993). Modelling of dissolution behaviour of controlled release systems. <em>STP Pharma Pratiques, 3</em>, 49-58.</li>
+            <li>Marquardt, D. W. (1963). An algorithm for least-squares estimation of nonlinear parameters. <em>SIAM Journal on Applied Mathematics, 11</em>(2), 431-441. <a href="https://doi.org/10.1137/0111030" target="_blank" rel="noopener">doi:10.1137/0111030</a></li>
+            <li>Moore, J. W., &amp; Flanner, H. H. (1996). Mathematical comparison of dissolution profiles. <em>Pharmaceutical Technology, 20</em>(6), 64-74.</li>
+            <li>Nelder, J. A., &amp; Mead, R. (1965). A simplex method for function minimization. <em>The Computer Journal, 7</em>(4), 308-313. <a href="https://doi.org/10.1093/comjnl/7.4.308" target="_blank" rel="noopener">doi:10.1093/comjnl/7.4.308</a></li>
+            <li>Noyes, A. A., &amp; Whitney, W. R. (1897). The rate of solution of solid substances in their own solutions. <em>Journal of the American Chemical Society, 19</em>(12), 930-934. <a href="https://doi.org/10.1021/ja02086a003" target="_blank" rel="noopener">doi:10.1021/ja02086a003</a></li>
+            <li>O'Hara, T., Dunne, A., Butler, J., &amp; Devane, J. (1998). A review of methods used to compare dissolution profile data. <em>Pharmaceutical Science &amp; Technology Today, 1</em>(5), 214-223. <a href="https://doi.org/10.1016/S1461-5347(98)00053-4" target="_blank" rel="noopener">doi:10.1016/S1461-5347(98)00053-4</a></li>
+            <li>Ojsteršek, T., Vrečer, F., &amp; Hudovornik, G. (2024). Comparative fitting of mathematical models to carvedilol release profiles obtained from hypromellose matrix tablets. <em>Pharmaceutics, 16</em>(4), 498. <a href="https://doi.org/10.3390/pharmaceutics16040498" target="_blank" rel="noopener">doi:10.3390/pharmaceutics16040498</a></li>
+            <li>Orlu, M., Cevher, E., &amp; Araman, A. (2006). Design and evaluation of colon specific drug delivery system containing flurbiprofen microsponges. <em>International Journal of Pharmaceutics, 318</em>(1-2), 103-117. <a href="https://doi.org/10.1016/j.ijpharm.2006.03.025" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2006.03.025</a></li>
+            <li>Özyazıcı, M., Gökçe, E. H., &amp; Ertan, G. (2006). Release and diffusional modeling of metronidazole lipid matrices. <em>European Journal of Pharmaceutics and Biopharmaceutics, 63</em>(3), 331-339. <a href="https://doi.org/10.1016/j.ejpb.2006.02.005" target="_blank" rel="noopener">doi:10.1016/j.ejpb.2006.02.005</a></li>
+            <li>Papadopoulou, V., Kosmidis, K., Vlachou, M., &amp; Macheras, P. (2006). On the use of the Weibull function for the discernment of drug release mechanisms. <em>International Journal of Pharmaceutics, 309</em>(1-2), 44-50. <a href="https://doi.org/10.1016/j.ijpharm.2005.10.044" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2005.10.044</a></li>
+            <li>Peppas, N. A., &amp; Sahlin, J. J. (1989). A simple equation for the description of solute release. III. Coupling of diffusion and relaxation. <em>International Journal of Pharmaceutics, 57</em>(2), 169-172. <a href="https://doi.org/10.1016/0378-5173(89)90306-2" target="_blank" rel="noopener">doi:10.1016/0378-5173(89)90306-2</a></li>
+            <li>Polli, J. E., Rekhi, G. S., Augsburger, L. L., &amp; Shah, V. P. (1997). Methods to compare dissolution profiles and a rationale for wide dissolution specifications for metoprolol tartrate tablets. <em>Journal of Pharmaceutical Sciences, 86</em>(6), 690-700. <a href="https://doi.org/10.1021/js960473x" target="_blank" rel="noopener">doi:10.1021/js960473x</a></li>
+            <li>Ritger, P. L., &amp; Peppas, N. A. (1987). A simple equation for description of solute release I. Fickian and non-Fickian release from non-swellable devices in the form of slabs, spheres, cylinders or discs. <em>Journal of Controlled Release, 5</em>(1), 23-36. <a href="https://doi.org/10.1016/0168-3659(87)90034-4" target="_blank" rel="noopener">doi:10.1016/0168-3659(87)90034-4</a></li>
+            <li>Shah, V. P., Tsong, Y., Sathe, P., &amp; Liu, J.-P. (1998). In vitro dissolution profile comparison — statistics and analysis of the similarity factor, f2. <em>Pharmaceutical Research, 15</em>(6), 889-896. <a href="https://doi.org/10.1023/A:1011976615750" target="_blank" rel="noopener">doi:10.1023/A:1011976615750</a></li>
+            <li>Siepmann, J., &amp; Siepmann, F. (2008). Mathematical modeling of drug delivery. <em>International Journal of Pharmaceutics, 364</em>(2), 328-343. <a href="https://doi.org/10.1016/j.ijpharm.2008.09.004" target="_blank" rel="noopener">doi:10.1016/j.ijpharm.2008.09.004</a></li>
+            <li>U.S. Food and Drug Administration. (1997). <em>Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms</em>. Rockville, MD: Center for Drug Evaluation and Research.</li>
+            <li>Wagner, J. G. (1969). Interpretation of percent dissolved-time plots derived from in vitro testing of conventional tablets and capsules. <em>Journal of Pharmaceutical Sciences, 58</em>(10), 1253-1257. <a href="https://doi.org/10.1002/jps.2600581021" target="_blank" rel="noopener">doi:10.1002/jps.2600581021</a></li>
+            <li>Yuksel, N., Kanik, A. E., &amp; Baykara, T. (2000). Comparison of in vitro dissolution profiles by ANOVA-based, model-dependent and -independent methods. <em>International Journal of Pharmaceutics, 209</em>(1-2), 57-67. <a href="https://doi.org/10.1016/S0378-5173(00)00554-8" target="_blank" rel="noopener">doi:10.1016/S0378-5173(00)00554-8</a></li>
+            <li>Zhang, Y., Huo, M., Zhou, J., Zou, A., Li, W., Yao, C., &amp; Xie, S. (2010). DDSolver: An add-in program for modeling and comparison of drug dissolution profiles. <em>The AAPS Journal, 12</em>(3), 263-271. <a href="https://doi.org/10.1208/s12248-010-9185-1" target="_blank" rel="noopener">doi:10.1208/s12248-010-9185-1</a></li>
+        </ol>
+    </section>
+
+    <section id="surum" class="rehber-surum-gecmisi">
+        <h2>Sürüm geçmişi</h2>
+        <ul>
+            <li><strong>1.3 · 18 Eylül 2026.</strong> Araçta model seçimi (karşılaştırılacak modeller, "Klasik beşli"
+                kısayolu); "Bu sitedeki uygulama" bölümü güncellendi.</li>
+            <li><strong>1.2 · 17 Eylül 2026.</strong> İngilizce sürüm (ptcalc.net); DDSolver bölümü bir karşılaştırma
+                olarak yeniden yazıldı; test sayısı güncellendi.</li>
+            <li><strong>1.1 · 14 Eylül 2026.</strong> İşlenmiş örnek (12 noktalı DDSolver örnek profili), sık yapılan
+                hatalar ve karar akışı, f<sub>2</sub> ile kinetik modellemenin karşılaştırması eklendi; dört kaynak
+                eklendi (Anderson 1998, Polli 1997, Shah 1998, FDA 1997).</li>
+            <li><strong>1.0 · 9 Eylül 2026.</strong> İlk ayrıntılı sürüm: tarihçe, model kataloğu, varyantlar, uyum
+                süreci ve ölçütleri, bayraklar, Türkiye'deki gelenek, DDSolver karşılaştırması, 46 kaynak.</li>
+        </ul>
+    </section>
+
+    <footer class="rehber-alt">
+        <a href="/kinetik" class="rehber-cta"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kinetik Analiz aracına dön</a>
+    </footer>
+
+</article>
+}

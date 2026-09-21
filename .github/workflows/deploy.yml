@@ -1,6 +1,6 @@
-name: Deploy to Natro (egepharmtech.com / egepharmtech.tr)
+name: Deploy to Natro (ptcalc.net / ptcalc.tr)
 
-# Natro Plesk (Windows/IIS) barındırması; site kökü /httpdocs, egepharmtech.tr ve eski spps.* alan adları
+# Natro Plesk (Windows/IIS) barındırması; site kökü /httpdocs, ptcalc.tr ve eski spps.* alan adları
 # aynı sitenin alias'ı. Sırlar: FTP_SERVER (sunucu IP'si ya da FTP ana bilgisayarı), FTP_USERNAME, FTP_PASSWORD.
 # Kök farklıysa depo değişkeni (Variables) FTP_ROOT.
 #
@@ -9,7 +9,7 @@ name: Deploy to Natro (egepharmtech.com / egepharmtech.tr)
 #
 # Yayın biçimi: framework-dependent, UseAppHost=false, RID'siz. Natro bu sunucuda .exe dosyasına izin vermiyor;
 # self-contained yayındaki .exe engellenince ANCM in-process modda hostfxr'ı bulamıyor (500.30). Bu biçimde
-# hiç .exe üretilmez; web.config processPath="dotnet" arguments=".\EgePharmTech.dll" olur ve sunucudaki
+# hiç .exe üretilmez; web.config processPath="dotnet" arguments=".\PTCalc.dll" olur ve sunucudaki
 # .NET 10 çalışma zamanı kullanılır. Yayında .exe kalırsa iş akışı durur.
 on:
   workflow_dispatch:
@@ -29,11 +29,11 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Test
-        run: dotnet test EgePharmTech.Core.Tests/EgePharmTech.Core.Tests.csproj -c Release --nologo
+        run: dotnet test PTCalc.Core.Tests/PTCalc.Core.Tests.csproj -c Release --nologo
 
       - name: Publish
         run: |
-          dotnet publish EgePharmTech/EgePharmTech.csproj -c Release --self-contained false -p:UseAppHost=false -o publish
+          dotnet publish PTCalc/PTCalc.csproj -c Release --self-contained false -p:UseAppHost=false -o publish
           if ls publish/*.exe >/dev/null 2>&1; then echo "HATA: yayında .exe var:"; ls publish/*.exe; exit 1; fi
           cat publish/web.config
 
