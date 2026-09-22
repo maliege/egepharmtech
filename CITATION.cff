@@ -1,6 +1,5 @@
 # Bu dosya GitHub'ın "Cite this repository" kutusunu ve Zenodo arşiv üst verisini besler.
-# Sürüm ve tarih her yayın etiketinde (vX.Y.Z) güncellenmeli; sürüm DOI'si Zenodo'dan alınıp identifiers'a eklenir. ORCID eklenmesi önerilir:
-#   orcid: "https://orcid.org/0000-0000-0000-0000"
+# Sürüm ve tarih her yayın etiketinde (vX.Y.Z) güncellenmeli; sürüm DOI'si Zenodo'dan alınıp identifiers'a eklenir.
 cff-version: 1.2.0
 message: "Bu yazılımı kullanırsanız lütfen aşağıdaki gibi atıf yapın. / If you use this software, please cite it as below."
 type: software
@@ -17,6 +16,7 @@ abstract: >-
 authors:
   - family-names: Ege
     given-names: Mehmet Ali
+    orcid: "https://orcid.org/0000-0002-4953-2812"
     affiliation: "Ege Üniversitesi Eczacılık Fakültesi, Farmasötik Teknoloji Anabilim Dalı, İzmir, Türkiye"
     email: mali.ege@rxmediapharma.com.tr
 repository-code: "https://github.com/maliege/ptcalc"
