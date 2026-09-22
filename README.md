@@ -4,8 +4,7 @@ Farmasötik teknoloji için açık hesaplama araçları · Türkçe **https://pt
 
 [![Lisans: MIT](https://img.shields.io/badge/lisans-MIT-0f766e.svg)](LICENSE)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512bd4.svg)](https://dotnet.microsoft.com/)
-<!-- Zenodo DOI rozeti: ilk yayın etiketinden (v1.0.0) sonra concept DOI ile değiştirin
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX) -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22894811.svg)](https://doi.org/10.5281/zenodo.22894811)
 
 > **English summary.** PTCalc is an open-source Blazor Server web application and .NET library for
 > pharmaceutical technology computations: a dissolution-kinetics engine (16 release models, nonlinear least
@@ -86,7 +85,7 @@ Console.WriteLine($"{best.ModelName}: {best.CoefficientSummary}, AIC {best.Gof.A
 
 Yazılımı bir çalışmada kullanırsanız [CITATION.cff](CITATION.cff) dosyasındaki bilgilerle atıf yapın;
 GitHub sayfasındaki "Cite this repository" kutusu aynı dosyadan beslenir. Her yayın etiketi (`vX.Y.Z`)
-Zenodo'da arşivlenir ve sürüm DOI'si alır; kalıcı üst DOI rozeti yukarıda yer alacaktır.
+Zenodo'da arşivlenir ve sürüm DOI'si alır. Kalıcı üst DOI: 10.5281/zenodo.22894811 (tüm sürümler); v1.0.0 sürüm DOI'si 10.5281/zenodo.22894812.
 
 ## Lisans
 

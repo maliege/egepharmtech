@@ -1,5 +1,5 @@
 # Bu dosya GitHub'ın "Cite this repository" kutusunu ve Zenodo arşiv üst verisini besler.
-# Sürüm ve tarih her yayın etiketinde (vX.Y.Z) güncellenmeli. ORCID eklenmesi önerilir:
+# Sürüm ve tarih her yayın etiketinde (vX.Y.Z) güncellenmeli; sürüm DOI'si Zenodo'dan alınıp identifiers'a eklenir. ORCID eklenmesi önerilir:
 #   orcid: "https://orcid.org/0000-0000-0000-0000"
 cff-version: 1.2.0
 message: "Bu yazılımı kullanırsanız lütfen aşağıdaki gibi atıf yapın. / If you use this software, please cite it as below."
@@ -23,6 +23,14 @@ repository-code: "https://github.com/maliege/ptcalc"
 url: "https://ptcalc.net"
 license: MIT
 version: 1.0.0
+doi: 10.5281/zenodo.22894811
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22894811
+    description: "Concept DOI (all versions)"
+  - type: doi
+    value: 10.5281/zenodo.22894812
+    description: "Version 1.0.0"
 date-released: 2026-09-22
 keywords:
   - dissolution kinetics
