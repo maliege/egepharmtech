@@ -1,4 +1,48 @@
-# PTCalc — Geliştirici Kılavuzu
+# PTCalc — Contributing / Geliştirici Kılavuzu
+
+## Contributing (English summary)
+
+Thank you for considering a contribution. The full developer guide below is in Turkish; the rules that matter
+for a pull request are these.
+
+**Report a problem.** Open an issue with the bug-report template: which tool, the input data (a small synthetic
+table is fine), the settings, what you got and what you expected, and a reference result if you have one
+(DDSolver, R, SciPy, a textbook example). Method proposals use the feature-request template and should cite the
+method's source, preferably with a DOI.
+
+**Set up.** .NET 10 SDK is the only requirement.
+
+```bash
+git clone https://github.com/maliege/ptcalc.git && cd ptcalc
+dotnet build PTCalc.sln
+dotnet test PTCalc.Core.Tests
+dotnet run --project PTCalc/PTCalc.csproj --launch-profile http   # http://localhost:5277
+```
+
+Use `http://ptcalc.net.localhost:5277` to see the English default locally; plain `localhost` opens in Turkish.
+
+**Where things go.**
+
+| Layer | Path | Rule |
+|---|---|---|
+| Computation | `PTCalc.Core/Core/<Module>/` | Pure .NET + MathNet.Numerics; no ASP.NET, Blazor or JS interop. Namespace `PTCalc.Core.<Module>`. Every user-facing string goes through `CoreText.T("Turkish text", args)` with its English in `PTCalc.Core/Resources/CoreText.en.tsv`. |
+| Web page | `PTCalc/Pages/Apps/` | Data entry, presentation and JS interop only; JS calls in `OnAfterRenderAsync`. UI strings `@L["Turkish text"]`, English in `PTCalc/Resources/SharedResource.en.resx` (key = Turkish text). Long bilingual blocks use `@if (Lang.IsEn) { … } else { … }`. |
+| Guide | `PTCalc/Components/Guides/` | Method, prerequisites, how to read the output, limitations; sources with DOI. |
+| Tests | `PTCalc.Core.Tests/` | xUnit. Numerical work needs a reference-value test: `DdsolverReferenceTests` (DDSolver 1.0 fixtures) and `StatisticsReferenceTests` (SciPy/statsmodels via `tools/make_stats_reference.py`) show the pattern. |
+
+**Pull requests.** Branch from `main`, keep one topic per PR, add or update tests, run `dotnet test`, and fill the
+PR template. CI builds on Ubuntu and Windows with warnings as errors. Pushing to `main` deploys the site, so
+`main` is protected for maintainers only.
+
+**Wording.** Relationships with other software are described as comparisons ("compared with DDSolver"), never
+as validation or superiority. The site is not an official publication of the university.
+
+**Licence.** Contributions are accepted under the MIT licence of the repository. Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+# Geliştirici Kılavuzu (Türkçe)
 
 > **Hedef framework:** .NET 10 · Blazor Server · iki dil (tr-TR / en-US)
 

@@ -1,62 +1,56 @@
 # PTCalc
 
-Farmasötik teknoloji için açık hesaplama araçları · Türkçe **https://ptcalc.tr** · English **https://ptcalc.net**
+Open computational tools for pharmaceutical technology · English **https://ptcalc.net** · Türkçe **https://ptcalc.tr**
 
-[![Lisans: MIT](https://img.shields.io/badge/lisans-MIT-0f766e.svg)](LICENSE)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-0f766e.svg)](LICENSE)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512bd4.svg)](https://dotnet.microsoft.com/)
+[![Build and test](https://github.com/maliege/ptcalc/actions/workflows/test.yml/badge.svg)](https://github.com/maliege/ptcalc/actions/workflows/test.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22894811.svg)](https://doi.org/10.5281/zenodo.22894811)
 
-> **English summary.** PTCalc is an open-source Blazor Server web application and .NET library for
-> pharmaceutical technology computations: a dissolution-kinetics engine (16 release models, nonlinear least
-> squares, AIC ranking and Akaike weights, results compared with DDSolver 1.0), a pseudo-ternary phase-diagram
-> tool with polygon area and centroid calculation (in use since 2001), f1/f2 similarity factors, dose–response
-> and t-test utilities, plus bilingual guides with verified references. The interface language follows the
-> domain (ptcalc.net → English, ptcalc.tr → Turkish) and can be switched with the TR/EN toggle.
-> Cite via [CITATION.cff](CITATION.cff). Licence: MIT.
+*Türkçe README: [README.tr.md](README.tr.md).*
 
-Araçlar, Ege Üniversitesi Eczacılık Fakültesi Farmasötik Teknoloji Anabilim Dalı'nda 1995'ten bu yana
-geliştirilen masaüstü uygulamalarının web sürümleridir. PTCalc adı "Pharmaceutical Technology Calculators"
-kısaltmasıdır; site üniversitenin resmi yayını değildir. Girilen veri tarayıcı oturumunda kalır,
-sunucuda saklanmaz; hesap gerekmez. Yazarın diğer uygulamaları (majistral preparatlar, amatör telsiz,
-gök atlası, botanik bağlantıları) **https://maege.tr** adresindedir.
+PTCalc ("Pharmaceutical Technology Calculators") is an open-source Blazor Server web application and .NET
+library for the routine computations of formulation research and pharmaceutical analysis. Data entered in the
+browser stays in the browser session; nothing is stored on the server and no account is needed. The interface
+language follows the domain (ptcalc.net → English, ptcalc.tr → Turkish) and can be switched with the TR/EN
+toggle. PTCalc is not an official publication of Ege University.
 
-## Uygulamalar
+## Tools
 
-| Uygulama | Yol | Çekirdek | Rehber |
+| Tool | Route | Core code | Guide |
 |---|---|---|---|
-| Kinetik Analiz — 16 salım modeli, model seçimi, varyantlar (Tlag, F0, Fmax), AIC/AICc/MSC, Akaike ağırlıkları, KP F ≤ %60, Hopfenberg geometrileri | `/kinetik` | `PTCalc.Core/Core/Dissolution` | [/about-kinetic-analysis](https://ptcalc.tr/about-kinetic-analysis) |
-| Üçgen (psödo-üçlü) Faz Diyagramı — çokgen alanı ve ağırlık merkezi, kapatma seçenekleri, yumuşatılmış sınır, SVG | `/ternary-phase-diagram-app` | `PTCalc.Core/Services/TernaryCalculationService.cs`, `PolygonSmoother.cs` | [/about-ternary-phase-diagram](https://ptcalc.tr/about-ternary-phase-diagram) |
-| f1 / f2 benzerlik faktörleri ve model-bağımsız profil ölçütleri | `/f1f2` | `PTCalc.Core/Core/Dissolution/SimilarityFactors.cs`, `ProfileMetrics.cs` | sayfa içi |
-| LD50/LD90 doz–yanıt (probit/logit) | `/ldcalc` | `PTCalc.Core/Core/KinetikAnalysis` | sayfa içi |
-| t-testi ve tanımlayıcı istatistik | `/ttest` | `PTCalc.Core/Core/Statistics` | sayfa içi |
-| Tek yönlü ANOVA — F testi, Levene, Tukey HSD (Tukey-Kramer), η²/ω² | `/anova` | `PTCalc.Core/Core/Statistics/OneWayAnova.cs`, `StudentizedRange.cs` | sayfa içi |
-| Çoklu doğrusal regresyon — katsayı testleri, model ANOVA, VIF, Durbin-Watson, tahmin/öngörü aralığı | `/regression` | `PTCalc.Core/Core/Statistics/MultipleRegression.cs` | sayfa içi |
-| Kalibrasyon eğrisi — doğrusal fit, LOD/LOQ (ICH Q2(R2)), geri hesap doğruluğu, düzey %RSD | `/calibration` | `PTCalc.Core/Core/Statistics/CalibrationCurve.cs` | sayfa içi |
+| **Dissolution kinetics** — 16 release models, model subset selection, Tlag/F0/Fmax variants, nonlinear least squares in the F(%) domain, AIC/AICc/MSC ranking and Akaike weights, Korsmeyer–Peppas F ≤ 60 % rule, Hopfenberg geometries (slab, cylinder, sphere, half-sphere, triangle) | `/kinetik` | `PTCalc.Core/Core/Dissolution` | [Kinetic analysis guide](https://ptcalc.net/about-kinetic-analysis) |
+| **Pseudo-ternary phase diagram** — polygon area and centroid of phase regions, closing options, smoothed boundary, SVG export | `/ternary-phase-diagram-app` | `PTCalc.Core/Services/TernaryCalculationService.cs`, `PolygonSmoother.cs` | [Phase diagram guide](https://ptcalc.net/about-ternary-phase-diagram) |
+| **f1 / f2 similarity factors** and model-independent profile metrics (AUC, DE, MDT) | `/f1f2` | `Core/Dissolution/SimilarityFactors.cs`, `ProfileMetrics.cs` | in-page |
+| **Dose–response** — LD50/LD90 by probit, logit and 4PL with confidence intervals | `/ldcalc` | `Core/KinetikAnalysis` | in-page |
+| **t-test** — independent and paired, Levene's test, Welch correction, Cohen's d | `/ttest` | `Core/Statistics` | in-page |
+| **One-way ANOVA** — F test, Levene, Tukey HSD (Tukey–Kramer for unequal n), η²/ω² | `/anova` | `Core/Statistics/OneWayAnova.cs`, `StudentizedRange.cs` | in-page |
+| **Multiple linear regression** — coefficient tests, model ANOVA, VIF, Durbin–Watson, prediction and confidence intervals | `/regression` | `Core/Statistics/MultipleRegression.cs` | in-page |
+| **Calibration curve** — linear fit, LOD/LOQ (ICH Q2(R2)), back-calculated accuracy, replicate RSD, step-by-step inverse prediction for unknowns | `/calibration` | `Core/Statistics/CalibrationCurve.cs` | in-page |
 
-Kinetik motorun sonuçları DDSolver 1.0 çıktılarıyla karşılaştırılmıştır (32 çalışma sayfası, 37 formülasyon):
-aynı parametrelerde SS ve uyum ölçütleri birebir yeniden üretilir; kareler toplamlarındaki küçük farklar
-çözücülerin durma kriterlerinden gelir (`PTCalc.Core.Tests/DdsolverReferenceTests.cs`). ANOVA, Tukey HSD, regresyon
-ve kalibrasyon sonuçları SciPy/statsmodels çıktılarıyla karşılaştırılır (`StatisticsReferenceTests.cs`, `stats_reference.json`).
+Every tool has a bilingual guide describing the method, its prerequisites, how to read the output and its
+limitations, with DOI-referenced sources.
 
-## Mimari
+## How results are checked
 
-```
-PTCalc.sln
-├── PTCalc.Core/        saf hesaplama kütüphanesi (yalnız .NET + MathNet.Numerics); mesajlar TR/EN (CoreText)
-├── PTCalc/             Blazor Server web uygulaması: sayfalar, rehberler, yerelleştirme, SMTP iletişim formu
-└── PTCalc.Core.Tests/  xUnit testleri (motor, DDSolver karşılaştırması, servisler, alan adı → dil kuralları)
-```
+- **Dissolution kinetics vs DDSolver 1.0.** On 32 worksheets (37 formulations) produced with the DDSolver
+  add-in's own example data, PTCalc reproduces DDSolver's SS, R², adjusted R², MSE, AIC, MSC, degrees of freedom
+  and secondary parameters (T25–T90) at DDSolver's parameter estimates to within 1e-7 relative error, and its
+  own fits are never worse in SS than DDSolver's (equal in 9 cases, lower in 28; DDSolver's Nelder–Mead solver
+  stops early). See `PTCalc.Core.Tests/DdsolverReferenceTests.cs` and `ddsolver_reference_cases.json`.
+- **Statistics vs SciPy / statsmodels.** ANOVA, Levene, Tukey HSD (including the studentized-range
+  distribution), OLS coefficients, intervals and predictions, and calibration statistics are compared with
+  SciPy 1.17 / statsmodels 0.14 values generated by `tools/make_stats_reference.py`
+  (`StatisticsReferenceTests.cs`, `stats_reference.json`).
+- **Continuous integration** builds on Ubuntu and Windows with warnings as errors and runs the whole test suite
+  (`.github/workflows/test.yml`).
 
-Veritabanı ve kullanıcı hesabı yoktur. Dil: arayüz metinleri `PTCalc/Resources/SharedResource.en.resx`
-(anahtar = Türkçe metin), çekirdek mesajları `PTCalc.Core/Resources/CoreText.en.tsv`. Varsayılan dil alan
-adından (`PTCalc/Site/SiteProfile.cs`), kullanıcı seçimi çerezden. Eski adres spps.tr / spps.tech 301 ile
-yenilerine yönlenir. Site kurulabilir web uygulamasıdır (PWA: `/site.webmanifest`, `wwwroot/sw.js`).
+Relationships with other software are stated as comparisons; PTCalc makes no claim of validation against or
+superiority over them.
 
-Ayrıntılı geliştirici kılavuzu ve yeni modül ekleme adımları: [CONTRIBUTING.md](CONTRIBUTING.md).
+## Install and run
 
-## Derleme ve çalıştırma
-
-Gereksinim: .NET 10 SDK.
+Requirement: [.NET 10 SDK](https://dotnet.microsoft.com/download). Nothing else (no database, no Node).
 
 ```bash
 git clone https://github.com/maliege/ptcalc.git
@@ -66,57 +60,66 @@ dotnet test PTCalc.Core.Tests
 dotnet run --project PTCalc/PTCalc.csproj --launch-profile http   # http://localhost:5277
 ```
 
-Yerelde İngilizce varsayılanı denemek için `http://ptcalc.net.localhost:5277` (Chrome `*.localhost`'u
-127.0.0.1'e çözer); düz `localhost` Türkçe açılır. Sağ üstteki TR/EN anahtarı çerezle dili değiştirir.
+Plain `localhost` opens in Turkish; `http://ptcalc.net.localhost:5277` shows the English default (Chromium
+browsers resolve `*.localhost` to 127.0.0.1). The TR/EN switch at the top right stores the choice in a cookie.
 
-Kütüphaneyi tek başına kullanma örneği:
+The contact form needs SMTP settings; without them everything else works. See
+[README.tr.md](README.tr.md#dağıtım-notları) for `dotnet user-secrets` keys and the production layout.
+
+## Use the library without the web app
+
+`PTCalc.Core` depends only on .NET and MathNet.Numerics:
 
 ```csharp
 using PTCalc.Core.Dissolution;
 
 double[] t = [1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20];
 double[] f = [8, 24, 38, 48, 58, 66, 73, 78, 84, 88, 92, 95];
-var result = KineticEngine.FitAll(t, f);          // AIC'e göre sıralı
-var best = result.Fits[0];                         // ör. Probit, w = 0,46
-Console.WriteLine($"{best.ModelName}: {best.CoefficientSummary}, AIC {best.Gof.Aic:F2}");
+
+var result = KineticEngine.FitAll(t, f);            // all models, ranked by AIC
+var best = result.Fits[0];
+Console.WriteLine($"{best.ModelName}: {best.CoefficientSummary}, AIC {best.Gof.Aic:F2}, " +
+                  $"w = {result.AkaikeWeights[best.ModelName]:F2}");
 ```
 
-## Atıf
+The full API walk-through (variants, weighting, similarity factors, ANOVA, regression, calibration,
+dose–response, phase-diagram geometry) is in [docs/core-library-usage.md](docs/core-library-usage.md).
 
-Yazılımı bir çalışmada kullanırsanız [CITATION.cff](CITATION.cff) dosyasındaki bilgilerle atıf yapın;
-GitHub sayfasındaki "Cite this repository" kutusu aynı dosyadan beslenir. Her yayın etiketi (`vX.Y.Z`)
-Zenodo'da arşivlenir ve sürüm DOI'si alır. Kalıcı üst DOI: 10.5281/zenodo.22894811 (tüm sürümler); v1.0.0 sürüm DOI'si 10.5281/zenodo.22894812.
-
-## Lisans
-
-Kod [MIT lisansı](LICENSE) ile dağıtılır. Üçüncü taraf bileşenler ve veri lisansları (Handsontable ticari
-olmayan lisans, Chart.js, DDSolver örnek verileri) için [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-Rehber metinleri MIT kapsamı dışındadır.
-
----
-
-## Dağıtım notları
-
-### Sırlar
-
-Tek sır iletişim formunun SMTP parolasıdır; **depoya yazılmaz**. `PTCalc/appsettings.json` boş şablondur.
-
-**Geliştirme (yerel):** `dotnet user-secrets` (`UserSecretsId` csproj'da tanımlı):
+## Repository layout
 
 ```
-dotnet user-secrets set "EmailSettings:SmtpServer" "..." --project PTCalc/PTCalc.csproj
-dotnet user-secrets set "EmailSettings:ContactForm:Email" "..." --project PTCalc/PTCalc.csproj
-dotnet user-secrets set "EmailSettings:ContactForm:Password" "..." --project PTCalc/PTCalc.csproj
+PTCalc.sln
+├── PTCalc.Core/        computation library (pure .NET + MathNet.Numerics); TR/EN messages via CoreText
+├── PTCalc/             Blazor Server web app: pages, guides, localisation, SMTP contact form
+├── PTCalc.Core.Tests/  xUnit tests: engine, DDSolver and SciPy/statsmodels reference comparisons, services
+├── docs/               library usage, phase-diagram calculation notes, Turkish kinetics literature survey
+├── paper/              JOSS paper draft (paper.md, paper.bib)
+└── tools/              brand image generator, statistics reference generator
 ```
 
-**Canlı (Natro/Plesk):** barındırmada ortam değişkeni tanımlama yeri yok; ayarlar sunucudaki
-`httpdocs/appsettings.Production.json` dosyasında (yalnız `EmailSettings` bölümü) durur. Deploy iş akışı bu
-dosyayı hariç tuttuğu için ezilmez.
+Developer guide and the steps for adding a new module: [CONTRIBUTING.md](CONTRIBUTING.md) (English summary
+first, full guide in Turkish). Community rules: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-### Deploy
+## History
 
-`main` dalına push, GitHub Actions ile lftp/FTPS üzerinden Plesk IIS'e yayımlar
-(`.github/workflows/deploy.yml`; sırlar `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`). Yayın
-framework-dependent ve `.exe`'sizdir: barındırma `.exe` dosyasına izin vermez, ANCM in-process modda
-`processPath="dotnet"` ile sunucudaki .NET 10 çalışma zamanını kullanır. `appsettings.Production.json`,
-`App_Data/`, `wwwroot/UserFiles/` ve `logs/` sunucu tarafında kalır.
+The tools descend from desktop programs written and used at the Department of Pharmaceutical Technology,
+Faculty of Pharmacy, Ege University since 1995 (Turbo Pascal and Visual Basic; the pseudo-ternary area and
+centroid calculation dates from 2001). They were rewritten as a single Blazor web application inside the
+author's personal site (maege.tr) from 2024, then split into this stand-alone repository on 20 September 2026
+so that the pharmaceutical-technology code could be published and archived on its own. The split started
+without the old history; the brand changed from EgePharmTech to PTCalc on 21 September 2026. Version 1.0.0 was
+released and archived on Zenodo on 22 September 2026.
+
+## Citation
+
+If you use PTCalc in a study, please cite it using [CITATION.cff](CITATION.cff) (GitHub's "Cite this
+repository" button reads the same file). Every release tag (`vX.Y.Z`) is archived on Zenodo.
+Concept DOI for all versions: [10.5281/zenodo.22894811](https://doi.org/10.5281/zenodo.22894811);
+version 1.0.0: [10.5281/zenodo.22894812](https://doi.org/10.5281/zenodo.22894812).
+
+## Licence
+
+Code is released under the [MIT licence](LICENSE). Third-party components and data licences (Handsontable
+non-commercial licence, Chart.js, DDSolver example data used only in tests) are listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Guide texts are outside the MIT scope; copyright
+Mehmet Ali Ege.
