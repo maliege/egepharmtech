@@ -170,12 +170,35 @@ foreach (TGroup g in response.Groups)
 `PolygonSmoother.Build` returns the centripetal Catmull–Rom outline (`SampleOutline` turns it into points) used for the drawn boundary; area and
 centroid are always computed on the measured polygon, not on the smoothed curve.
 
+## Alcoholometry and dilution — `PTCalc.Core.Alcoholometry`
+
+```csharp
+using PTCalc.Core.Alcoholometry;
+
+// OIML R 22 density (kg/m³) from strength by mass or by volume (20 °C) and temperature (−20…40 °C)
+double rho = OimlAlcoholometry.DensityFromVolumePercent(70, 25);
+
+// % v/v (20 °C) ↔ % w/w; v/v → w/w is solved by fixed-point iteration (no closed form)
+double w = OimlAlcoholometry.VolumeToMassPercent(70);      // 62.386…
+double q = OimlAlcoholometry.MassToVolumePercent(w);       // 70
+
+// Strength from a measured true density (bisection); OIML Tables Va/Vb at 20 °C, VI/VII otherwise
+double p = OimlAlcoholometry.MassPercentFromDensity(885.56, 20);
+
+// 100 mL of 70 % v/v from 96 % v/v at 20 °C: ethanol mass balance, volumes at the preparation temperature
+DilutionResult r = AlcoholDilution.ByVolume(finalVolume: 100, targetPercent: 70, stockPercent: 96);
+Console.WriteLine($"stock {r.StockVolume:F2} mL, water {r.WaterVolume:F2} mL, contraction {r.Contraction:F2} mL");
+```
+
+`AlcoholDilution.ByMass` does the same for % w/w targets and an amount in grams.
+
 ## Numerical reference tests
 
 The repository's test project documents the expected numbers: `DdsolverReferenceTests` compares equations,
 point rules and goodness-of-fit definitions with DDSolver 1.0 outputs on 37 formulations;
 `StatisticsReferenceTests` compares ANOVA, Tukey, regression and calibration results with SciPy 1.17 /
-statsmodels 0.14 values produced by `tools/make_stats_reference.py`. Run them with
+statsmodels 0.14 values produced by `tools/make_stats_reference.py`; `AlcoholometryTests` compares the OIML R 22
+formula and its inverses with 6 889 printed table cells (`oiml_r22_reference.json`, `tools/make_oiml_reference.py`). Run them with
 
 ```bash
 dotnet test PTCalc.Core.Tests

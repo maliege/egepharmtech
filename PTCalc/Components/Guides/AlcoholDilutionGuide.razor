@@ -1,0 +1,77 @@
+@* Alkol seyreltme sayfasının kısa rehberi. Hesapla uyumlu tut: OIML R 22 formülü, v/v → w/w sabit nokta
+   iterasyonu, yoğunluktan derece için ikiye bölme, seyreltmede etanol kütle dengesi. Ayrıntılı rehber
+   /about-alcohol-dilution (AlcoholDilutionAbout.razor + AlcoholDilutionGuideEn.razor). TR ve EN blok yan yana durur. *@
+<div class="accordion mb-4 h-100" id="alcRehber">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#alcRehberGovde"
+                    aria-expanded="true" aria-controls="alcRehberGovde">
+                <i class="bi bi-info-circle me-2"></i>
+                @if (Lang.IsEn) { <text>Water–ethanol mixtures: what the tool computes and why simple proportion falls short</text> }
+                else { <text>Su–etanol karışımları: araç neyi hesaplar, basit orantı neden yetmez</text> }
+            </button>
+        </h2>
+        <div id="alcRehberGovde" class="accordion-collapse collapse show" data-bs-parent="#alcRehber">
+            <div class="accordion-body">
+            @if (Lang.IsEn)
+            {
+                <h6 class="text-primary">What it does</h6>
+                <ul class="small text-muted">
+                    <li><strong>Dilution recipe:</strong> how much stock alcohol and water are needed to prepare a given amount at a given strength, as volumes and as weights.</li>
+                    <li><strong>Density from strength:</strong> the density of a water–ethanol mixture at a given temperature and its strength on the other basis (% v/v ↔ % w/w).</li>
+                    <li><strong>Strength from density:</strong> % w/w and % v/v from a measured density.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Why the water is more than simple proportion suggests</h6>
+                <p class="small text-muted">
+                    Ethanol and water contract on mixing: 72.92 mL of 96 % alcohol and 27.08 mL of water give about 97.5 mL,
+                    not 100 mL, and the mixture is slightly stronger than 70 %. The tool therefore works with masses: the
+                    ethanol mass is conserved (m<sub>stock</sub>·w<sub>stock</sub> = m<sub>final</sub>·w<sub>final</sub>),
+                    and the water is the mass difference. For 100 mL of 70 % from 96 % at 20 °C this is 29.74 mL of water.
+                </p>
+                <h6 class="text-primary mt-3">Method</h6>
+                <ul class="small text-muted">
+                    <li>Densities from the OIML R 22 (1975) formula, valid from −20 to 40 °C; the tool reproduces the printed OIML tables (compared on 6 889 cells).</li>
+                    <li>Strength by volume is defined at 20 °C. Converting % v/v to % w/w has no closed-form solution and is solved iteratively; strength from density is solved by bisection.</li>
+                    <li>Volumes in the recipe are volumes at the preparation temperature; weighing is independent of temperature and is the more accurate way to prepare.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Limitations</h6>
+                <ul class="small text-muted">
+                    <li>Pure water–ethanol mixtures only. Dissolved solids (tinctures, extracts) and other volatiles change the density.</li>
+                    <li>The density must be a true density; alcoholometer and hydrometer readings need a glass-expansion correction that is not applied here.</li>
+                    <li>Dilute ethanol-containing injections with 0.9 % sodium chloride, not water.</li>
+                </ul>
+                <p class="small mb-0"><a href="/about-alcohol-dilution">Detailed guide: formula, tables, iterative solution, worked examples and references</a></p>
+            }
+            else
+            {
+                <h6 class="text-primary">Ne yapar?</h6>
+                <ul class="small text-muted">
+                    <li><strong>Seyreltme tarifi:</strong> istenen derece ve miktarda alkol hazırlamak için gereken stok alkol ve su miktarlarını hacim ve kütle olarak verir.</li>
+                    <li><strong>Dereceden yoğunluk:</strong> bir su–etanol karışımının verilen sıcaklıktaki yoğunluğunu ve öbür derece türündeki karşılığını (%v/v ↔ %w/w) verir.</li>
+                    <li><strong>Yoğunluktan derece:</strong> ölçülen yoğunluktan kütlece ve hacimce dereceyi bulur.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Su neden basit orantıdan fazla çıkar?</h6>
+                <p class="small text-muted">
+                    Etanol ile su karışınca hacim küçülür: 72,92 mL %96'lık alkol ile 27,08 mL su 100 mL değil yaklaşık 97,5 mL
+                    verir ve karışım %70'ten biraz yüksek derecede olur. Araç bu yüzden kütleyle çalışır: etanolün kütlesi
+                    korunur (m<sub>stok</sub>·w<sub>stok</sub> = m<sub>son</sub>·w<sub>son</sub>), su kütle farkıdır.
+                    %96'lık alkolden 20 °C'de 100 mL %70'lik alkol için bu 29,74 mL su demektir.
+                </p>
+                <h6 class="text-primary mt-3">Yöntem</h6>
+                <ul class="small text-muted">
+                    <li>Yoğunluklar OIML R 22 (1975) formülünden; formül −20 ile 40 °C arasında geçerlidir. Araç basılı OIML tablolarını üretir (6 889 hücreyle karşılaştırıldı).</li>
+                    <li>Hacimce derece 20 °C'ye göre tanımlıdır. %v/v'den %w/w'ye geçişin kapalı çözümü yoktur, iterasyonla çözülür; yoğunluktan derece ikiye bölme yöntemiyle bulunur.</li>
+                    <li>Tarifteki hacimler hazırlama sıcaklığındaki hacimlerdir; tartarak hazırlamak sıcaklıktan etkilenmez ve daha doğrudur.</li>
+                </ul>
+                <h6 class="text-primary mt-3">Sınırlar</h6>
+                <ul class="small text-muted">
+                    <li>Yalnız saf su–etanol karışımları. Çözünmüş katılar (tentür, ekstre) ve başka uçucular yoğunluğu değiştirir.</li>
+                    <li>Yoğunluk gerçek yoğunluk olmalıdır; alkolmetre ve hidrometre okumaları burada yapılmayan bir cam genleşme düzeltmesi gerektirir.</li>
+                    <li>Etanollü enjeksiyonluk çözeltiler suyla değil %0,9 sodyum klorürle seyreltilir.</li>
+                </ul>
+                <p class="small mb-0"><a href="/about-alcohol-dilution">Ayrıntılı rehber: formül, tablolar, iteratif çözüm, işlenmiş örnekler ve kaynaklar</a></p>
+            }
+            </div>
+        </div>
+    </div>
+</div>

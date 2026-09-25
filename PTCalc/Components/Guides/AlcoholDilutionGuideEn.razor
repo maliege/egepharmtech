@@ -1,0 +1,522 @@
+@* English edition of Pages/AboutApps/AlcoholDilutionAbout.razor (the detailed guide to the alcohol
+   dilution tool: the OIML R 22 alcoholometric equation, volume contraction, the inverse solution and
+   dilution by mass balance). Rendered by that page when Lang.IsEn. Same section ids, anchors, internal
+   links and reference list as the Turkish article; the two files must be updated together. References
+   come from a Consensus search (2026-09); every DOI was checked with Crossref, and sources without a DOI
+   are cited without one. The "history and implementation" section summarises the tool's actual
+   behaviour (PTCalc.Core/Core/Alcoholometry/OimlAlcoholometry.cs and AlcoholDilution.cs,
+   PTCalc.Core.Tests/AlcoholometryTests.cs); if the code or the comparison fixture changes, both editions
+   must change. The worked numbers were computed with the code. *@
+
+<article class="rehber">
+
+    <header class="rehber-bas">
+        <p class="rehber-ustbaslik"><i class="ti ti-flask" aria-hidden="true"></i> Alcohol Dilution · Detailed guide</p>
+        <h1>Water–ethanol mixtures: strength, density and correct dilution</h1>
+        <p class="rehber-ozet">
+            When alcohol and water are mixed, the volumes do not add up: the mixture occupies less space than
+            its components did separately. Dilutions made by "simple proportion" therefore always give a little
+            less mixture than expected, and a slightly stronger one. This page is both the user manual and the
+            theoretical background of the <a href="/alcohol-dilution">Alcohol Dilution</a> tool, which is based
+            on the equation of the International Alcoholometric Tables (OIML R 22).
+        </p>
+        <p class="rehber-surum">Version 1.0 · 25 September 2026 · <a href="/about-alcohol-dilution#surum">version history</a></p>
+        <nav class="rehber-icindekiler" aria-label="Sections">
+            <a href="/about-alcohol-dilution#giris">Introduction</a>
+            <a href="/about-alcohol-dilution#tanimlar">Definitions</a>
+            <a href="/about-alcohol-dilution#buzulme">Volume contraction</a>
+            <a href="/about-alcohol-dilution#oiml">The OIML R 22 equation</a>
+            <a href="/about-alcohol-dilution#tablolar">The OIML tables</a>
+            <a href="/about-alcohol-dilution#ters-cozum">The inverse solution</a>
+            <a href="/about-alcohol-dilution#seyreltme">Dilution calculation</a>
+            <a href="/about-alcohol-dilution#sicaklik">Temperature</a>
+            <a href="/about-alcohol-dilution#kullanim">Using the tool</a>
+            <a href="/about-alcohol-dilution#karsilastirma">Comparison with the printed tables</a>
+            <a href="/about-alcohol-dilution#sinirlar">Limitations</a>
+            <a href="/about-alcohol-dilution#tarihce-uygulama">History and implementation on this site</a>
+            <a href="/about-alcohol-dilution#kaynaklar">References</a>
+        </nav>
+    </header>
+
+    <section id="giris">
+        <h2>Introduction</h2>
+        <p>
+            Ethanol is the solvent diluted most often in the pharmacy and the pharmaceutical technology
+            laboratory. Tinctures and extracts call for an extraction solvent of a given strength; skin and
+            surface antisepsis uses 70 % alcohol; compounded prescriptions, solutions and granulation liquids
+            need hydroalcoholic mixtures of various strengths. What is on the shelf, however, is usually 96 % or
+            absolute alcohol. The task is always the same: to prepare a given amount of mixture at a given
+            strength from a stock of known strength.
+        </p>
+        <p>
+            The familiar "C<sub>1</sub>V<sub>1</sub> = C<sub>2</sub>V<sub>2</sub>" of aqueous solutions is
+            misleading here. Even when the stock volume is right, adding water to make up the missing volume
+            makes the mixture contract: the target volume is not reached and the strength ends up slightly above
+            the target. A correct calculation treats <strong>mass</strong>, not volume, as the conserved quantity
+            and takes the densities, including their temperature dependence, from an internationally agreed
+            equation. This guide covers the concepts first, then the OIML equation and tables, and finally the
+            numerical methods used by the tool and the dilution calculation itself.
+        </p>
+    </section>
+
+    <section id="tanimlar">
+        <h2>Definitions</h2>
+        <p>
+            OIML R 22 defines the "alcoholic strength" of a water–ethanol mixture in two ways (OIML, 1975):
+        </p>
+        <ul>
+            <li><strong>Alcoholic strength by volume</strong> (% v/v, % vol, q): the volume of alcohol at 20 °C
+                contained in the mixture divided by the total volume of the mixture at 20 °C.</li>
+            <li><strong>Alcoholic strength by mass</strong> (% m/m, % w/w, p): the mass of alcohol contained in the
+                mixture divided by the total mass of the mixture.</li>
+        </ul>
+        <p>
+            Strength by volume depends on temperature, which is why the reference temperature is fixed explicitly
+            at 20 °C. Strength by mass does not: warming or cooling a mixture leaves the masses unchanged. The
+            two are related through the densities at 20 °C:
+        </p>
+        <p class="rehber-formul">
+            φ = w · ρ(w, 20 °C) / ρ<sub>E</sub>(20 °C)
+        </p>
+        <p>
+            Here w is the mass fraction, φ the strength by volume (as a fraction), ρ(w, 20 °C) the density of the
+            mixture and ρ<sub>E</sub>(20 °C) that of pure ethanol at 20 °C (789.24 kg/m³). The denominator in the
+            definition is the volume of the <em>mixture</em>, not the sum of the volumes of water and alcohol
+            before mixing. This is not a mere subtlety: mixing 50 mL of alcohol with 50 mL of water does not give
+            50 % v/v but something slightly stronger, because the denominator has shrunk. Meija (2009) uses the
+            "vodka challenge" attributed to Mendeleev to show why volume concentration and the volume fraction
+            before mixing give different numbers.
+        </p>
+    </section>
+
+    <section id="buzulme">
+        <h2>Volume contraction</h2>
+        <p>
+            Hydrogen bonding between water and ethanol packs the molecules in the mixture more tightly than in the
+            pure liquids. As a result the volume change on mixing (the excess volume, V<sup>E</sup>) is
+            <strong>negative</strong> across the whole composition range: the mixture is smaller than the sum of
+            the volumes its components occupied separately. The excess volume has been measured in detail at
+            several temperatures and by different methods (Benson &amp; Kiyohara, 1980; Marsh &amp; Richards, 1980;
+            Grolier &amp; Wilhelm, 1981). Computed from the OIML equation, the molar excess volume at 20 °C reaches
+            its minimum of about −1.1 cm³/mol near an ethanol mole fraction of 0.4.
+        </p>
+        <p>
+            A more intuitive measure for the pharmacist is the percentage of the mixed volumes that "disappears".
+            This relative contraction is largest at about 46–47 % alcohol by mass, a composition corresponding
+            roughly to 1 mol of ethanol to 3 mol of water, which was the starting point of Mendeleev's hydrate
+            interpretations. There, about 3.5 % of the mixed volumes is lost. A practical example: mixing 50 mL of
+            absolute alcohol with 50 mL of water at 20 °C yields about 96.5 mL of mixture.
+        </p>
+        <p>
+            The contraction also changes somewhat with temperature (Marsh &amp; Richards, 1980), so a correct
+            calculation relies not on a single "contraction factor" but on a density equation that depends on both
+            composition and temperature.
+        </p>
+    </section>
+
+    <section id="oiml">
+        <h2>The OIML R 22 equation</h2>
+        <p>
+            International Recommendation No. 22 "Alcoholometry" of the International Organization of Legal
+            Metrology (OIML) was approved at the 4th International Conference of Legal Metrology in October 1972;
+            its first edition appeared in 1973. The "International Alcoholometric Tables" based on it were
+            published in 1975 by the International Bureau of Legal Metrology (BIML) (OIML, 1975). The tables rest
+            on a single equation giving the density of a water–ethanol mixture as a function of mass fraction and
+            temperature:
+        </p>
+        <p class="rehber-formul">
+            ρ(w, t) = A<sub>1</sub> + Σ<sub>k=2</sub><sup>12</sup> A<sub>k</sub> w<sup>k−1</sup>
+            + Σ<sub>k=1</sub><sup>6</sup> B<sub>k</sub> (t − 20)<sup>k</sup>
+            + Σ<sub>i=1</sub><sup>5</sup> Σ<sub>k=1</sub><sup>m<sub>i</sub></sup> C<sub>i,k</sub> w<sup>k</sup> (t − 20)<sup>i</sup>
+        </p>
+        <p>
+            ρ is the density in kg/m³, w the mass fraction (0–1) and t the Celsius temperature (IPTS-68 scale). The
+            first sum gives the density at 20 °C as a function of composition; A<sub>1</sub> = 998.20123 kg/m³ is
+            the density of water at 20 °C. The second sum describes how pure water changes with temperature and the
+            third the interaction of composition and temperature; the upper limits of the inner sums are
+            m = (11, 10, 9, 4, 2). The equation is valid from −20 °C to +40 °C. At 20 °C it gives 789.24 kg/m³ for
+            w = 1 (pure ethanol; the value in the OIML errata) and 998.20 kg/m³ for w = 0 (water).
+        </p>
+        <p>
+            The coefficients were fitted by least squares to five data sets: Kawasaki, Minowa and Inamatsu at the
+            National Research Laboratory of Metrology (NRLM), Tokyo; Jaulmes and Brun Tep at the Faculty of
+            Pharmacy, Montpellier; Osborne, McKelvy and Bearce at the National Bureau of Standards (NBS),
+            Washington (Osborne et al., 1913); Mendeleev's measurements as reconsidered by Georgievskii; and
+            Wagenbreth at the PTB in Germany. A degree of 12 was chosen for the composition polynomial because the
+            standard deviation no longer improved at higher degrees (OIML, 1975).
+        </p>
+        <p>
+            The subject is still being studied: Khattab et al. (2012) measured density, viscosity and surface
+            tension between 293 and 323 K, and Danahy et al. (2018) examined in detail how to compute composition
+            from measured density and temperature. In legal metrology, however, the reference remains the OIML
+            equation.
+        </p>
+    </section>
+
+    <section id="tablolar">
+        <h2>The OIML tables</h2>
+        <p>
+            OIML R 22 contains a series of tables derived from the equation. The tool's three tabs correspond to
+            them:
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Table 1. The OIML R 22 tables. p strength by mass (%), q strength by volume (%, 20 °C), t temperature, ρ<sub>20</sub> density at 20 °C.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Table</th>
+                        <th scope="col">Given → found</th>
+                        <th scope="col">How OIML computed it</th>
+                        <th scope="col">Equivalent in the tool</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">I</th>
+                        <td>p, t → ρ</td>
+                        <td>Directly from the equation</td>
+                        <td>Density from strength (% w/w)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">II</th>
+                        <td>q, t → ρ</td>
+                        <td>q → p by interpolation in IIIb, then the equation</td>
+                        <td>Density from strength (% v/v)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IIIa</th>
+                        <td>p → ρ<sub>20</sub></td>
+                        <td>Directly from the equation</td>
+                        <td>Density from strength, 20 °C</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IIIb</th>
+                        <td>p → q</td>
+                        <td>q = p · ρ<sub>20</sub>(p) / ρ<sub>20</sub>(100 %)</td>
+                        <td>% w/w → % v/v conversion</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IVa</th>
+                        <td>q → ρ<sub>20</sub></td>
+                        <td>q → p from IIIb, then the equation</td>
+                        <td>Density from strength (% v/v), 20 °C</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IVb</th>
+                        <td>q → p</td>
+                        <td>By interpolation in IIIb</td>
+                        <td>% v/v → % w/w conversion</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Va, Vb</th>
+                        <td>ρ<sub>20</sub> → p, q</td>
+                        <td>By interpolation in IIIa and IIIb</td>
+                        <td>Strength from density, 20 °C</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">VI, VII (Annex I)</th>
+                        <td>ρ, t → p, q</td>
+                        <td>From the true density measured at other temperatures</td>
+                        <td>Strength from density, other than 20 °C</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            So that the tables derived by interpolation would not spoil the two printed decimals, OIML required the
+            calculations to be carried out with 16 significant digits and the interpolation to be made from an
+            intermediate table at 0.1 % by mass intervals. Tables VIII–X, which correct glass alcoholometer and
+            hydrometer readings for the expansion of the glass, are not part of this tool.
+        </p>
+        <p>
+            The tool neither reads values from the tables nor interpolates: every result is computed directly from
+            the equation. Where the equation has to be inverted (IVb, Va/Vb, VI/VII), the numerical methods
+            described below are used.
+        </p>
+    </section>
+
+    <section id="ters-cozum">
+        <h2>The inverse solution: from strength by volume to strength by mass</h2>
+        <p>
+            Going from strength by mass to strength by volume is easy: once w is known, ρ(w, 20 °C) is computed and
+            substituted into the φ relation above. The reverse requires solving an equation:
+        </p>
+        <p class="rehber-formul">
+            w · ρ(w, 20 °C) = φ · ρ<sub>E</sub>(20 °C)
+        </p>
+        <p>
+            Since ρ(w, 20 °C) is a polynomial of degree 11 in w, the left-hand side is a polynomial of degree 12. By
+            the Abel–Ruffini theorem there is no general formula expressing the roots of polynomial equations of
+            degree five or higher in terms of the coefficients using arithmetic operations and radicals. OIML
+            therefore performed the conversion by interpolation between tables; the tool uses a numerical method.
+        </p>
+        <p>
+            <strong>Fixed-point iteration.</strong> The equation is written as w = g(w) = φ · ρ<sub>E</sub>(20) /
+            ρ(w, 20) and w<sub>n+1</sub> = g(w<sub>n</sub>) is repeated starting from w<sub>0</sub> = φ. The method
+            converges if |g′(w)| &lt; 1; here |g′(w)| = w · |dρ/dw| / ρ stays below 0.4 over the whole range (≈0.33
+            around 96 % v/v). Each step therefore at least halves the error, and the iteration always converges.
+            It stops when two successive values differ by less than 10<sup>−12</sup> in mass fraction.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Table 2. Iteration steps for φ = 70 % v/v. The result converges to 62.386109 % w/w in 15 steps; with the same criterion 10 % v/v takes 7 steps, 40 % takes 11 and 96 % takes 22.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">n</th>
+                        <th scope="col">w<sub>n</sub> (% w/w)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">0</th><td>70.0000 (start: w<sub>0</sub> = φ)</td></tr>
+                    <tr><th scope="row">1</th><td>63.6769</td></tr>
+                    <tr><th scope="row">2</th><td>62.5991</td></tr>
+                    <tr><th scope="row">3</th><td>62.4211</td></tr>
+                    <tr><th scope="row">4</th><td>62.3919</td></tr>
+                    <tr><th scope="row">5</th><td>62.3871</td></tr>
+                    <tr><th scope="row">…</th><td>…</td></tr>
+                    <tr><th scope="row">15</th><td>62.386109</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <strong>Strength from density: bisection.</strong> Finding the strength by mass from a measured density
+            means solving ρ(w, t) = ρ<sub>measured</sub>. It was checked at 0.01 % steps that, at every temperature
+            from −20 to 40 °C, density decreases steadily as w increases; the root is therefore unique. The tool
+            searches for it on [0, 1] by bisection: if the density at the midpoint of the interval is higher than
+            the measured one, the root lies in the right half, otherwise in the left half. After about 40 halvings
+            the interval is narrower than 10<sup>−12</sup>. The w found is converted to strength by volume with the
+            20 °C relation.
+        </p>
+    </section>
+
+    <section id="seyreltme">
+        <h2>Dilution calculation</h2>
+        <p>
+            In a dilution the conserved quantity is the mass of ethanol. With m<sub>stock</sub> the mass of stock,
+            m<sub>final</sub> the mass of the mixture to be prepared and w<sub>stock</sub>, w<sub>final</sub> the
+            strengths by mass:
+        </p>
+        <p class="rehber-formul">
+            m<sub>stock</sub> · w<sub>stock</sub> = m<sub>final</sub> · w<sub>final</sub> &nbsp;&nbsp;&nbsp;
+            m<sub>water</sub> = m<sub>final</sub> − m<sub>stock</sub> &nbsp;&nbsp;&nbsp;
+            m<sub>final</sub> = V<sub>final</sub> · ρ<sub>final</sub>(t)
+        </p>
+        <p>
+            When the target is given by volume, the strengths are first converted to strengths by mass and the
+            required volume is turned into a mass using the density of the mixture at the preparation temperature.
+            Once the masses of stock and water are known, their volumes are computed from their own densities at the
+            same temperature. The mass balance holds at any temperature. For a dilution by volume prepared at
+            20 °C the stock volume equals the one given by simple proportion (V · φ<sub>target</sub> /
+            φ<sub>stock</sub>), because the volume of ethanol at 20 °C is conserved by definition; the water
+            required, however, is more than simple proportion suggests, because of contraction.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Table 3. Examples of % v/v dilutions at 20 °C (from the tool). "Simple proportion" takes the water as the target volume minus the stock volume; contraction is the amount by which the stock and water volumes together exceed the target volume.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Stock → target</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Water (correct)</th>
+                        <th scope="col">Water (simple proportion)</th>
+                        <th scope="col">Contraction</th>
+                        <th scope="col">Final mass</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">96 % → 70 %</th><td>100 mL</td><td>72.92 mL (58.87 g)</td><td>29.74 mL (29.68 g)</td><td>27.08 mL</td><td>2.65 mL</td><td>88.56 g</td></tr>
+                    <tr><th scope="row">96 % → 50 %</th><td>100 mL</td><td>52.08 mL (42.05 g)</td><td>51.05 mL (50.96 g)</td><td>47.92 mL</td><td>3.14 mL</td><td>93.01 g</td></tr>
+                    <tr><th scope="row">90 % → 70 %</th><td>100 mL</td><td>77.78 mL (64.49 g)</td><td>24.11 mL (24.06 g)</td><td>22.22 mL</td><td>1.89 mL</td><td>88.56 g</td></tr>
+                    <tr><th scope="row">80 % → 60 %</th><td>100 mL</td><td>75.00 mL (64.45 g)</td><td>26.51 mL (26.47 g)</td><td>25.00 mL</td><td>1.51 mL</td><td>90.91 g</td></tr>
+                    <tr><th scope="row">96 % → 70 %</th><td>50 mL</td><td>36.46 mL (29.44 g)</td><td>14.87 mL (14.84 g)</td><td>13.54 mL</td><td>1.33 mL</td><td>44.28 g</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <strong>Why simple proportion is not enough.</strong> To make 100 mL of 70 % alcohol from 96 %, if
+            27.08 mL of water is added to 72.92 mL of stock by simple proportion, the mixture comes to about 97.5 mL
+            and its strength is about 71.8 % instead of 70 %. This is why pharmacists often follow a "prepare 10 %
+            extra" rule: for 50 mL, for example, the calculation is done for 55 mL and the surplus discarded. That
+            closes the volume gap but does not correct the strength. The correct amount of water (here 29.74 mL)
+            brings both the volume and the strength to target, and nothing extra needs to be prepared.
+        </p>
+        <p>
+            When the target is given by mass (% w/w, amount in g), the calculation is a plain mass balance; density
+            and temperature are used only to compute the volumes shown for information.
+        </p>
+    </section>
+
+    <section id="sicaklik">
+        <h2>Temperature</h2>
+        <p>
+            Strength by volume is defined with respect to volumes at 20 °C; 70 % v/v alcohol is 70 % once brought to
+            20 °C, whatever the temperature at which it was prepared. Volumes measured with glassware, however, are
+            volumes at the temperature of measurement. The tool therefore computes the stock, water and mixture
+            volumes from densities at the <strong>preparation temperature</strong>. For example, making 100 mL of
+            70 % alcohol from 96 % at 25 °C takes 72.96 mL (58.60 g) of stock and 29.63 mL (29.54 g) of water, with a
+            final mass of 88.14 g. The difference from the 20 °C values is small, but because concentrated alcohol
+            expands markedly more than water it grows as the temperature moves away from 20 °C.
+        </p>
+        <p>
+            Masses do not depend on temperature. The most reliable approach is therefore to <strong>prepare by
+            weighing</strong>: the tool gives the mass alongside the volume at every step. Adding the stock alcohol
+            and the water by weight into a tared vessel removes both the reading error of the measuring vessel and
+            the effect of temperature. The thermal expansion of the glassware itself is not taken into account.
+        </p>
+    </section>
+
+    <section id="kullanim">
+        <h2>Using the tool</h2>
+        <p>
+            The <a href="/alcohol-dilution">Alcohol Dilution</a> tool has three tabs.
+        </p>
+        <ol>
+            <li><strong>Dilution recipe.</strong> Enter the stock strength, the target strength, the amount to
+                prepare and the preparation temperature (−20…40 °C), and choose % v/v (amount in mL) or % w/w (amount
+                in g) as the basis. The target must be greater than 0 and lower than the stock, and the stock at most
+                100. The result is a step-by-step recipe: the volume and mass of stock to take, the volume and mass of
+                water to add, the final mass, the volume lost on mixing and the water volume simple proportion would
+                have suggested.</li>
+            <li><strong>Density from strength.</strong> Enter a strength (% v/v or % w/w) and a temperature; the
+                density of the mixture is given in kg/m³ and g/mL, together with the strength on the other basis
+                (% v/v ↔ % w/w). This tab corresponds to OIML Tables I, II, IIIa, IIIb, IVa and IVb.</li>
+            <li><strong>Strength from density.</strong> Enter a measured true density and the measurement
+                temperature; the strength by mass (% w/w) and the strength by volume at 20 °C (% v/v) are given. At
+                20 °C the result corresponds to Tables Va/Vb, at other temperatures to Tables VI/VII of Annex I. The
+                density must lie between the densities of pure ethanol and pure water at that temperature. Example:
+                885.00 kg/m³ at 20 °C → 62.63 % w/w, 70.23 % v/v; the same density measured at 25 °C → 60.83 % w/w,
+                68.54 % v/v.</li>
+        </ol>
+        <p>
+            The strength-from-density tab does not correct glass alcoholometer or hydrometer readings (OIML Tables
+            VIII–X); the value entered must be a true density, obtained for example with an oscillating U-tube
+            density meter or a pycnometer.
+        </p>
+    </section>
+
+    <section id="karsilastirma">
+        <h2>Comparison with the printed tables</h2>
+        <p>
+            The tool was compared with the printed tables of OIML R 22. The tables were read from scanned pages into
+            a test fixture; reading (OCR) errors were removed without using the calculation code, relying only on the
+            internal consistency of each table row. The fixture contains 6 889 cells from 8 tables; in 6 884 of them
+            the code's result rounded to two decimals equals the printed value. In the remaining 5 cells the
+            difference is 0.01, and every one of them lies exactly on a rounding boundary (third decimal 5).
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Table 4. Number of cells compared. For Tables I and II every 5 °C column was used.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Table</th>
+                        <th scope="col">I</th>
+                        <th scope="col">II</th>
+                        <th scope="col">IIIa</th>
+                        <th scope="col">IIIb</th>
+                        <th scope="col">IVa</th>
+                        <th scope="col">IVb</th>
+                        <th scope="col">Va</th>
+                        <th scope="col">Vb</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Cells</th>
+                        <td>619</td><td>633</td><td>588</td><td>781</td><td>795</td><td>757</td><td>1 525</td><td>1 191</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            The comparison is a unit test (<code>PTCalc.Core.Tests/AlcoholometryTests.cs</code>) and runs with the
+            test suite. The fixture is generated by the <code>tools/make_oiml_reference.py</code> script; the OIML
+            publication itself is not in the repository.
+        </p>
+    </section>
+
+    <section id="sinirlar">
+        <h2>Limitations</h2>
+        <ul>
+            <li><strong>Water–ethanol only.</strong> The equation is for a binary mixture. In tinctures and extracts,
+                dissolved solids raise the density, and the strength derived from density departs from the true
+                alcohol content; for such samples the alcohol should first be separated by distillation, or a
+                correction for the dry residue applied (Bernatonienė et al., 2003). Congeners such as methanol and
+                fusel oils can also shift the strength by 0.2–0.4 points (Kolesnov et al., 2023).</li>
+            <li><strong>No hydrometer correction.</strong> The glass expansion correction needed for glass
+                alcoholometer and hydrometer readings (Tables VIII–X) is not applied; the input must be a true
+                density.</li>
+            <li><strong>Freezing at low temperatures.</strong> Low-strength mixtures freeze at low temperatures, which
+                is why OIML Table I starts, at each temperature, from the minimum permissible strength. The equation
+                still returns a number in that region, but it does not correspond to a liquid mixture.</li>
+            <li><strong>Pressure.</strong> The equation applies at normal atmospheric pressure.</li>
+            <li><strong>Injectable solutions.</strong> The tool dilutes the stock with water. For ethanol-containing
+                injections the diluent should be 0.9 % NaCl rather than water, otherwise the hypotonic mixture may
+                cause haemolysis (Serdons et al., 2008). Because the density of normal saline differs slightly from
+                that of water, the calculation is then approximate.</li>
+            <li><strong>Practice note.</strong> 70 % alcohol used for ethanol-lock therapy has been reported to remain
+                stable for 14 days in polypropylene syringes (Cober &amp; Johnson, 2007); storage conditions should be
+                assessed separately.</li>
+        </ul>
+    </section>
+
+    <section id="tarihce-uygulama" class="rehber-uygulama">
+        <h2><i class="ti ti-tool" aria-hidden="true"></i> History and implementation on this site</h2>
+        <p>
+            <strong>The history of this tool.</strong> The tool is the successor of a Windows desktop program
+            (WinForms) by the author (Mehmet Ali Ege). The program was written because pharmacists diluting by
+            simple proportion always ended up with less alcohol than expected; the author also built an
+            Arduino-based dilution device working on the same calculation. In the desktop version the conversion
+            between strength by volume and by mass used a 4th-degree polynomial fitted in Excel; its error reached
+            ±0.12 points (% w/w) over 0–96 % and −0.36 points at 100 %. In the web version that approximate
+            polynomial has been replaced by the OIML R 22 equation itself.
+        </p>
+        <ul>
+            <li><strong>Equation:</strong> <code>PTCalc.Core/Core/Alcoholometry/OimlAlcoholometry.cs</code>, ρ(w, t)
+                with the OIML R 22 coefficients; valid from −20 to 40 °C.</li>
+            <li><strong>% v/v → % w/w:</strong> fixed-point iteration, w<sub>0</sub> = φ, tolerance 10<sup>−12</sup>
+                (mass fraction).</li>
+            <li><strong>Density → strength:</strong> bisection on [0, 1], tolerance 10<sup>−12</sup>; an error message
+                if the density lies outside the ethanol and water densities at that temperature.</li>
+            <li><strong>Dilution:</strong> <code>PTCalc.Core/Core/Alcoholometry/AlcoholDilution.cs</code>, ethanol mass
+                balance; volumes from densities at the preparation temperature; contraction = V<sub>stock</sub> +
+                V<sub>water</sub> − V<sub>final</sub>.</li>
+            <li><strong>Comparison:</strong> <code>PTCalc.Core.Tests/AlcoholometryTests.cs</code> and
+                <code>oiml_r22_reference.json</code> (6 889 printed table cells); plus unit tests for the round trip of
+                the conversions, the density-to-strength solution at every temperature and the dilution mass
+                balance.</li>
+        </ul>
+    </section>
+
+    <section id="kaynaklar" class="rehber-kaynaklar">
+        <h2>References</h2>
+        <ol>
+            <li>Benson, G. C., &amp; Kiyohara, O. (1980). Thermodynamics of aqueous mixtures of nonelectrolytes. I. Excess volumes of water-n-alcohol mixtures at several temperatures. <em>Journal of Solution Chemistry, 9</em>(10), 791-804. <a href="https://doi.org/10.1007/BF00646798" target="_blank" rel="noopener">doi:10.1007/BF00646798</a></li>
+            <li>Bernatonienė, J., Bernatonienė, R., &amp; Baranauskas, A. (2003). [Determination of ethanol concentration in tinctures]. <em>Medicina (Kaunas), 39</em>(Suppl. 2), 42-44. <a href="https://pubmed.ncbi.nlm.nih.gov/14617857/" target="_blank" rel="noopener">PMID:14617857</a></li>
+            <li>Cober, M. P., &amp; Johnson, C. E. (2007). Stability of 70% alcohol solutions in polypropylene syringes for use in ethanol-lock therapy. <em>American Journal of Health-System Pharmacy, 64</em>(23), 2480-2482. <a href="https://doi.org/10.2146/ajhp070233" target="_blank" rel="noopener">doi:10.2146/ajhp070233</a></li>
+            <li>Danahy, B. B., Minnick, D. L., &amp; Shiflett, M. B. (2018). Computing the composition of ethanol-water mixtures based on experimental density and temperature measurements. <em>Fermentation, 4</em>(3), 72. <a href="https://doi.org/10.3390/fermentation4030072" target="_blank" rel="noopener">doi:10.3390/fermentation4030072</a></li>
+            <li>Grolier, J.-P. E., &amp; Wilhelm, E. (1981). Excess volumes and excess heat capacities of water + ethanol at 298.15 K. <em>Fluid Phase Equilibria, 6</em>(3-4), 283-287. <a href="https://doi.org/10.1016/0378-3812(81)85011-X" target="_blank" rel="noopener">doi:10.1016/0378-3812(81)85011-X</a></li>
+            <li>Khattab, I. S., Bandarkar, F., Fakhree, M. A. A., &amp; Jouyban, A. (2012). Density, viscosity, and surface tension of water+ethanol mixtures from 293 to 323K. <em>Korean Journal of Chemical Engineering, 29</em>(6), 812-817. <a href="https://doi.org/10.1007/s11814-011-0239-6" target="_blank" rel="noopener">doi:10.1007/s11814-011-0239-6</a></li>
+            <li>Kolesnov, A., Charapitsa, S., Sytova, S., Kavalenka, A., Sabalenka, L., Zayats, M., &amp; Leschev, S. (2023). Correct determination of alcoholic strength in alcoholic products. <em>BIO Web of Conferences, 68</em>, 02030. <a href="https://doi.org/10.1051/bioconf/20236802030" target="_blank" rel="noopener">doi:10.1051/bioconf/20236802030</a></li>
+            <li>Marsh, K. N., &amp; Richards, A. E. (1980). Excess volumes for ethanol + water mixtures at 10-K intervals from 278.15 to 338.15 K. <em>Australian Journal of Chemistry, 33</em>(10), 2121-2132. <a href="https://doi.org/10.1071/CH9802121" target="_blank" rel="noopener">doi:10.1071/CH9802121</a></li>
+            <li>Meija, J. (2009). Solution to Mendeleyev vodka challenge. <em>Analytical and Bioanalytical Chemistry, 395</em>(1), 7-8. <a href="https://doi.org/10.1007/s00216-009-2937-z" target="_blank" rel="noopener">doi:10.1007/s00216-009-2937-z</a></li>
+            <li>OIML. (1975). <em>International Alcoholometric Tables</em> (OIML R 22; International Recommendation No. 22 "Alcoholometry", 1973). Paris: Bureau International de Métrologie Légale. <a href="https://www.oiml.org" target="_blank" rel="noopener">www.oiml.org</a></li>
+            <li>Osborne, N. S., McKelvy, E. C., &amp; Bearce, H. W. (1913). Density and thermal expansion of ethyl alcohol and of its mixtures with water. <em>Bulletin of the Bureau of Standards, 9</em>(3), 327-474. <a href="https://doi.org/10.6028/bulletin.215" target="_blank" rel="noopener">doi:10.6028/bulletin.215</a></li>
+            <li>Serdons, K., Verbruggen, A., &amp; Bormans, G. (2008). The presence of ethanol in radiopharmaceutical injections. <em>Journal of Nuclear Medicine, 49</em>(12), 2071. <a href="https://doi.org/10.2967/jnumed.108.057026" target="_blank" rel="noopener">doi:10.2967/jnumed.108.057026</a></li>
+        </ol>
+    </section>
+
+    <section id="surum" class="rehber-surum-gecmisi">
+        <h2>Version history</h2>
+        <ul>
+            <li><strong>1.0 · 25 September 2026.</strong> First release: definitions, volume contraction, the OIML
+                R 22 equation and tables, the inverse solution, dilution calculation, temperature, using the tool,
+                comparison with the printed tables, limitations, 12 references; Turkish and English.</li>
+        </ul>
+    </section>
+
+    <footer class="rehber-alt">
+        <a href="/alcohol-dilution" class="rehber-cta"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to the Alcohol Dilution tool</a>
+    </footer>
+
+</article>

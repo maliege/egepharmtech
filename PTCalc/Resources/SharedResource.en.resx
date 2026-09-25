@@ -423,4 +423,50 @@
   <data name="Adım adım: ters tahmin nasıl hesaplanır?" xml:space="preserve"><value>Step by step: how is the inverse prediction computed?</value></data>
   <data name="Bu eğri için sabitler" xml:space="preserve"><value>Constants for this curve</value></data>
   <data name="Bilinmeyenler" xml:space="preserve"><value>Unknowns</value></data>
+  <data name="Alkol Seyreltme" xml:space="preserve"><value>Alcohol Dilution</value></data>
+  <data name="Alkol Seyreltme Rehberi" xml:space="preserve"><value>Alcohol Dilution Guide</value></data>
+  <data name="Seyreltme tarifi" xml:space="preserve"><value>Dilution recipe</value></data>
+  <data name="Dereceden yoğunluk" xml:space="preserve"><value>Density from strength</value></data>
+  <data name="Yoğunluktan derece" xml:space="preserve"><value>Strength from density</value></data>
+  <data name="Elinizdeki stok alkolden istediğiniz derece ve miktarda alkol hazırlamak için gereken stok alkol ve su miktarlarını hesaplar. Karışınca hacim küçüldüğü için su, basit orantının verdiğinden fazladır." xml:space="preserve"><value>Calculates how much stock alcohol and water you need to prepare a given amount of alcohol at the strength you want. Because the volume shrinks on mixing, more water is needed than simple proportion suggests.</value></data>
+  <data name="Derece türü" xml:space="preserve"><value>Strength basis</value></data>
+  <data name="Hacimce (%v/v, 20 °C) — miktar mL" xml:space="preserve"><value>By volume (% v/v, 20 °C) — amount in mL</value></data>
+  <data name="Kütlece (%w/w) — miktar g" xml:space="preserve"><value>By mass (% w/w) — amount in g</value></data>
+  <data name="Stok alkol derecesi (%)" xml:space="preserve"><value>Stock alcohol strength (%)</value></data>
+  <data name="Hedef derece (%)" xml:space="preserve"><value>Target strength (%)</value></data>
+  <data name="Hazırlanacak miktar (mL)" xml:space="preserve"><value>Amount to prepare (mL)</value></data>
+  <data name="Hazırlanacak miktar (g)" xml:space="preserve"><value>Amount to prepare (g)</value></data>
+  <data name="Hazırlanacak miktar" xml:space="preserve"><value>Amount to prepare</value></data>
+  <data name="Hazırlama sıcaklığı (°C)" xml:space="preserve"><value>Preparation temperature (°C)</value></data>
+  <data name="Bilinen dereceli bir su–etanol karışımının verilen sıcaklıktaki yoğunluğunu ve öbür derece türündeki karşılığını verir (OIML Tablo I–IV)." xml:space="preserve"><value>Gives the density of a water–ethanol mixture of known strength at a given temperature, and its strength on the other basis (OIML Tables I–IV).</value></data>
+  <data name="Hacimce (%v/v, 20 °C)" xml:space="preserve"><value>By volume (% v/v, 20 °C)</value></data>
+  <data name="Kütlece (%w/w)" xml:space="preserve"><value>By mass (% w/w)</value></data>
+  <data name="Alkol derecesi (%)" xml:space="preserve"><value>Alcohol strength (%)</value></data>
+  <data name="Sıcaklık (°C)" xml:space="preserve"><value>Temperature (°C)</value></data>
+  <data name="Ölçülen gerçek yoğunluktan kütlece ve hacimce alkol derecesini bulur. 20 °C&#x27;de OIML Tablo Va/Vb, başka sıcaklıklarda Tablo VI/VII&#x27;ye karşılık gelir. Cam alkolmetre okumaları için cam genleşme düzeltmesi yapılmaz." xml:space="preserve"><value>Finds the alcoholic strength by mass and by volume from a measured true density. At 20 °C this corresponds to OIML Tables Va/Vb, at other temperatures to Tables VI/VII. No glass-expansion correction is applied for glass alcoholometer readings.</value></data>
+  <data name="Ölçülen yoğunluk" xml:space="preserve"><value>Measured density</value></data>
+  <data name="Ölçüm sıcaklığı (°C)" xml:space="preserve"><value>Measurement temperature (°C)</value></data>
+  <data name="Tarif" xml:space="preserve"><value>Recipe</value></data>
+  <data name="%{0} ({1}) alkol, {2} mL" xml:space="preserve"><value>{0}% ({1}) alcohol, {2} mL</value></data>
+  <data name="%{0} ({1}) alkol, {2} g" xml:space="preserve"><value>{0}% ({1}) alcohol, {2} g</value></data>
+  <data name="stok %{0} ({1}), {2} °C" xml:space="preserve"><value>stock {0}% ({1}), {2} °C</value></data>
+  <data name="{0} derecelik alkolden {1} mL ölçün (ya da {2} g tartın)." xml:space="preserve"><value>Measure {1} mL of {0}% alcohol (or weigh {2} g).</value></data>
+  <data name="Üzerine {0} mL saf su ekleyin (ya da {1} g tartın)." xml:space="preserve"><value>Add {0} mL of purified water (or weigh {1} g).</value></data>
+  <data name="%{0} (w/w) alkolden {1} g tartın (≈ {2} mL)." xml:space="preserve"><value>Weigh {1} g of {0}% (w/w) alcohol (≈ {2} mL).</value></data>
+  <data name="Üzerine {0} g saf su ekleyin (≈ {1} mL)." xml:space="preserve"><value>Add {0} g of purified water (≈ {1} mL).</value></data>
+  <data name="İyice karıştırın." xml:space="preserve"><value>Mix thoroughly.</value></data>
+  <data name="Son karışım" xml:space="preserve"><value>Final mixture</value></data>
+  <data name="Kütlece / hacimce derece" xml:space="preserve"><value>Strength by mass / by volume</value></data>
+  <data name="Saf etanol" xml:space="preserve"><value>Pure ethanol</value></data>
+  <data name="Hacim büzülmesi" xml:space="preserve"><value>Volume contraction</value></data>
+  <data name="Basit orantıyla su" xml:space="preserve"><value>Water by simple proportion</value></data>
+  <data name="Alkol ile su karışınca hacim {0} mL azalır; su bu yüzden hacim farkından değil kütle dengesinden hesaplanır." xml:space="preserve"><value>The volume shrinks by {0} mL when the alcohol and water are mixed, so the water is calculated from the mass balance, not from the volume difference.</value></data>
+  <data name="Hacimler {0} °C&#x27;de ölçülmelidir; tartarak hazırlamak sıcaklıktan etkilenmez." xml:space="preserve"><value>Measure the volumes at {0} °C; preparing by weight is not affected by temperature.</value></data>
+  <data name="Yoğunluk ({0} °C)" xml:space="preserve"><value>Density ({0} °C)</value></data>
+  <data name="Kütlece derece" xml:space="preserve"><value>Strength by mass</value></data>
+  <data name="Hacimce derece (20 °C)" xml:space="preserve"><value>Strength by volume (20 °C)</value></data>
+  <data name="Ölçülen yoğunluk ({0} °C)" xml:space="preserve"><value>Measured density ({0} °C)</value></data>
+  <data name="&quot;{0}&quot; alanına bir sayı girin." xml:space="preserve"><value>Enter a number in the "{0}" field.</value></data>
+  <data name="Stok alkolden istenen derece ve miktarda seyreltme tarifi, dereceden yoğunluk ve yoğunluktan derece (OIML R 22)" xml:space="preserve"><value>Recipe for diluting stock alcohol to a given strength and amount, density from strength and strength from density (OIML R 22)</value></data>
+  <data name="Hacim büzülmesi, OIML R 22 formülü ve tabloları, iteratif çözüm, işlenmiş seyreltme örnekleri; 12 kaynak" xml:space="preserve"><value>Volume contraction, the OIML R 22 formula and tables, the iterative solution, worked dilution examples; 12 references</value></data>
 </root>

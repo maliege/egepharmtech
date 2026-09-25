@@ -26,11 +26,16 @@ gök atlası, botanik bağlantıları) **https://maege.tr** adresindedir.
 | Tek yönlü ANOVA — F testi, Levene, Tukey HSD (Tukey-Kramer), η²/ω² | `/anova` | `PTCalc.Core/Core/Statistics/OneWayAnova.cs`, `StudentizedRange.cs` | sayfa içi |
 | Çoklu doğrusal regresyon — katsayı testleri, model ANOVA, VIF, Durbin-Watson, tahmin/öngörü aralığı | `/regression` | `PTCalc.Core/Core/Statistics/MultipleRegression.cs` | sayfa içi |
 | Kalibrasyon eğrisi — doğrusal fit, LOD/LOQ (ICH Q2(R2)), geri hesap doğruluğu, düzey %RSD | `/calibration` | `PTCalc.Core/Core/Statistics/CalibrationCurve.cs` | sayfa içi |
+| Alkol seyreltme — stok alkolden istenen derece ve miktarda seyreltme tarifi (hacimce ya da tartarak, hacim büzülmesiyle), dereceden yoğunluk, yoğunluktan derece; OIML R 22 formülü, −20…40 °C | `/alcohol-dilution` | `PTCalc.Core/Core/Alcoholometry` | [/about-alcohol-dilution](https://ptcalc.tr/about-alcohol-dilution) |
 
 Kinetik motorun sonuçları DDSolver 1.0 çıktılarıyla karşılaştırılmıştır (32 çalışma sayfası, 37 formülasyon):
 aynı parametrelerde SS ve uyum ölçütleri birebir yeniden üretilir; kareler toplamlarındaki küçük farklar
 çözücülerin durma kriterlerinden gelir (`PTCalc.Core.Tests/DdsolverReferenceTests.cs`). ANOVA, Tukey HSD, regresyon
 ve kalibrasyon sonuçları SciPy/statsmodels çıktılarıyla karşılaştırılır (`StatisticsReferenceTests.cs`, `stats_reference.json`).
+Alkolometri hesabı basılı OIML R 22 tablolarıyla karşılaştırılır: Tablo I, II, IIIa, IIIb, IVa, IVb, Va ve Vb'den
+`tools/make_oiml_reference.py` ile okunan 6 889 hücrenin (OCR hataları kodla değil tablonun kendi satır tutarlılığıyla
+ayıklandı) 6 884'ü iki ondalığa yuvarlanınca basılı değerle aynıdır, 5'i yuvarlama sınırında 0,01 farklıdır
+(`AlcoholometryTests.cs`, `oiml_r22_reference.json`).
 
 ## Mimari
 

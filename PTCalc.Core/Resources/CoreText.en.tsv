@@ -128,3 +128,10 @@ Ortalama geri hesap doğruluğu kabul sınırı dışında (±%15, en düşük d
 Tekrar %RSD'si %15'i aşan düzey(ler): {0}.	Level(s) with replicate RSD above 15%: {0}.
 Bazı düzeylerde tek ölçüm var; tekrar kesinliği (%RSD) hesaplanamaz.	Some levels have a single measurement; replicate precision (RSD%) cannot be computed.
 ICH Q2(R2) doğrusallık için en az beş konsantrasyon düzeyi önerir; burada {0} düzey var.	ICH Q2(R2) recommends at least five concentration levels for linearity; there are {0} here.
+# --- Alcoholometry (OIML R 22) ---
+Yoğunluk {0} °C'de {1:F2} ile {2:F2} kg/m³ arasında olmalıdır.	At {0} °C the density must be between {1:F2} and {2:F2} kg/m³.
+Alkol oranı 0 ile 100 arasında olmalıdır.	The alcohol strength must be between 0 and 100.
+Sıcaklık {0} ile {1} °C arasında olmalıdır (OIML R 22 geçerlilik aralığı).	The temperature must be between {0} and {1} °C (the validity range of OIML R 22).
+Hazırlanacak miktar sıfırdan büyük olmalıdır.	The amount to prepare must be greater than zero.
+Stok alkol derecesi 0'dan büyük, en çok 100 olmalıdır.	The stock alcohol strength must be greater than 0 and at most 100.
+Hedef derece 0'dan büyük ve stok dereceden küçük olmalıdır.	The target strength must be greater than 0 and lower than the stock strength.

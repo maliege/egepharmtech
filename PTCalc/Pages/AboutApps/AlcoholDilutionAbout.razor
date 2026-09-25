@@ -1,0 +1,517 @@
+@page "/about-alcohol-dilution"
+
+@* Alkol Seyreltme aracının ayrıntılı rehberi ve kuramsal arka planı (OIML R 22 alkolometri denklemi,
+   hacim büzülmesi, ters çözüm, kütle dengesiyle seyreltme). Metin özgündür; atıflar sondaki kaynak
+   listesine yapılır (2026-09 Consensus taraması; tüm DOI'ler Crossref ile doğrulandı, DOI'si olmayan
+   kaynaklar DOI'siz verildi). "Tarihçe ve bu sitedeki uygulama" bölümü aracın gerçek davranışını
+   özetler (PTCalc.Core/Core/Alcoholometry/OimlAlcoholometry.cs ve AlcoholDilution.cs,
+   PTCalc.Core.Tests/AlcoholometryTests.cs); kod ya da karşılaştırma fikstürü değişirse burası da
+   değişmeli. Sayısal örnekler koddan hesaplandı. *@
+
+<SiteTitle Text="Alkol Seyreltme Rehberi" />
+
+@* İngilizce sürüm ayrı bileşende (Components/Guides/AlcoholDilutionGuideEn.razor); iki metin birlikte güncellenir. *@
+@if (Lang.IsEn)
+{
+    <AlcoholDilutionGuideEn />
+}
+else
+{
+<article class="rehber">
+
+    <header class="rehber-bas">
+        <p class="rehber-ustbaslik"><i class="ti ti-flask" aria-hidden="true"></i> Alkol Seyreltme · Ayrıntılı rehber</p>
+        <h1>Su–etanol karışımları: derece, yoğunluk ve doğru seyreltme</h1>
+        <p class="rehber-ozet">
+            Alkol ile su karıştırıldığında hacimler toplanmaz; karışım, bileşenlerin hacimleri toplamından daha
+            küçük bir hacim kaplar. Bu yüzden "basit orantı" ile yapılan seyreltmeler her zaman beklenenden az ve
+            biraz daha derişik karışım verir. Bu sayfa, uluslararası alkolometri tablolarının (OIML R 22) denklemine
+            dayanan <a href="/alcohol-dilution">Alkol Seyreltme</a> aracının hem kullanım kılavuzu hem kuramsal
+            arka planıdır.
+        </p>
+        <p class="rehber-surum">Sürüm 1.0 · 25 Eylül 2026 · <a href="/about-alcohol-dilution#surum">sürüm geçmişi</a></p>
+        <nav class="rehber-icindekiler" aria-label="Bölümler">
+            <a href="/about-alcohol-dilution#giris">Giriş</a>
+            <a href="/about-alcohol-dilution#tanimlar">Tanımlar</a>
+            <a href="/about-alcohol-dilution#buzulme">Hacim büzülmesi</a>
+            <a href="/about-alcohol-dilution#oiml">OIML R 22 denklemi</a>
+            <a href="/about-alcohol-dilution#tablolar">OIML tabloları</a>
+            <a href="/about-alcohol-dilution#ters-cozum">Ters çözüm</a>
+            <a href="/about-alcohol-dilution#seyreltme">Seyreltme hesabı</a>
+            <a href="/about-alcohol-dilution#sicaklik">Sıcaklık</a>
+            <a href="/about-alcohol-dilution#kullanim">Aracın kullanımı</a>
+            <a href="/about-alcohol-dilution#karsilastirma">Basılı tablolarla karşılaştırma</a>
+            <a href="/about-alcohol-dilution#sinirlar">Sınırlar</a>
+            <a href="/about-alcohol-dilution#tarihce-uygulama">Tarihçe ve bu sitedeki uygulama</a>
+            <a href="/about-alcohol-dilution#kaynaklar">Kaynaklar</a>
+        </nav>
+    </header>
+
+    <section id="giris">
+        <h2>Giriş</h2>
+        <p>
+            Etanol, eczanede ve farmasötik teknoloji laboratuvarında en sık seyreltilen çözücüdür. Tentür ve
+            ekstrelerin hazırlanmasında ekstraksiyon çözücüsü olarak belirli bir derecede alkol istenir; cilt ve
+            yüzey antisepsisinde %70'lik alkol kullanılır; majistral reçetelerde, çözeltilerde ve granülasyon
+            sıvılarında farklı derecelerde hidroalkolik karışımlar gerekir. Stokta ise çoğunlukla %96'lık ya da
+            mutlak alkol bulunur. Her seferinde yapılan iş aynıdır: derecesi bilinen stoktan, istenen derecede ve
+            miktarda karışım hazırlamak.
+        </p>
+        <p>
+            Sulu çözeltilerde alışılan "C<sub>1</sub>V<sub>1</sub> = C<sub>2</sub>V<sub>2</sub>" hesabı bu işte
+            yanıltır. Stok hacmi doğru bulunsa bile, eksik kalan hacim kadar su eklendiğinde karışım büzülür:
+            hedeflenen hacme ulaşılmaz ve derece hedefin biraz üstünde kalır. Doğru hesap, hacmi değil
+            <strong>kütleyi</strong> korunan büyüklük olarak alır ve yoğunlukları, sıcaklığı da hesaba katan
+            uluslararası bir denklemden okur. Bu rehber önce kavramları, sonra OIML denklemini ve tablolarını,
+            ardından aracın kullandığı sayısal yöntemleri ve seyreltme hesabını anlatır.
+        </p>
+    </section>
+
+    <section id="tanimlar">
+        <h2>Tanımlar</h2>
+        <p>
+            OIML R 22, su–etanol karışımının "alkol derecesini" iki biçimde tanımlar (OIML, 1975):
+        </p>
+        <ul>
+            <li><strong>Hacimce alkol derecesi</strong> (% v/v, % vol, q): karışımda bulunan alkolün 20 °C'deki
+                hacminin, karışımın 20 °C'deki toplam hacmine oranı.</li>
+            <li><strong>Kütlece alkol oranı</strong> (% m/m, % w/w, p): karışımdaki alkol kütlesinin karışımın
+                toplam kütlesine oranı.</li>
+        </ul>
+        <p>
+            Hacimce derecenin tanımı sıcaklığa bağlıdır; bu yüzden referans sıcaklık açıkça 20 °C olarak konmuştur.
+            Kütlece oran ise sıcaklıktan bağımsızdır; bir karışımı ısıtmak ya da soğutmak kütleleri değiştirmez.
+            İki ifade 20 °C yoğunlukları üzerinden birbirine dönüşür:
+        </p>
+        <p class="rehber-formul">
+            φ = w · ρ(w, 20 °C) / ρ<sub>E</sub>(20 °C)
+        </p>
+        <p>
+            Burada w kütle kesri, φ hacimce derece (kesir olarak), ρ(w, 20 °C) karışımın, ρ<sub>E</sub>(20 °C) ise
+            saf etanolün 20 °C'deki yoğunluğudur (789,24 kg/m³). Tanımdaki payda <em>karışımın</em> hacmidir;
+            karıştırmadan önceki su ve alkol hacimlerinin toplamı değildir. Bu ayrım önemsiz bir incelik değildir:
+            50 mL alkol ile 50 mL su karıştırıldığında karışım %50 v/v değil, biraz daha derişik olur, çünkü
+            payda küçülmüştür. Meija (2009), Mendeleyev'e atfedilen votka sorusu üzerinden hacim konsantrasyonu ile
+            karıştırma öncesi hacim kesrinin neden farklı sayılar verdiğini gösterir.
+        </p>
+    </section>
+
+    <section id="buzulme">
+        <h2>Hacim büzülmesi</h2>
+        <p>
+            Su ve etanol molekülleri arasındaki hidrojen bağları, karışımda molekülleri saf sıvılardakinden daha sıkı
+            bir düzene sokar. Sonuç, karışma hacminin (fazlalık hacim, V<sup>E</sup>) tüm bileşim aralığında
+            <strong>negatif</strong> olmasıdır: karışım, bileşenlerin ayrı ayrı kapladığı hacimlerin toplamından daha
+            küçüktür. Fazlalık hacim farklı sıcaklıklarda ve farklı yöntemlerle ayrıntılı olarak ölçülmüştür (Benson
+            &amp; Kiyohara, 1980; Marsh &amp; Richards, 1980; Grolier &amp; Wilhelm, 1981). OIML denkleminden
+            hesaplandığında 20 °C'de molar fazlalık hacim yaklaşık −1,1 cm³/mol ile en küçük değerine etanol mol
+            kesri 0,4 civarında ulaşır.
+        </p>
+        <p>
+            Eczacılık açısından daha anlaşılır ölçü, karıştırılan hacimlerin yüzde kaçının "kaybolduğudur". Bu
+            göreli büzülme kütlece yaklaşık %46–47 alkolde en büyüktür; bu bileşim kabaca 1 mol etanol ile 3 mol suya
+            karşılık gelir ve Mendeleyev'in hidrat yorumlarının çıkış noktası olmuştur. Bu noktada karıştırılan
+            hacimlerin yaklaşık %3,5'i kaybolur. Pratik bir örnek: 20 °C'de 50 mL mutlak alkol ile 50 mL su
+            karıştırıldığında yaklaşık 96,5 mL karışım elde edilir.
+        </p>
+        <p>
+            Büzülme, sıcaklıkla da biraz değişir (Marsh &amp; Richards, 1980); bu yüzden doğru bir hesap tek bir
+            "büzülme katsayısı" ile değil, bileşime ve sıcaklığa bağlı bir yoğunluk denklemiyle yapılır.
+        </p>
+    </section>
+
+    <section id="oiml">
+        <h2>OIML R 22 denklemi</h2>
+        <p>
+            Uluslararası Yasal Metroloji Örgütü'nün (OIML) 22 numaralı uluslararası tavsiyesi "Alcoholometry",
+            Ekim 1972'de 4. Uluslararası Yasal Metroloji Konferansı'nda onaylanmış, ilk baskısı 1973'te çıkmıştır.
+            Bu tavsiyeye dayanan "International Alcoholometric Tables" 1975'te Uluslararası Yasal Metroloji Bürosu
+            (BIML) tarafından yayımlandı (OIML, 1975). Tabloların temeli, su–etanol karışımının yoğunluğunu kütle
+            kesri ve sıcaklığın fonksiyonu olarak veren tek bir denklemdir:
+        </p>
+        <p class="rehber-formul">
+            ρ(w, t) = A<sub>1</sub> + Σ<sub>k=2</sub><sup>12</sup> A<sub>k</sub> w<sup>k−1</sup>
+            + Σ<sub>k=1</sub><sup>6</sup> B<sub>k</sub> (t − 20)<sup>k</sup>
+            + Σ<sub>i=1</sub><sup>5</sup> Σ<sub>k=1</sub><sup>m<sub>i</sub></sup> C<sub>i,k</sub> w<sup>k</sup> (t − 20)<sup>i</sup>
+        </p>
+        <p>
+            ρ kg/m³ cinsinden yoğunluk, w kütle kesri (0–1), t Celsius sıcaklığıdır (IPTS-68 ölçeği). İlk toplam
+            20 °C'deki yoğunluğu bileşime göre verir; A<sub>1</sub> = 998,20123 kg/m³ suyun 20 °C'deki yoğunluğudur.
+            İkinci toplam saf suyun sıcaklıkla değişimini, üçüncü toplam ise bileşim ile sıcaklığın etkileşimini
+            tanımlar; iç toplamların üst sınırları sırasıyla m = (11, 10, 9, 4, 2)'dir. Denklem −20 °C ile +40 °C
+            arasında geçerlidir. w = 1 için 20 °C'de 789,24 kg/m³ (saf etanol; OIML düzeltme notlarındaki değer),
+            w = 0 için 998,20 kg/m³ (su) verir.
+        </p>
+        <p>
+            Katsayılar, beş veri kümesine en küçük kareler yöntemiyle uydurulmuştur: Tokyo'daki Ulusal
+            Metroloji Araştırma Laboratuvarı'nda (NRLM) Kawasaki, Minowa ve Inamatsu; Montpellier Eczacılık
+            Fakültesi'nde Jaulmes ve Brun Tep; Washington'daki Ulusal Standartlar Bürosu'nda (NBS) Osborne, McKelvy
+            ve Bearce (Osborne et al., 1913); Georgievskii'nin yeniden değerlendirdiği Mendeleyev ölçümleri ve
+            Almanya'daki PTB'de Wagenbreth. Bileşim polinomunun derecesi 12 seçilmiştir, çünkü daha yüksek
+            derecelerde standart sapma artık iyileşmiyordu (OIML, 1975).
+        </p>
+        <p>
+            Aynı konu bugün de çalışılmaktadır: Khattab ve arkadaşları (2012) 293–323 K arasında yoğunluk, viskozite
+            ve yüzey gerilimini ölçmüş; Danahy ve arkadaşları (2018) ölçülen yoğunluk ve sıcaklıktan bileşim
+            hesaplamayı ayrıntılı olarak ele almıştır. Yasal metrolojide başvuru noktası ise OIML denklemidir.
+        </p>
+    </section>
+
+    <section id="tablolar">
+        <h2>OIML tabloları</h2>
+        <p>
+            OIML R 22, denklemden türetilmiş bir dizi tablo içerir. Araçtaki üç sekme bu tabloların karşılığıdır:
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 1. OIML R 22 tabloları. p kütlece oran (%), q hacimce derece (%, 20 °C), t sıcaklık, ρ<sub>20</sub> 20 °C'deki yoğunluk.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Tablo</th>
+                        <th scope="col">Verilen → bulunan</th>
+                        <th scope="col">OIML'in hesaplama biçimi</th>
+                        <th scope="col">Araçtaki karşılığı</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">I</th>
+                        <td>p, t → ρ</td>
+                        <td>Doğrudan denklemden</td>
+                        <td>Dereceden yoğunluk (% w/w)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">II</th>
+                        <td>q, t → ρ</td>
+                        <td>Önce IIIb'den interpolasyonla q → p, sonra denklem</td>
+                        <td>Dereceden yoğunluk (% v/v)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IIIa</th>
+                        <td>p → ρ<sub>20</sub></td>
+                        <td>Doğrudan denklemden</td>
+                        <td>Dereceden yoğunluk, 20 °C</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IIIb</th>
+                        <td>p → q</td>
+                        <td>q = p · ρ<sub>20</sub>(p) / ρ<sub>20</sub>(%100)</td>
+                        <td>% w/w → % v/v dönüşümü</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IVa</th>
+                        <td>q → ρ<sub>20</sub></td>
+                        <td>Önce IIIb'den q → p, sonra denklem</td>
+                        <td>Dereceden yoğunluk (% v/v), 20 °C</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IVb</th>
+                        <td>q → p</td>
+                        <td>IIIb'den interpolasyonla</td>
+                        <td>% v/v → % w/w dönüşümü</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Va, Vb</th>
+                        <td>ρ<sub>20</sub> → p, q</td>
+                        <td>IIIa ve IIIb'den interpolasyonla</td>
+                        <td>Yoğunluktan derece, 20 °C</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">VI, VII (Ek I)</th>
+                        <td>ρ, t → p, q</td>
+                        <td>Başka sıcaklıklarda ölçülen gerçek yoğunluktan</td>
+                        <td>Yoğunluktan derece, 20 °C dışında</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            OIML, interpolasyonla türetilen tabloların basılı iki ondalığı bozmaması için hesapların 16 anlamlı
+            basamakla yapılmasını ve kütlece %0,1 aralıklı bir ara tablo üzerinden interpolasyon yapılmasını şart
+            koşmuştur. Cam alkolmetre ve hidrometre okumalarını cam genleşmesine göre düzelten Tablo VIII–X bu
+            araçta yoktur.
+        </p>
+        <p>
+            Araç tablolardan değer okumaz ve interpolasyon da yapmaz: her sonucu doğrudan denklemden hesaplar.
+            Denklemi tersine çevirmek gereken yerlerde (IVb, Va/Vb, VI/VII) aşağıda anlatılan sayısal yöntemler
+            kullanılır.
+        </p>
+    </section>
+
+    <section id="ters-cozum">
+        <h2>Ters çözüm: hacimce dereceden kütlece orana</h2>
+        <p>
+            Kütlece orandan hacimce dereceye geçmek kolaydır: w bilindiğinde ρ(w, 20 °C) hesaplanır ve yukarıdaki
+            φ bağıntısına konur. Tersi ise bir denklem çözmeyi gerektirir:
+        </p>
+        <p class="rehber-formul">
+            w · ρ(w, 20 °C) = φ · ρ<sub>E</sub>(20 °C)
+        </p>
+        <p>
+            ρ(w, 20 °C), w'nin 11. dereceden bir polinomu olduğu için sol taraf 12. dereceden bir polinomdur.
+            Abel–Ruffini teoremine göre beşinci ve daha yüksek dereceden genel polinom denklemlerinin köklerini
+            katsayılardan dört işlem ve kök alma ile veren bir formül yoktur. Bu yüzden OIML dönüşümü tablolar
+            arasında interpolasyonla yapmıştır; araç ise sayısal bir yöntem kullanır.
+        </p>
+        <p>
+            <strong>Sabit nokta iterasyonu.</strong> Denklem w = g(w) = φ · ρ<sub>E</sub>(20) / ρ(w, 20) biçiminde
+            yazılır ve w<sub>0</sub> = φ ile başlanarak w<sub>n+1</sub> = g(w<sub>n</sub>) tekrarlanır. Yöntemin
+            yakınsaması için |g′(w)| &lt; 1 olmalıdır; burada |g′(w)| = w · |dρ/dw| / ρ tüm aralıkta 0,4'ün
+            altında kalır (%96 v/v civarında ≈0,33). Yani her adım hatayı en az yarı yarıya küçültür ve iterasyon
+            her zaman yakınsar. Durma ölçütü, ardışık iki değerin kütle kesri olarak 10<sup>−12</sup>'den az
+            farklı olmasıdır.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 2. φ = %70 v/v için iterasyon adımları. Sonuç 15 adımda %62,386109 w/w'ye yakınsar; aynı ölçütle %10 v/v için 7, %40 için 11, %96 için 22 adım gerekir.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">n</th>
+                        <th scope="col">w<sub>n</sub> (% w/w)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">0</th><td>70,0000 (başlangıç: w<sub>0</sub> = φ)</td></tr>
+                    <tr><th scope="row">1</th><td>63,6769</td></tr>
+                    <tr><th scope="row">2</th><td>62,5991</td></tr>
+                    <tr><th scope="row">3</th><td>62,4211</td></tr>
+                    <tr><th scope="row">4</th><td>62,3919</td></tr>
+                    <tr><th scope="row">5</th><td>62,3871</td></tr>
+                    <tr><th scope="row">…</th><td>…</td></tr>
+                    <tr><th scope="row">15</th><td>62,386109</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <strong>Yoğunluktan derece: ikiye bölme.</strong> Ölçülen yoğunluktan kütlece oranı bulmak için
+            ρ(w, t) = ρ<sub>ölçülen</sub> denklemi çözülür. −20…40 °C aralığındaki her sıcaklıkta yoğunluğun w
+            arttıkça sürekli azaldığı %0,01'lik adımlarla denetlenmiştir; dolayısıyla kök tektir. Araç kökü [0, 1]
+            aralığında ikiye bölme (bisection) yöntemiyle arar: aralığın ortasındaki yoğunluk ölçülenden büyükse
+            kök sağ yarıdadır, küçükse sol yarıda. Yaklaşık 40 yarılamada aralık 10<sup>−12</sup>'nin altına
+            iner. Bulunan w, 20 °C bağıntısıyla hacimce dereceye çevrilir.
+        </p>
+    </section>
+
+    <section id="seyreltme">
+        <h2>Seyreltme hesabı</h2>
+        <p>
+            Seyreltmede korunan büyüklük etanolün kütlesidir. Stok kütlesi m<sub>stok</sub>, hazırlanacak karışımın
+            kütlesi m<sub>son</sub>, kütlece oranlar w<sub>stok</sub> ve w<sub>son</sub> ise:
+        </p>
+        <p class="rehber-formul">
+            m<sub>stok</sub> · w<sub>stok</sub> = m<sub>son</sub> · w<sub>son</sub> &nbsp;&nbsp;&nbsp;
+            m<sub>su</sub> = m<sub>son</sub> − m<sub>stok</sub> &nbsp;&nbsp;&nbsp;
+            m<sub>son</sub> = V<sub>son</sub> · ρ<sub>son</sub>(t)
+        </p>
+        <p>
+            Hedef hacimce verildiğinde dereceler önce kütlece orana çevrilir, istenen hacim hazırlama sıcaklığındaki
+            karışım yoğunluğuyla kütleye dönüştürülür. Stok ve su kütleleri bulunduktan sonra hacimleri yine aynı
+            sıcaklıktaki kendi yoğunluklarından hesaplanır. Kütle dengesi her sıcaklıkta geçerlidir. 20 °C'de
+            hazırlanan hacimce seyreltmede stok hacmi basit orantının verdiğiyle aynıdır
+            (V · φ<sub>hedef</sub> / φ<sub>stok</sub>), çünkü 20 °C'deki etanol hacmi tanım gereği korunur; ama gereken
+            su, büzülme yüzünden basit orantının önerdiğinden fazladır.
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 3. 20 °C'de % v/v seyreltme örnekleri (araçtan). "Basit orantı" suyu hedef hacim eksi stok hacmi olarak alır; büzülme, stok ve su hacimleri toplamının hedef hacmi aşan kısmıdır.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Stok → hedef</th>
+                        <th scope="col">Miktar</th>
+                        <th scope="col">Stok</th>
+                        <th scope="col">Su (doğru)</th>
+                        <th scope="col">Su (basit orantı)</th>
+                        <th scope="col">Büzülme</th>
+                        <th scope="col">Son kütle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">%96 → %70</th><td>100 mL</td><td>72,92 mL (58,87 g)</td><td>29,74 mL (29,68 g)</td><td>27,08 mL</td><td>2,65 mL</td><td>88,56 g</td></tr>
+                    <tr><th scope="row">%96 → %50</th><td>100 mL</td><td>52,08 mL (42,05 g)</td><td>51,05 mL (50,96 g)</td><td>47,92 mL</td><td>3,14 mL</td><td>93,01 g</td></tr>
+                    <tr><th scope="row">%90 → %70</th><td>100 mL</td><td>77,78 mL (64,49 g)</td><td>24,11 mL (24,06 g)</td><td>22,22 mL</td><td>1,89 mL</td><td>88,56 g</td></tr>
+                    <tr><th scope="row">%80 → %60</th><td>100 mL</td><td>75,00 mL (64,45 g)</td><td>26,51 mL (26,47 g)</td><td>25,00 mL</td><td>1,51 mL</td><td>90,91 g</td></tr>
+                    <tr><th scope="row">%96 → %70</th><td>50 mL</td><td>36,46 mL (29,44 g)</td><td>14,87 mL (14,84 g)</td><td>13,54 mL</td><td>1,33 mL</td><td>44,28 g</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <strong>Basit orantı neden yetmez?</strong> %96'lık alkolden 100 mL %70'lik alkol hazırlamak için 72,92 mL
+            stoka basit orantıyla 27,08 mL su eklenirse karışım yaklaşık 97,5 mL olur ve derecesi %70 yerine yaklaşık
+            %71,8'dir. Eczanede bu yüzden çoğu kez "%10 fazla hazırla" kuralı uygulanır: örneğin 50 mL için hesap 55 mL
+            üzerinden yapılır ve fazlası atılır. Bu yaklaşım hacim açığını kapatır ama dereceyi düzeltmez. Doğru su
+            miktarı (burada 29,74 mL) hem hacmi hem dereceyi hedefe getirir; fazladan hazırlamaya gerek kalmaz.
+        </p>
+        <p>
+            Hedef kütlece verildiğinde (% w/w, miktar g) hesap yalnız kütle dengesidir; yoğunluk ve sıcaklık yalnız
+            bilgi amaçlı hacimleri hesaplamak için kullanılır.
+        </p>
+    </section>
+
+    <section id="sicaklik">
+        <h2>Sıcaklık</h2>
+        <p>
+            Hacimce derece tanım gereği 20 °C'deki hacimlere göredir; %70 v/v alkol hangi sıcaklıkta hazırlanırsa
+            hazırlansın, 20 °C'ye getirildiğinde %70'tir. Ancak ölçü kabıyla ölçülen hacimler ölçüm anındaki
+            sıcaklıktadır. Araç bu yüzden stok, su ve karışım hacimlerini <strong>hazırlama sıcaklığındaki</strong>
+            yoğunluklarla hesaplar. Örneğin %96'dan 100 mL %70'lik alkol 25 °C'de hazırlanırken stok 72,96 mL
+            (58,60 g), su 29,63 mL (29,54 g) olur; son kütle 88,14 g'dır. 20 °C'deki değerlerden fark küçüktür; ancak
+            derişik alkol sudan belirgin biçimde fazla genleştiği için fark, sıcaklık 20 °C'den uzaklaştıkça büyür.
+        </p>
+        <p>
+            Kütleler sıcaklığa bağlı değildir. Bu nedenle en güvenilir yol <strong>tartarak hazırlamaktır</strong>:
+            araç her adımda hacmin yanında kütleyi de verir. Stok alkol ve su dara alınmış kaba tartılarak eklenirse
+            hem ölçü kabının okuma hatası hem sıcaklık etkisi ortadan kalkar. Cam kabın kendi ısıl genleşmesi hesaba
+            katılmaz.
+        </p>
+    </section>
+
+    <section id="kullanim">
+        <h2>Aracın kullanımı</h2>
+        <p>
+            <a href="/alcohol-dilution">Alkol Seyreltme</a> aracının üç sekmesi vardır.
+        </p>
+        <ol>
+            <li><strong>Seyreltme tarifi.</strong> Stok derecesi, hedef derece, hazırlanacak miktar ve hazırlama
+                sıcaklığı (−20…40 °C) girilir; temel olarak % v/v (miktar mL) ya da % w/w (miktar g) seçilir. Hedef
+                0'dan büyük ve stoktan küçük, stok en çok 100 olmalıdır. Sonuç adım adım bir tariftir: alınacak stokun
+                hacmi ve kütlesi, eklenecek suyun hacmi ve kütlesi, son kütle, karışınca kaybolan hacim ve basit
+                orantının önereceği su hacmi.</li>
+            <li><strong>Dereceden yoğunluk.</strong> Derece (% v/v ya da % w/w) ve sıcaklık girilir; karışımın
+                yoğunluğu kg/m³ ve g/mL olarak, ayrıca derecenin öbür temeldeki karşılığı (% v/v ↔ % w/w) verilir. Bu
+                sekme OIML Tablo I, II, IIIa, IIIb, IVa ve IVb'nin karşılığıdır.</li>
+            <li><strong>Yoğunluktan derece.</strong> Ölçülen gerçek yoğunluk ve ölçüm sıcaklığı girilir; kütlece oran
+                (% w/w) ve 20 °C'ye göre hacimce derece (% v/v) verilir. 20 °C'de sonuç Tablo Va/Vb'ye, başka
+                sıcaklıklarda Ek I'deki Tablo VI/VII'ye karşılık gelir. Yoğunluk, o sıcaklıkta saf etanol ile saf su
+                yoğunlukları arasında olmalıdır. Örnek: 20 °C'de 885,00 kg/m³ → %62,63 w/w, %70,23 v/v; aynı yoğunluk
+                25 °C'de ölçülmüşse → %60,83 w/w, %68,54 v/v.</li>
+        </ol>
+        <p>
+            Yoğunluktan derece sekmesi cam alkolmetre ya da hidrometre okumasını düzeltmez (OIML Tablo VIII–X);
+            girilen değer, örneğin salınımlı U-tüp yoğunluk ölçerle ya da piknometreyle bulunmuş gerçek yoğunluk
+            olmalıdır.
+        </p>
+    </section>
+
+    <section id="karsilastirma">
+        <h2>Basılı tablolarla karşılaştırma</h2>
+        <p>
+            Araç, OIML R 22'nin basılı tablolarıyla karşılaştırıldı. Tablolar taranmış sayfalardan okunarak bir test
+            fikstürüne dönüştürüldü; okuma (OCR) hataları hesaplama kodu kullanılmadan, yalnız tabloların kendi satır
+            içi tutarlılığıyla ayıklandı. Fikstür 8 tablodan 6 889 hücre içerir; bunlardan 6 884'ünde kodun iki
+            ondalığa yuvarlanmış sonucu basılı değerle aynıdır. Kalan 5 hücrede fark 0,01'dir ve bu hücrelerin hepsi
+            tam yuvarlama sınırındadır (üçüncü ondalık 5).
+        </p>
+        <div class="rehber-tablo-sarmal">
+            <table class="rehber-tablo">
+                <caption>Tablo 4. Karşılaştırılan hücre sayıları. Tablo I ve II'de her 5 °C'lik sütun alındı.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Tablo</th>
+                        <th scope="col">I</th>
+                        <th scope="col">II</th>
+                        <th scope="col">IIIa</th>
+                        <th scope="col">IIIb</th>
+                        <th scope="col">IVa</th>
+                        <th scope="col">IVb</th>
+                        <th scope="col">Va</th>
+                        <th scope="col">Vb</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Hücre</th>
+                        <td>619</td><td>633</td><td>588</td><td>781</td><td>795</td><td>757</td><td>1 525</td><td>1 191</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Karşılaştırma bir birim testidir (<code>PTCalc.Core.Tests/AlcoholometryTests.cs</code>) ve test takımıyla
+            birlikte çalışır. Fikstür <code>tools/make_oiml_reference.py</code> betiğiyle üretilir; OIML yayınının
+            kendisi depoda bulunmaz.
+        </p>
+    </section>
+
+    <section id="sinirlar">
+        <h2>Sınırlar</h2>
+        <ul>
+            <li><strong>Yalnız su–etanol.</strong> Denklem iki bileşenli karışım içindir. Tentür ve ekstrelerde
+                çözünmüş maddeler yoğunluğu artırır ve yoğunluktan bulunan derece gerçek alkol içeriğinden sapar;
+                bu örneklerde alkol önce damıtılarak ayrılmalı ya da kuru kalıntıya göre düzeltme yapılmalıdır
+                (Bernatonienė et al., 2003). Metanol ve fusel yağları gibi eşlik eden maddeler de dereceyi 0,2–0,4
+                puan kaydırabilir (Kolesnov et al., 2023).</li>
+            <li><strong>Hidrometre düzeltmesi yok.</strong> Cam alkolmetre ve hidrometre okumaları için gereken cam
+                genleşme düzeltmesi (Tablo VIII–X) uygulanmaz; girdi gerçek yoğunluk olmalıdır.</li>
+            <li><strong>Düşük sıcaklıkta donma.</strong> Düşük dereceli karışımlar düşük sıcaklıklarda donar; OIML
+                Tablo I bu yüzden her sıcaklıkta izin verilen en düşük dereceden başlar. Denklem o bölgede de bir sayı
+                verir, ama sıvı bir karışıma karşılık gelmez.</li>
+            <li><strong>Basınç.</strong> Denklem normal atmosfer basıncı içindir.</li>
+            <li><strong>Enjeksiyonluk çözeltiler.</strong> Araç stoku su ile seyreltir. Etanol içeren enjeksiyonluk
+                çözeltilerde seyreltici su değil %0,9 NaCl olmalıdır; aksi hâlde hipotonik karışım hemolize yol açabilir
+                (Serdons et al., 2008). Serum fizyolojik yoğunluğu sudan biraz farklı olduğundan hesap o durumda
+                yaklaşıktır.</li>
+            <li><strong>Uygulama notu.</strong> Etanol kilidi tedavisinde kullanılan %70'lik alkolün polipropilen
+                enjektörlerde 14 gün kararlı kaldığı bildirilmiştir (Cober &amp; Johnson, 2007); saklama koşulları
+                ayrıca değerlendirilmelidir.</li>
+        </ul>
+    </section>
+
+    <section id="tarihce-uygulama" class="rehber-uygulama">
+        <h2><i class="ti ti-tool" aria-hidden="true"></i> Tarihçe ve bu sitedeki uygulama</h2>
+        <p>
+            <strong>Bu aracın geçmişi.</strong> Araç, yazarın (Mehmet Ali Ege) Windows masaüstü programının
+            (WinForms) devamıdır. Program, basit orantıyla seyreltme yapan eczacıların hep beklenenden az alkol elde
+            etmesi üzerine yazılmıştı; yazar aynı hesapla çalışan Arduino tabanlı bir seyreltme cihazı da yaptı.
+            Masaüstü sürümde hacimce–kütlece dönüşüm Excel'de uydurulmuş 4. dereceden bir polinomla yapılıyordu; bu
+            polinomun hatası %0–96 aralığında ±0,12 puan (% w/w), %100'de −0,36 puana ulaşıyordu. Web sürümünde bu
+            yaklaşık polinomun yerini OIML R 22 denkleminin kendisi aldı.
+        </p>
+        <ul>
+            <li><strong>Denklem:</strong> <code>PTCalc.Core/Core/Alcoholometry/OimlAlcoholometry.cs</code>, OIML R 22
+                katsayılarıyla ρ(w, t); geçerlilik −20…40 °C.</li>
+            <li><strong>% v/v → % w/w:</strong> sabit nokta iterasyonu, w<sub>0</sub> = φ, tolerans 10<sup>−12</sup>
+                (kütle kesri).</li>
+            <li><strong>Yoğunluk → derece:</strong> [0, 1] aralığında ikiye bölme, tolerans 10<sup>−12</sup>; yoğunluk
+                o sıcaklıktaki etanol ve su yoğunlukları dışındaysa hata iletisi.</li>
+            <li><strong>Seyreltme:</strong> <code>PTCalc.Core/Core/Alcoholometry/AlcoholDilution.cs</code>, etanol kütle
+                dengesi; hacimler hazırlama sıcaklığındaki yoğunluklardan; büzülme = V<sub>stok</sub> + V<sub>su</sub>
+                − V<sub>son</sub>.</li>
+            <li><strong>Karşılaştırma:</strong> <code>PTCalc.Core.Tests/AlcoholometryTests.cs</code> ve
+                <code>oiml_r22_reference.json</code> (6 889 basılı tablo hücresi); ayrıca dönüşümlerin gidiş-dönüşü,
+                her sıcaklıkta yoğunluktan derece çözümü ve seyreltme kütle dengesi için birim testleri.</li>
+        </ul>
+    </section>
+
+    <section id="kaynaklar" class="rehber-kaynaklar">
+        <h2>Kaynaklar</h2>
+        <ol>
+            <li>Benson, G. C., &amp; Kiyohara, O. (1980). Thermodynamics of aqueous mixtures of nonelectrolytes. I. Excess volumes of water-n-alcohol mixtures at several temperatures. <em>Journal of Solution Chemistry, 9</em>(10), 791-804. <a href="https://doi.org/10.1007/BF00646798" target="_blank" rel="noopener">doi:10.1007/BF00646798</a></li>
+            <li>Bernatonienė, J., Bernatonienė, R., &amp; Baranauskas, A. (2003). [Determination of ethanol concentration in tinctures]. <em>Medicina (Kaunas), 39</em>(Suppl. 2), 42-44. <a href="https://pubmed.ncbi.nlm.nih.gov/14617857/" target="_blank" rel="noopener">PMID:14617857</a></li>
+            <li>Cober, M. P., &amp; Johnson, C. E. (2007). Stability of 70% alcohol solutions in polypropylene syringes for use in ethanol-lock therapy. <em>American Journal of Health-System Pharmacy, 64</em>(23), 2480-2482. <a href="https://doi.org/10.2146/ajhp070233" target="_blank" rel="noopener">doi:10.2146/ajhp070233</a></li>
+            <li>Danahy, B. B., Minnick, D. L., &amp; Shiflett, M. B. (2018). Computing the composition of ethanol-water mixtures based on experimental density and temperature measurements. <em>Fermentation, 4</em>(3), 72. <a href="https://doi.org/10.3390/fermentation4030072" target="_blank" rel="noopener">doi:10.3390/fermentation4030072</a></li>
+            <li>Grolier, J.-P. E., &amp; Wilhelm, E. (1981). Excess volumes and excess heat capacities of water + ethanol at 298.15 K. <em>Fluid Phase Equilibria, 6</em>(3-4), 283-287. <a href="https://doi.org/10.1016/0378-3812(81)85011-X" target="_blank" rel="noopener">doi:10.1016/0378-3812(81)85011-X</a></li>
+            <li>Khattab, I. S., Bandarkar, F., Fakhree, M. A. A., &amp; Jouyban, A. (2012). Density, viscosity, and surface tension of water+ethanol mixtures from 293 to 323K. <em>Korean Journal of Chemical Engineering, 29</em>(6), 812-817. <a href="https://doi.org/10.1007/s11814-011-0239-6" target="_blank" rel="noopener">doi:10.1007/s11814-011-0239-6</a></li>
+            <li>Kolesnov, A., Charapitsa, S., Sytova, S., Kavalenka, A., Sabalenka, L., Zayats, M., &amp; Leschev, S. (2023). Correct determination of alcoholic strength in alcoholic products. <em>BIO Web of Conferences, 68</em>, 02030. <a href="https://doi.org/10.1051/bioconf/20236802030" target="_blank" rel="noopener">doi:10.1051/bioconf/20236802030</a></li>
+            <li>Marsh, K. N., &amp; Richards, A. E. (1980). Excess volumes for ethanol + water mixtures at 10-K intervals from 278.15 to 338.15 K. <em>Australian Journal of Chemistry, 33</em>(10), 2121-2132. <a href="https://doi.org/10.1071/CH9802121" target="_blank" rel="noopener">doi:10.1071/CH9802121</a></li>
+            <li>Meija, J. (2009). Solution to Mendeleyev vodka challenge. <em>Analytical and Bioanalytical Chemistry, 395</em>(1), 7-8. <a href="https://doi.org/10.1007/s00216-009-2937-z" target="_blank" rel="noopener">doi:10.1007/s00216-009-2937-z</a></li>
+            <li>OIML. (1975). <em>International Alcoholometric Tables</em> (OIML R 22; International Recommendation No. 22 "Alcoholometry", 1973). Paris: Bureau International de Métrologie Légale. <a href="https://www.oiml.org" target="_blank" rel="noopener">www.oiml.org</a></li>
+            <li>Osborne, N. S., McKelvy, E. C., &amp; Bearce, H. W. (1913). Density and thermal expansion of ethyl alcohol and of its mixtures with water. <em>Bulletin of the Bureau of Standards, 9</em>(3), 327-474. <a href="https://doi.org/10.6028/bulletin.215" target="_blank" rel="noopener">doi:10.6028/bulletin.215</a></li>
+            <li>Serdons, K., Verbruggen, A., &amp; Bormans, G. (2008). The presence of ethanol in radiopharmaceutical injections. <em>Journal of Nuclear Medicine, 49</em>(12), 2071. <a href="https://doi.org/10.2967/jnumed.108.057026" target="_blank" rel="noopener">doi:10.2967/jnumed.108.057026</a></li>
+        </ol>
+    </section>
+
+    <section id="surum" class="rehber-surum-gecmisi">
+        <h2>Sürüm geçmişi</h2>
+        <ul>
+            <li><strong>1.0 · 25 Eylül 2026.</strong> İlk sürüm: tanımlar, hacim büzülmesi, OIML R 22 denklemi ve
+                tabloları, ters çözüm, seyreltme hesabı, sıcaklık, aracın kullanımı, basılı tablolarla karşılaştırma,
+                sınırlar, 12 kaynak; Türkçe ve İngilizce.</li>
+        </ul>
+    </section>
+
+    <footer class="rehber-alt">
+        <a href="/alcohol-dilution" class="rehber-cta"><i class="ti ti-arrow-left" aria-hidden="true"></i> Alkol Seyreltme aracına dön</a>
+    </footer>
+
+</article>
+}

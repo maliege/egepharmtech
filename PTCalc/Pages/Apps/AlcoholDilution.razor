@@ -1,0 +1,322 @@
+@page "/alcohol-dilution"
+<SiteTitle Text="Alkol Seyreltme" />
+@using System.Globalization
+@using PTCalc.Core.Alcoholometry
+@using PTCalc.Core.Helpers
+@inject IStringLocalizer<SharedResource> L
+
+@* Su–etanol karışımları: seyreltme tarifi, dereceden yoğunluk, yoğunluktan derece. Hesap OIML R 22 formülüyle
+   PTCalc.Core/Core/Alcoholometry içinde; sayfa yalnız girdi okur ve sonucu biçimler. Ayrıntılı rehber
+   /about-alcohol-dilution; davranış değişirse iki rehber de güncellenir. *@
+
+<section class="container-fluid p-4">
+    <h5 class="mb-3 text-primary fw-bold"><i class="bi bi-droplet-half me-2"></i>@L["Alkol Seyreltme"]</h5>
+
+    <div class="row">
+        <div class="col-lg-5 col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white p-0">
+                    <ul class="nav nav-tabs card-header-tabs m-0 px-2 pt-2 alc-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button type="button" role="tab" class="nav-link @(_tab == Tab.Recipe ? "active" : "")"
+                                    aria-selected="@(_tab == Tab.Recipe)" @onclick="() => SelectTab(Tab.Recipe)">
+                                <i class="bi bi-list-ol me-1"></i>@L["Seyreltme tarifi"]
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button type="button" role="tab" class="nav-link @(_tab == Tab.Density ? "active" : "")"
+                                    aria-selected="@(_tab == Tab.Density)" @onclick="() => SelectTab(Tab.Density)">
+                                <i class="bi bi-arrow-right me-1"></i>@L["Dereceden yoğunluk"]
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button type="button" role="tab" class="nav-link @(_tab == Tab.Strength ? "active" : "")"
+                                    aria-selected="@(_tab == Tab.Strength)" @onclick="() => SelectTab(Tab.Strength)">
+                                <i class="bi bi-arrow-left me-1"></i>@L["Yoğunluktan derece"]
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    @if (_tab == Tab.Recipe)
+                    {
+                        <p class="small text-muted">@L["Elinizdeki stok alkolden istediğiniz derece ve miktarda alkol hazırlamak için gereken stok alkol ve su miktarlarını hesaplar. Karışınca hacim küçüldüğü için su, basit orantının verdiğinden fazladır."]</p>
+                        <div class="mb-2">
+                            <label class="form-label small mb-0">@L["Derece türü"]</label>
+                            <select class="form-select form-select-sm" @bind="_recipeBasis">
+                                <option value="@StrengthBasis.Volume">@L["Hacimce (%v/v, 20 °C) — miktar mL"]</option>
+                                <option value="@StrengthBasis.Mass">@L["Kütlece (%w/w) — miktar g"]</option>
+                            </select>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Stok alkol derecesi (%)"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_stock" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Hedef derece (%)"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_target" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@(_recipeBasis == StrengthBasis.Volume ? L["Hazırlanacak miktar (mL)"] : L["Hazırlanacak miktar (g)"])</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_amount" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Hazırlama sıcaklığı (°C)"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_recipeTemp" />
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button class="btn btn-primary" @onclick="ComputeRecipe"><i class="bi bi-play-fill me-1"></i>@L["Hesapla"]</button>
+                        </div>
+                    }
+                    else if (_tab == Tab.Density)
+                    {
+                        <p class="small text-muted">@L["Bilinen dereceli bir su–etanol karışımının verilen sıcaklıktaki yoğunluğunu ve öbür derece türündeki karşılığını verir (OIML Tablo I–IV)."]</p>
+                        <div class="mb-2">
+                            <label class="form-label small mb-0">@L["Derece türü"]</label>
+                            <select class="form-select form-select-sm" @bind="_densityBasis">
+                                <option value="@StrengthBasis.Volume">@L["Hacimce (%v/v, 20 °C)"]</option>
+                                <option value="@StrengthBasis.Mass">@L["Kütlece (%w/w)"]</option>
+                            </select>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Alkol derecesi (%)"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_strength" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Sıcaklık (°C)"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_densityTemp" />
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button class="btn btn-primary" @onclick="ComputeDensity"><i class="bi bi-play-fill me-1"></i>@L["Hesapla"]</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="small text-muted">@L["Ölçülen gerçek yoğunluktan kütlece ve hacimce alkol derecesini bulur. 20 °C'de OIML Tablo Va/Vb, başka sıcaklıklarda Tablo VI/VII'ye karşılık gelir. Cam alkolmetre okumaları için cam genleşme düzeltmesi yapılmaz."]</p>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Ölçülen yoğunluk"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_density" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Birim"]</label>
+                                <select class="form-select form-select-sm" @bind="_densityUnit">
+                                    <option value="@DensityUnit.GramPerMl">g/mL</option>
+                                    <option value="@DensityUnit.KgPerM3">kg/m³</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-0">@L["Ölçüm sıcaklığı (°C)"]</label>
+                                <input class="form-control form-control-sm" inputmode="decimal" @bind="_strengthTemp" />
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button class="btn btn-primary" @onclick="ComputeStrength"><i class="bi bi-play-fill me-1"></i>@L["Hesapla"]</button>
+                        </div>
+                    }
+
+                    @if (_error is not null)
+                    {
+                        <div class="alert alert-warning py-2 small mt-3 mb-0">@_error</div>
+                    }
+                </div>
+            </div>
+
+            @if (_tab == Tab.Recipe && _recipe is not null)
+            {
+                var r = _recipe;
+                bool vol = r.Basis == StrengthBasis.Volume;
+                string basis = vol ? "v/v" : "w/w";
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>@L["Tarif"]</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="fw-semibold mb-2">
+                            @(vol ? L["%{0} ({1}) alkol, {2} mL", F(r.TargetPercent, "0.##"), basis, F(r.FinalVolume, "0.##")]
+                                  : L["%{0} ({1}) alkol, {2} g", F(r.TargetPercent, "0.##"), basis, F(r.FinalMass, "0.##")])
+                            <span class="text-muted small fw-normal">· @L["stok %{0} ({1}), {2} °C", F(r.StockPercent, "0.##"), basis, F(r.Temperature, "0.#")]</span>
+                        </p>
+                        <ol class="mb-3">
+                            @if (vol)
+                            {
+                                <li>@L["{0} derecelik alkolden {1} mL ölçün (ya da {2} g tartın).", F(r.StockPercent, "0.##"), F(r.StockVolume), F(r.StockMass)]</li>
+                                <li>@L["Üzerine {0} mL saf su ekleyin (ya da {1} g tartın).", F(r.WaterVolume), F(r.WaterMass)]</li>
+                            }
+                            else
+                            {
+                                <li>@L["%{0} (w/w) alkolden {1} g tartın (≈ {2} mL).", F(r.StockPercent, "0.##"), F(r.StockMass), F(r.StockVolume)]</li>
+                                <li>@L["Üzerine {0} g saf su ekleyin (≈ {1} mL).", F(r.WaterMass), F(r.WaterVolume)]</li>
+                            }
+                            <li>@L["İyice karıştırın."]</li>
+                        </ol>
+                        <table class="table table-sm table-bordered small mb-2">
+                            <tbody>
+                                <tr><td>@L["Son karışım"]</td><td class="text-end">@F(r.FinalVolume) mL · @F(r.FinalMass) g</td></tr>
+                                <tr><td>@L["Kütlece / hacimce derece"]</td><td class="text-end">@Pct(r.TargetMassPercent, "w/w") · @Pct(OimlAlcoholometry.MassToVolumePercent(r.TargetMassPercent), "v/v")</td></tr>
+                                <tr><td>@L["Saf etanol"]</td><td class="text-end">@F(r.EthanolMass) g</td></tr>
+                                <tr><td>@L["Hacim büzülmesi"]</td><td class="text-end">@F(r.Contraction) mL</td></tr>
+                                @if (vol)
+                                {
+                                    <tr><td>@L["Basit orantıyla su"]</td><td class="text-end">@F(r.NaiveWaterVolume) mL</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                        <small class="text-muted d-block">
+                            @L["Alkol ile su karışınca hacim {0} mL azalır; su bu yüzden hacim farkından değil kütle dengesinden hesaplanır.", F(r.Contraction)]
+                            @if (Math.Abs(r.Temperature - OimlAlcoholometry.ReferenceTemperature) >= 0.5)
+                            {
+                                @(" " + L["Hacimler {0} °C'de ölçülmelidir; tartarak hazırlamak sıcaklıktan etkilenmez.", F(r.Temperature, "0.#")])
+                            }
+                        </small>
+                    </div>
+                </div>
+            }
+
+            @if (_tab == Tab.Density && _densityResult is not null)
+            {
+                var d = _densityResult.Value;
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>@L["Sonuç"]</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-bordered small mb-0">
+                            <tbody>
+                                <tr><td>@L["Yoğunluk ({0} °C)", F(d.Temperature, "0.#")]</td><td class="text-end"><strong>@F(d.Density) kg/m³</strong> · @F(d.Density / 1000, "F5") g/mL</td></tr>
+                                <tr><td>@L["Kütlece derece"]</td><td class="text-end">@Pct(d.MassPercent, "w/w")</td></tr>
+                                <tr><td>@L["Hacimce derece (20 °C)"]</td><td class="text-end">@Pct(d.VolumePercent, "v/v")</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            @if (_tab == Tab.Strength && _strengthResult is not null)
+            {
+                var s = _strengthResult.Value;
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>@L["Sonuç"]</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-bordered small mb-0">
+                            <tbody>
+                                <tr><td>@L["Ölçülen yoğunluk ({0} °C)", F(s.Temperature, "0.#")]</td><td class="text-end">@F(s.Density) kg/m³ · @F(s.Density / 1000, "F5") g/mL</td></tr>
+                                <tr><td>@L["Kütlece derece"]</td><td class="text-end"><strong>@Pct(s.MassPercent, "w/w")</strong></td></tr>
+                                <tr><td>@L["Hacimce derece (20 °C)"]</td><td class="text-end"><strong>@Pct(s.VolumePercent, "v/v")</strong></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-lg-7 col-md-6">
+            <AlcoholDilutionGuide />
+        </div>
+    </div>
+</section>
+
+<style>
+    .alc-tabs .nav-link { color: rgba(255, 255, 255, .85); border: 0; }
+    .alc-tabs .nav-link:hover { color: #fff; }
+    .alc-tabs .nav-link.active { color: var(--bs-primary); background-color: var(--bs-card-bg, #fff); }
+</style>
+
+@code {
+    private enum Tab { Recipe, Density, Strength }
+    private enum DensityUnit { GramPerMl, KgPerM3 }
+
+    private readonly record struct StrengthPoint(double Temperature, double Density, double MassPercent, double VolumePercent);
+
+    private Tab _tab = Tab.Recipe;
+    private string? _error;
+
+    // Seyreltme tarifi
+    private StrengthBasis _recipeBasis = StrengthBasis.Volume;
+    private string _stock = "96";
+    private string _target = "70";
+    private string _amount = "100";
+    private string _recipeTemp = "20";
+    private DilutionResult? _recipe;
+
+    // Dereceden yoğunluk
+    private StrengthBasis _densityBasis = StrengthBasis.Volume;
+    private string _strength = "70";
+    private string _densityTemp = "20";
+    private StrengthPoint? _densityResult;
+
+    // Yoğunluktan derece
+    private string _density = F(0.88556, "0.#####");
+    private DensityUnit _densityUnit = DensityUnit.GramPerMl;
+    private string _strengthTemp = "20";
+    private StrengthPoint? _strengthResult;
+
+    private void SelectTab(Tab tab)
+    {
+        _tab = tab;
+        _error = null;
+    }
+
+    private void ComputeRecipe()
+    {
+        _recipe = null;
+        Run(() =>
+        {
+            double stock = Read(_stock, L["Stok alkol derecesi (%)"]);
+            double target = Read(_target, L["Hedef derece (%)"]);
+            double amount = Read(_amount, L["Hazırlanacak miktar"]);
+            double t = Read(_recipeTemp, L["Hazırlama sıcaklığı (°C)"]);
+            _recipe = _recipeBasis == StrengthBasis.Volume
+                ? PTCalc.Core.Alcoholometry.AlcoholDilution.ByVolume(amount, target, stock, t)
+                : PTCalc.Core.Alcoholometry.AlcoholDilution.ByMass(amount, target, stock, t);
+        });
+    }
+
+    private void ComputeDensity()
+    {
+        _densityResult = null;
+        Run(() =>
+        {
+            double strength = Read(_strength, L["Alkol derecesi (%)"]);
+            double t = Read(_densityTemp, L["Sıcaklık (°C)"]);
+            double w = _densityBasis == StrengthBasis.Volume ? OimlAlcoholometry.VolumeToMassPercent(strength) : strength;
+            _densityResult = new StrengthPoint(t, OimlAlcoholometry.DensityFromMassPercent(w, t), w, OimlAlcoholometry.MassToVolumePercent(w));
+        });
+    }
+
+    private void ComputeStrength()
+    {
+        _strengthResult = null;
+        Run(() =>
+        {
+            double value = Read(_density, L["Ölçülen yoğunluk"]);
+            double t = Read(_strengthTemp, L["Ölçüm sıcaklığı (°C)"]);
+            double rho = _densityUnit == DensityUnit.GramPerMl ? value * 1000 : value;
+            double w = OimlAlcoholometry.MassPercentFromDensity(rho, t);
+            _strengthResult = new StrengthPoint(t, rho, w, OimlAlcoholometry.MassToVolumePercent(w));
+        });
+    }
+
+    private void Run(Action compute)
+    {
+        _error = null;
+        try { compute(); }
+        catch (ArgumentException ex) { _error = ex.Message; }
+    }
+
+    private double Read(string text, string field)
+    {
+        if (NumericCellParser.TryParse(text, out double v)) return v;
+        throw new ArgumentException(L["\"{0}\" alanına bir sayı girin.", field]);
+    }
+
+    private static string F(double value, string format = "F2") => value.ToString(format, CultureInfo.CurrentCulture);
+
+    // Türkçede yüzde işareti sayıdan önce (%62,39), İngilizcede sonra (62.39%) yazılır.
+    private static string Pct(double value, string basis) => Lang.IsEn ? $"{F(value)}% {basis}" : $"%{F(value)} {basis}";
+}

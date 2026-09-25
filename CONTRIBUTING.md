@@ -60,6 +60,7 @@ PTCalc.sln
 │   ├── Core/Dissolution/           → Kinetik motor: 16 model, NonlinearFitter, ModelRanker, f1/f2, profil ölçütleri
 │   ├── Core/KinetikAnalysis/       → Doz–yanıt (probit/logit) analizörleri
 │   ├── Core/Statistics/            → t-testi okuyucusu, tek yönlü ANOVA + Tukey (StudentizedRange), çoklu regresyon, kalibrasyon eğrisi
+│   ├── Core/Alcoholometry/         → OIML R 22 su–etanol yoğunluk formülü, v/v ↔ w/w, yoğunluktan derece, seyreltme
 │   ├── Services/                   → AnalysisState*, TernaryCalculationService, PolygonSmoother, TernaryTotals
 │   ├── Localization/CoreText.cs    → Çekirdek mesajlarının TR/EN çevirisi (Resources/CoreText.en.tsv gömülü)
 │   └── Helpers/NumericCellParser   → Hücre metninden sayı (virgül/nokta, boşluk, birim)

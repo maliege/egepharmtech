@@ -30,5 +30,9 @@ ya da CDN üzerinden çalışma anında yüklenir), veri dosyaları hariç.
 - **DDSolver karşılaştırma verileri** (`PTCalc.Core.Tests/ddsolver_reference_cases.json`): DDSolver 1.0
   Excel eklentisiyle (Zhang ve ark., 2010, *AAPS J* 12:263–271) eklentinin örnek profilleri üzerinde
   Mehmet Ali Ege tarafından üretilen çıktılar; yalnız birim testlerinde motor karşılaştırması için kullanılır.
+- **OIML R 22 alkolometri tablo değerleri** (`PTCalc.Core.Tests/oiml_r22_reference.json`): OIML R 22 (1975)
+  *International Alcoholometric Tables* (BIML, Paris) basılı tablolarından `tools/make_oiml_reference.py` ile
+  okunan sayısal değerler; yalnız birim testlerinde karşılaştırma için kullanılır. Tabloların PDF'i depoda yoktur.
+  Hesap kodundaki formül katsayıları aynı yayından alınmıştır.
 - **Rehber metinleri** (`PTCalc/Pages/AboutApps`, `Components/Guides`): özgün içerik, MIT kapsamı
   dışında; telif hakkı Mehmet Ali Ege'ye aittir.
