@@ -25,6 +25,7 @@
             <a href="/about-alcohol-dilution#giris">Introduction</a>
             <a href="/about-alcohol-dilution#tanimlar">Definitions</a>
             <a href="/about-alcohol-dilution#buzulme">Volume contraction</a>
+            <a href="/about-alcohol-dilution#neden">Why does the volume shrink?</a>
             <a href="/about-alcohol-dilution#oiml">The OIML R 22 equation</a>
             <a href="/about-alcohol-dilution#tablolar">The OIML tables</a>
             <a href="/about-alcohol-dilution#ters-cozum">The inverse solution</a>
@@ -92,10 +93,10 @@
     <section id="buzulme">
         <h2>Volume contraction</h2>
         <p>
-            Hydrogen bonding between water and ethanol packs the molecules in the mixture more tightly than in the
-            pure liquids. As a result the volume change on mixing (the excess volume, V<sup>E</sup>) is
+            When water and ethanol are mixed, the volume change on mixing (the excess volume, V<sup>E</sup>) is
             <strong>negative</strong> across the whole composition range: the mixture is smaller than the sum of
-            the volumes its components occupied separately. The excess volume has been measured in detail at
+            the volumes its components occupied separately. The molecular reasons are explained in
+            <a href="/about-alcohol-dilution#neden">the next section</a>. The excess volume has been measured in detail at
             several temperatures and by different methods (Benson &amp; Kiyohara, 1980; Marsh &amp; Richards, 1980;
             Grolier &amp; Wilhelm, 1981). Computed from the OIML equation, the molar excess volume at 20 °C reaches
             its minimum of about −1.1 cm³/mol near an ethanol mole fraction of 0.4.
@@ -111,6 +112,56 @@
             The contraction also changes somewhat with temperature (Marsh &amp; Richards, 1980), so a correct
             calculation relies not on a single "contraction factor" but on a density equation that depends on both
             composition and temperature.
+        </p>
+    </section>
+
+    <section id="neden">
+        <h2>Why does the volume shrink?</h2>
+        <p>
+            There is no single cause of the contraction. Several complementary molecular effects act together, and
+            their relative weight is still being studied. Experimental and theoretical work converges on three of
+            them.
+        </p>
+        <p>
+            <strong>1. The open network of water and hydrophobic hydration.</strong> In liquid water each molecule
+            forms a roughly tetrahedral hydrogen-bond network with its neighbours. This network is open and full of
+            voids relative to the size of the molecules, which is also why ice is lighter than water. When a little
+            ethanol is added, its non-polar ethyl group is accommodated within the network and the surrounding water
+            molecules rearrange around it (hydrophobic hydration). As a result, ethanol in dilute solution occupies
+            clearly less than its molar volume in the pure liquid (≈58 cm³/mol): at an ethanol mole fraction of 0.038
+            the partial molar excess volume of ethanol is about −5.2 cm³/mol (Marsh &amp; Richards, 1980).
+            Simulations explain this drop in the partial molar volume of ethanol by the hydration shells of the ethyl
+            groups beginning to touch one another (Tan et al., 2015). As a rough analogy, when sand is poured into a
+            bucket of marbles, part of the sand fills the gaps and the total volume stays below the sum of the two.
+        </p>
+        <p>
+            <strong>2. Water–ethanol hydrogen bonds.</strong> The hydroxyl group of ethanol hydrogen-bonds with
+            water. X-ray absorption spectroscopy has shown that the hydrogen bonding originating from the ethanol OH
+            group increases as water is added (Lam et al., 2016). Molecular dynamics simulations with polarisable
+            models likewise found that the water–water bonds lost in the first hydration shell of ethanol are more
+            than compensated in the second shell, so that up to an ethanol mole fraction of about 0.5 the mixture
+            contains more hydrogen bonds in total than the pure liquids (Noskov et al., 2005). More bonds bring the
+            molecules closer together on average. That mixing releases heat, i.e. that the enthalpy of mixing is
+            negative, is consistent with this picture (Boyne &amp; Williamson, 1967).
+        </p>
+        <p>
+            <strong>3. Incomplete mixing at the molecular level and close packing.</strong> Water and ethanol mix in
+            all proportions, but they are not randomly distributed on the molecular scale. In concentrated alcohol–water
+            solutions, neutron diffraction has shown water existing as small hydrogen-bonded strings and clusters in a
+            "fluid" of close-packed alkyl groups (Dixit et al., 2002); a similar partial segregation, with both
+            components forming their own percolating networks, has been observed in ethanol–water mixtures (Lenton et
+            al., 2018). Simulations suggest that the ethyl groups align in parallel through hydrophobic interaction
+            and pack better, contributing to the negative partial excess volume of ethanol (Banerjee et al., 2012).
+        </p>
+        <p>
+            An older explanation assumed that water builds ordered, ice-like cages ("icebergs" or clathrate-like
+            structures) around the alkyl group (Frank &amp; Evans, 1945). The idea stayed in textbooks for a long time;
+            however, neutron diffraction studies found no direct evidence for such structures (Dixit et al., 2002),
+            and simulations with polarisable models saw no extra hydrogen bonding right next to the alkyl group
+            (Zhong &amp; Patel, 2009). The current view is that the contraction is the combined outcome of hydrogen
+            bonding, hydrophobic hydration and partial clustering. Their shares change with composition: hydrophobic
+            hydration dominates in the water-rich region, hydrogen bonding and clustering in the intermediate and
+            alcohol-rich regions.
         </p>
     </section>
 
@@ -364,6 +415,12 @@
             and the water by weight into a tared vessel removes both the reading error of the measuring vessel and
             the effect of temperature. The thermal expansion of the glassware itself is not taken into account.
         </p>
+        <p>
+            Mixing releases heat (Boyne &amp; Williamson, 1967): when concentrated alcohol is mixed with water the
+            mixture warms by a few degrees. When preparing by volume, check the final volume only after the mixture
+            has returned to the preparation temperature; a warm mixture looks larger than it is. Preparing by
+            weight avoids this problem.
+        </p>
     </section>
 
     <section id="kullanim">
@@ -491,18 +548,27 @@
     <section id="kaynaklar" class="rehber-kaynaklar">
         <h2>References</h2>
         <ol>
+            <li>Banerjee, S., Ghosh, R., &amp; Bagchi, B. (2012). Structural transformations, composition anomalies and a dramatic collapse of linear polymer chains in dilute ethanol–water mixtures. <em>Journal of Physical Chemistry B, 116</em>(12), 3713-3722. <a href="https://doi.org/10.1021/jp2085439" target="_blank" rel="noopener">doi:10.1021/jp2085439</a></li>
             <li>Benson, G. C., &amp; Kiyohara, O. (1980). Thermodynamics of aqueous mixtures of nonelectrolytes. I. Excess volumes of water-n-alcohol mixtures at several temperatures. <em>Journal of Solution Chemistry, 9</em>(10), 791-804. <a href="https://doi.org/10.1007/BF00646798" target="_blank" rel="noopener">doi:10.1007/BF00646798</a></li>
             <li>Bernatonienė, J., Bernatonienė, R., &amp; Baranauskas, A. (2003). [Determination of ethanol concentration in tinctures]. <em>Medicina (Kaunas), 39</em>(Suppl. 2), 42-44. <a href="https://pubmed.ncbi.nlm.nih.gov/14617857/" target="_blank" rel="noopener">PMID:14617857</a></li>
+            <li>Boyne, J. A., &amp; Williamson, A. G. (1967). Enthalpies of mixture of ethanol and water at 25 °C. <em>Journal of Chemical &amp; Engineering Data, 12</em>(3), 318. <a href="https://doi.org/10.1021/je60034a008" target="_blank" rel="noopener">doi:10.1021/je60034a008</a></li>
             <li>Cober, M. P., &amp; Johnson, C. E. (2007). Stability of 70% alcohol solutions in polypropylene syringes for use in ethanol-lock therapy. <em>American Journal of Health-System Pharmacy, 64</em>(23), 2480-2482. <a href="https://doi.org/10.2146/ajhp070233" target="_blank" rel="noopener">doi:10.2146/ajhp070233</a></li>
             <li>Danahy, B. B., Minnick, D. L., &amp; Shiflett, M. B. (2018). Computing the composition of ethanol-water mixtures based on experimental density and temperature measurements. <em>Fermentation, 4</em>(3), 72. <a href="https://doi.org/10.3390/fermentation4030072" target="_blank" rel="noopener">doi:10.3390/fermentation4030072</a></li>
+            <li>Dixit, S., Crain, J., Poon, W. C. K., Finney, J. L., &amp; Soper, A. K. (2002). Molecular segregation observed in a concentrated alcohol–water solution. <em>Nature, 416</em>(6883), 829-832. <a href="https://doi.org/10.1038/416829a" target="_blank" rel="noopener">doi:10.1038/416829a</a></li>
+            <li>Frank, H. S., &amp; Evans, M. W. (1945). Free volume and entropy in condensed systems III. Entropy in binary liquid mixtures; partial molal entropy in dilute solutions; structure and thermodynamics in aqueous electrolytes. <em>Journal of Chemical Physics, 13</em>(11), 507-532. <a href="https://doi.org/10.1063/1.1723985" target="_blank" rel="noopener">doi:10.1063/1.1723985</a></li>
             <li>Grolier, J.-P. E., &amp; Wilhelm, E. (1981). Excess volumes and excess heat capacities of water + ethanol at 298.15 K. <em>Fluid Phase Equilibria, 6</em>(3-4), 283-287. <a href="https://doi.org/10.1016/0378-3812(81)85011-X" target="_blank" rel="noopener">doi:10.1016/0378-3812(81)85011-X</a></li>
             <li>Khattab, I. S., Bandarkar, F., Fakhree, M. A. A., &amp; Jouyban, A. (2012). Density, viscosity, and surface tension of water+ethanol mixtures from 293 to 323K. <em>Korean Journal of Chemical Engineering, 29</em>(6), 812-817. <a href="https://doi.org/10.1007/s11814-011-0239-6" target="_blank" rel="noopener">doi:10.1007/s11814-011-0239-6</a></li>
             <li>Kolesnov, A., Charapitsa, S., Sytova, S., Kavalenka, A., Sabalenka, L., Zayats, M., &amp; Leschev, S. (2023). Correct determination of alcoholic strength in alcoholic products. <em>BIO Web of Conferences, 68</em>, 02030. <a href="https://doi.org/10.1051/bioconf/20236802030" target="_blank" rel="noopener">doi:10.1051/bioconf/20236802030</a></li>
+            <li>Lam, R. K., Smith, J. W., &amp; Saykally, R. J. (2016). Communication: Hydrogen bonding interactions in water-alcohol mixtures from X-ray absorption spectroscopy. <em>Journal of Chemical Physics, 144</em>(19), 191103. <a href="https://doi.org/10.1063/1.4951010" target="_blank" rel="noopener">doi:10.1063/1.4951010</a></li>
+            <li>Lenton, S., Rhys, N. H., Towey, J. J., Soper, A. K., &amp; Dougan, L. (2018). Temperature-dependent segregation in alcohol–water binary mixtures is driven by water clustering. <em>Journal of Physical Chemistry B, 122</em>(32), 7884-7894. <a href="https://doi.org/10.1021/acs.jpcb.8b03543" target="_blank" rel="noopener">doi:10.1021/acs.jpcb.8b03543</a></li>
             <li>Marsh, K. N., &amp; Richards, A. E. (1980). Excess volumes for ethanol + water mixtures at 10-K intervals from 278.15 to 338.15 K. <em>Australian Journal of Chemistry, 33</em>(10), 2121-2132. <a href="https://doi.org/10.1071/CH9802121" target="_blank" rel="noopener">doi:10.1071/CH9802121</a></li>
             <li>Meija, J. (2009). Solution to Mendeleyev vodka challenge. <em>Analytical and Bioanalytical Chemistry, 395</em>(1), 7-8. <a href="https://doi.org/10.1007/s00216-009-2937-z" target="_blank" rel="noopener">doi:10.1007/s00216-009-2937-z</a></li>
+            <li>Noskov, S. Y., Lamoureux, G., &amp; Roux, B. (2005). Molecular dynamics study of hydration in ethanol–water mixtures using a polarizable force field. <em>Journal of Physical Chemistry B, 109</em>(14), 6705-6713. <a href="https://doi.org/10.1021/jp045438q" target="_blank" rel="noopener">doi:10.1021/jp045438q</a></li>
             <li>OIML. (1975). <em>International Alcoholometric Tables</em> (OIML R 22; International Recommendation No. 22 "Alcoholometry", 1973). Paris: Bureau International de Métrologie Légale. <a href="https://www.oiml.org" target="_blank" rel="noopener">www.oiml.org</a></li>
             <li>Osborne, N. S., McKelvy, E. C., &amp; Bearce, H. W. (1913). Density and thermal expansion of ethyl alcohol and of its mixtures with water. <em>Bulletin of the Bureau of Standards, 9</em>(3), 327-474. <a href="https://doi.org/10.6028/bulletin.215" target="_blank" rel="noopener">doi:10.6028/bulletin.215</a></li>
             <li>Serdons, K., Verbruggen, A., &amp; Bormans, G. (2008). The presence of ethanol in radiopharmaceutical injections. <em>Journal of Nuclear Medicine, 49</em>(12), 2071. <a href="https://doi.org/10.2967/jnumed.108.057026" target="_blank" rel="noopener">doi:10.2967/jnumed.108.057026</a></li>
+            <li>Tan, M.-L., Miller, B. T., Te, J., Cendagorta, J. R., Brooks, B. R., &amp; Ichiye, T. (2015). Hydrophobic hydration and the anomalous partial molar volumes in ethanol-water mixtures. <em>Journal of Chemical Physics, 142</em>(6), 064501. <a href="https://doi.org/10.1063/1.4906750" target="_blank" rel="noopener">doi:10.1063/1.4906750</a></li>
+            <li>Zhong, Y., &amp; Patel, S. (2009). Electrostatic polarization effects and hydrophobic hydration in ethanol–water solutions from molecular dynamics simulations. <em>Journal of Physical Chemistry B, 113</em>(3), 767-778. <a href="https://doi.org/10.1021/jp807053p" target="_blank" rel="noopener">doi:10.1021/jp807053p</a></li>
         </ol>
     </section>
 
@@ -511,7 +577,9 @@
         <ul>
             <li><strong>1.0 · 25 September 2026.</strong> First release: definitions, volume contraction, the OIML
                 R 22 equation and tables, the inverse solution, dilution calculation, temperature, using the tool,
-                comparison with the printed tables, limitations, 12 references; Turkish and English.</li>
+                comparison with the printed tables, limitations; the molecular causes of the volume contraction
+                (hydrogen bonding, hydrophobic hydration, partial clustering) and the heat of mixing; 21 references;
+                Turkish and English.</li>
         </ul>
     </section>
 

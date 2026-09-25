@@ -460,7 +460,7 @@
   <data name="Saf etanol" xml:space="preserve"><value>Pure ethanol</value></data>
   <data name="Hacim büzülmesi" xml:space="preserve"><value>Volume contraction</value></data>
   <data name="Basit orantıyla su" xml:space="preserve"><value>Water by simple proportion</value></data>
-  <data name="Alkol ile su karışınca hacim {0} mL azalır; su bu yüzden hacim farkından değil kütle dengesinden hesaplanır." xml:space="preserve"><value>The volume shrinks by {0} mL when the alcohol and water are mixed, so the water is calculated from the mass balance, not from the volume difference.</value></data>
+  <data name="Alkol ile su karışınca hacim {0} mL azalır: etanol ile su arasında hidrojen bağları kurulur ve etanolün etil grupları suyun boşluklu ağ yapısına sıkıca yerleşir. Karışım ısınır; son hacmi soğuduktan sonra kontrol edin." xml:space="preserve"><value>The volume shrinks by {0} mL on mixing: ethanol and water form hydrogen bonds with each other, and the ethyl groups of ethanol pack tightly into the open network of water. The mixture warms up; check the final volume after it has cooled.</value></data>
   <data name="Hacimler {0} °C&#x27;de ölçülmelidir; tartarak hazırlamak sıcaklıktan etkilenmez." xml:space="preserve"><value>Measure the volumes at {0} °C; preparing by weight is not affected by temperature.</value></data>
   <data name="Yoğunluk ({0} °C)" xml:space="preserve"><value>Density ({0} °C)</value></data>
   <data name="Kütlece derece" xml:space="preserve"><value>Strength by mass</value></data>
@@ -468,5 +468,5 @@
   <data name="Ölçülen yoğunluk ({0} °C)" xml:space="preserve"><value>Measured density ({0} °C)</value></data>
   <data name="&quot;{0}&quot; alanına bir sayı girin." xml:space="preserve"><value>Enter a number in the "{0}" field.</value></data>
   <data name="Stok alkolden istenen derece ve miktarda seyreltme tarifi, dereceden yoğunluk ve yoğunluktan derece (OIML R 22)" xml:space="preserve"><value>Recipe for diluting stock alcohol to a given strength and amount, density from strength and strength from density (OIML R 22)</value></data>
-  <data name="Hacim büzülmesi, OIML R 22 formülü ve tabloları, iteratif çözüm, işlenmiş seyreltme örnekleri; 12 kaynak" xml:space="preserve"><value>Volume contraction, the OIML R 22 formula and tables, the iterative solution, worked dilution examples; 12 references</value></data>
+  <data name="Hacim büzülmesi, OIML R 22 formülü ve tabloları, iteratif çözüm, işlenmiş seyreltme örnekleri; 21 kaynak" xml:space="preserve"><value>Volume contraction, the OIML R 22 formula and tables, the iterative solution, worked dilution examples; 21 references</value></data>
 </root>

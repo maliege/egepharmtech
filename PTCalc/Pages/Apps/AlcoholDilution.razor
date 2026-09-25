@@ -167,7 +167,7 @@
                             </tbody>
                         </table>
                         <small class="text-muted d-block">
-                            @L["Alkol ile su karışınca hacim {0} mL azalır; su bu yüzden hacim farkından değil kütle dengesinden hesaplanır.", F(r.Contraction)]
+                            @L["Alkol ile su karışınca hacim {0} mL azalır: etanol ile su arasında hidrojen bağları kurulur ve etanolün etil grupları suyun boşluklu ağ yapısına sıkıca yerleşir. Karışım ısınır; son hacmi soğuduktan sonra kontrol edin.", F(r.Contraction)]
                             @if (Math.Abs(r.Temperature - OimlAlcoholometry.ReferenceTemperature) >= 0.5)
                             {
                                 @(" " + L["Hacimler {0} °C'de ölçülmelidir; tartarak hazırlamak sıcaklıktan etkilenmez.", F(r.Temperature, "0.#")])
