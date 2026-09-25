@@ -10,7 +10,9 @@ abstract: >-
   AIC/AICc/MSC ranking and Akaike weights, Korsmeyer–Peppas F<=60% rule, Hopfenberg geometry
   exponents incl. Karasulu half-sphere and triangle; results compared with DDSolver 1.0 outputs),
   a pseudo-ternary phase-diagram tool with polygon area and centroid calculation (in use since
-  2001), f1/f2 similarity factors, dose–response (LD50) and t-test utilities, plus detailed
+  2001), f1/f2 similarity factors, dose–response (LD50), t-test, one-way ANOVA with Tukey HSD,
+  multiple regression and calibration curves with LOD/LOQ (ICH Q2(R2)), and an alcoholometry module
+  based on the OIML R 22 water-ethanol equation, plus detailed
   bilingual (Turkish/English) guides with verified references. Sites: https://ptcalc.net (English),
   https://ptcalc.tr (Turkish).
 authors:
@@ -22,7 +24,7 @@ authors:
 repository-code: "https://github.com/maliege/ptcalc"
 url: "https://ptcalc.net"
 license: MIT
-version: 1.0.0
+version: 1.1.0
 doi: 10.5281/zenodo.22894811
 identifiers:
   - type: doi
@@ -31,7 +33,7 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.22894812
     description: "Version 1.0.0"
-date-released: 2026-09-22
+date-released: 2026-09-25
 keywords:
   - dissolution kinetics
   - drug release modelling

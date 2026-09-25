@@ -7,6 +7,7 @@ tags:
   - model selection
   - pseudo-ternary phase diagram
   - analytical method validation
+  - alcoholometry
   - C#
   - .NET
 authors:
@@ -16,7 +17,7 @@ authors:
 affiliations:
   - name: Department of Pharmaceutical Technology, Faculty of Pharmacy, Ege University, İzmir, Türkiye
     index: 1
-date: 22 September 2026
+date: 25 September 2026
 bibliography: paper.bib
 ---
 
@@ -34,7 +35,8 @@ formulation scientists use daily: $f_1$/$f_2$ similarity factors and model-indep
 emulsion/microemulsion regions, dose–response analysis (LD$_{50}$/LD$_{90}$ by probit, logit and 4PL), and a
 statistics set for laboratory data: $t$-test, one-way ANOVA with Tukey HSD [@Tukey1949; @Kramer1956], multiple
 linear regression with prediction intervals, and calibration curves with LOD/LOQ following ICH Q2(R2)
-[@ICHQ2R2; @Miller2018].
+[@ICHQ2R2; @Miller2018]. An alcoholometry module evaluates the OIML R 22 water–ethanol equation [@OIML1975]
+to give dilution recipes and density–strength conversions for galenical preparation.
 
 The application runs in the browser (Blazor Server, .NET 10) at <https://ptcalc.net> (English) and
 <https://ptcalc.tr> (Turkish); data entered by the user stays in the browser session and is never stored on the
@@ -71,6 +73,16 @@ DDSolver's in any of the 37 cases. These comparisons are part of the test suite 
 integration. The statistics module is compared in the same way against SciPy and statsmodels reference values,
 including the studentized-range distribution used by Tukey HSD, which is implemented from its integral
 definition because no .NET numerical library provides it.
+
+Diluting stock ethanol to a working strength is a routine step in galenical preparation, and its arithmetic is
+not the obvious one: water and ethanol contract on mixing, so the naive proportion between stock and target
+strength prescribes too little water. The reference data are the OIML R 22 alcoholometric tables
+[@OIML1975], normally consulted as printed tables and interpolated by hand. PTCalc evaluates the underlying
+equation directly and returns the dilution recipe by volume or by weight at the preparation temperature,
+together with density–strength conversions and the inverse of the equation, which has no closed form and is
+solved iteratively. This module is checked against the printed tables themselves: 6 889 cells of Tables I to V,
+transcribed from the published tables independently of the code, are reproduced at the tables' own two-decimal
+precision in all but five cells, which differ by 0.01 on a rounding boundary.
 
 The pseudo-ternary phase-diagram tool computes the area and centroid of a phase region by the shoelace formula
 on the plotted polygon, a metric the author's group has used since 2001 to compare surfactant systems
