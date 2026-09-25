@@ -460,7 +460,7 @@
   <data name="Saf etanol" xml:space="preserve"><value>Pure ethanol</value></data>
   <data name="Hacim büzülmesi" xml:space="preserve"><value>Volume contraction</value></data>
   <data name="Basit orantıyla su" xml:space="preserve"><value>Water by simple proportion</value></data>
-  <data name="Alkol ile su karışınca hacim {0} mL azalır: etanol ile su arasında hidrojen bağları kurulur ve etanolün etil grupları suyun boşluklu ağ yapısına sıkıca yerleşir. Karışım ısınır; son hacmi soğuduktan sonra kontrol edin." xml:space="preserve"><value>The volume shrinks by {0} mL on mixing: ethanol and water form hydrogen bonds with each other, and the ethyl groups of ethanol pack tightly into the open network of water. The mixture warms up; check the final volume after it has cooled.</value></data>
+  <data name="Alkol ile su karışınca hacim {0} mL azalır: etanol ile su arasında hidrojen bağları kurulur ve etanolün etil grupları suyun boşluklu ağ yapısına sıkıca yerleşir." xml:space="preserve"><value>The volume shrinks by {0} mL on mixing: ethanol and water form hydrogen bonds with each other, and the ethyl groups of ethanol pack tightly into the open network of water.</value></data>
   <data name="Hacimler {0} °C&#x27;de ölçülmelidir; tartarak hazırlamak sıcaklıktan etkilenmez." xml:space="preserve"><value>Measure the volumes at {0} °C; preparing by weight is not affected by temperature.</value></data>
   <data name="Yoğunluk ({0} °C)" xml:space="preserve"><value>Density ({0} °C)</value></data>
   <data name="Kütlece derece" xml:space="preserve"><value>Strength by mass</value></data>
